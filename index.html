@@ -7,42 +7,25 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-deep: #080c14;
-            --bg-surface: #111620;
-            --bg-card: #161b26;
-            --bg-card-hover: #1a202d;
-            --bg-input: #0f141e;
-            --border-subtle: rgba(255, 255, 255, 0.06);
-            --border-card: rgba(255, 255, 255, 0.08);
-            --border-glow: rgba(0, 180, 255, 0.25);
-            --text-primary: #edf2f9;
-            --text-secondary: #a0aec0;
-            --text-muted: #6b7280;
-            --accent-cyan: #00b4d8;
-            --accent-blue: #3b82f6;
-            --accent-blue-bright: #60a5fa;
-            --accent-amber: #f59e0b;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --accent-magenta: #d946ef;
-            --glow-cyan: rgba(0, 180, 216, 0.3);
-            --glow-blue: rgba(59, 130, 246, 0.25);
-            --radius-sm: 8px;
-            --radius-md: 14px;
-            --radius-lg: 20px;
-            --radius-xl: 24px;
+            --simbrief-bg: #0b0d12;
+            --simbrief-panel: #141820;
+            --simbrief-card: #1a1e27;
+            --simbrief-border: #242834;
+            --simbrief-text: #e1e5ee;
+            --simbrief-text-secondary: #9aa1b0;
+            --simbrief-accent: #f0ad4e;
+            --simbrief-accent-hover: #f7c06c;
+            --simbrief-input-bg: #0f1118;
+            --simbrief-input-border: #2d3240;
+            --simbrief-input-focus: #f0ad4e;
             --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-            --font-mono: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
-            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.5);
-            --shadow-card-hover: 0 12px 40px rgba(0, 0, 0, 0.55), 0 1px 3px rgba(0, 0, 0, 0.5),
-                0 0 0 1px rgba(255, 255, 255, 0.04);
-            --shadow-glow: 0 0 60px rgba(0, 160, 220, 0.12), 0 0 20px rgba(0, 160, 220, 0.05);
+            --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+            --radius: 6px;
+            --shadow: 0 2px 12px rgba(0,0,0,0.4);
         }
 
         * {
@@ -51,370 +34,220 @@
             padding: 0;
         }
 
-        html {
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
         body {
             font-family: var(--font-sans);
-            background: var(--bg-deep);
-            color: var(--text-primary);
+            background: var(--simbrief-bg);
+            color: var(--simbrief-text);
             min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
+            padding: 30px 40px;
             line-height: 1.5;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background:
-                radial-gradient(ellipse 900px 700px at 15% 10%, rgba(0, 160, 230, 0.07), transparent 60%),
-                radial-gradient(ellipse 700px 600px at 80% 85%, rgba(0, 200, 220, 0.05), transparent 60%),
-                radial-gradient(ellipse 500px 500px at 50% 50%, rgba(59, 130, 246, 0.04), transparent 70%),
-                radial-gradient(ellipse 400px 400px at 90% 15%, rgba(0, 180, 216, 0.04), transparent 65%);
-            animation: bgOrbs 25s ease-in-out infinite;
-        }
-
-        @keyframes bgOrbs {
-            0%,
-            100% {
-                opacity: 0.85;
-                transform: translate(0, 0) scale(1);
-            }
-            25% {
-                opacity: 1;
-                transform: translate(-30px, 25px) scale(1.04);
-            }
-            50% {
-                opacity: 0.75;
-                transform: translate(20px, -15px) scale(0.96);
-            }
-            75% {
-                opacity: 0.9;
-                transform: translate(-10px, -20px) scale(1.03);
-            }
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.012) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.012) 1px, transparent 1px);
-            background-size: 60px 60px;
-            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 70%);
-            -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 70%);
-        }
-
         .app {
-            position: relative;
-            z-index: 1;
-            max-width: 1300px;
+            max-width: 1100px;
             margin: 0 auto;
-            padding: 24px 28px 40px;
         }
 
+        /* SimBrief style top bar */
         .topbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 16px;
             margin-bottom: 28px;
-            padding: 0 4px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
-
-        .logo-group {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .logo-icon {
-            width: 46px;
-            height: 46px;
-            border-radius: var(--radius-sm);
-            background: linear-gradient(135deg, #0a2a3d 0%, #0d3b54 40%, #0a2a3d 100%);
-            border: 1.5px solid rgba(0, 180, 216, 0.35);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            box-shadow: 0 0 24px rgba(0, 160, 220, 0.2);
-            position: relative;
-        }
-        .logo-icon::after {
-            content: '';
-            position: absolute;
-            inset: -3px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, rgba(0, 180, 216, 0.3), transparent 60%);
-            z-index: -1;
-            animation: logoPulse 3s ease-in-out infinite;
-        }
-        @keyframes logoPulse {
-            0%,
-            100% {
-                opacity: 0.5;
-            }
-            50% {
-                opacity: 0.9;
-            }
-        }
-
-        .logo-text {
-            font-size: 26px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
             color: #fff;
-            line-height: 1;
         }
-        .logo-text span {
-            color: var(--accent-cyan);
-            font-weight: 900;
+        .logo span {
+            color: var(--simbrief-accent);
         }
-        .logo-sub {
-            font-size: 10px;
-            letter-spacing: 0.22em;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 500;
-            margin-top: 2px;
-        }
-
-        .status-badge {
+        .status {
+            font-size: 13px;
+            color: var(--simbrief-text-secondary);
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: 50px;
-            padding: 10px 18px;
-            font-size: 13px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            letter-spacing: 0.03em;
-            white-space: nowrap;
+            gap: 8px;
+            background: var(--simbrief-panel);
+            border: 1px solid var(--simbrief-border);
+            padding: 8px 16px;
+            border-radius: 4px;
         }
-        .status-dot {
-            width: 9px;
-            height: 9px;
+        .dot {
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             background: #4ade80;
-            box-shadow: 0 0 14px #4ade80, 0 0 4px #4ade80;
-            animation: dotPulse 2s ease-in-out infinite;
-        }
-        @keyframes dotPulse {
-            0%,
-            100% {
-                box-shadow: 0 0 14px #4ade80, 0 0 4px #4ade80;
-            }
-            50% {
-                box-shadow: 0 0 28px #4ade80, 0 0 10px #86efac;
-            }
+            box-shadow: 0 0 8px #4ade80;
         }
 
         .panel {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
+            background: var(--simbrief-panel);
+            border: 1px solid var(--simbrief-border);
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: var(--shadow-card), var(--shadow-glow);
-            position: relative;
-        }
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
-            z-index: 2;
-            pointer-events: none;
+            box-shadow: var(--shadow);
         }
 
         .panel-header {
-            padding: 24px 28px 20px;
-            border-bottom: 1px solid var(--border-subtle);
-            background: rgba(255, 255, 255, 0.012);
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--simbrief-border);
+            background: rgba(255,255,255,0.02);
         }
         .panel-header h1 {
-            margin: 0;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 4px;
             color: #fff;
         }
         .panel-header p {
-            margin: 4px 0 0;
-            color: var(--text-muted);
             font-size: 13px;
+            color: var(--simbrief-text-secondary);
         }
 
+        /* Search row */
         .search-row {
             display: flex;
-            gap: 14px;
-            padding: 22px 28px;
-            flex-wrap: wrap;
-            align-items: center;
-            border-bottom: 1px solid var(--border-subtle);
-            position: relative;
-            z-index: 2;
+            gap: 12px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--simbrief-border);
         }
         .input-wrapper {
             flex: 1;
-            min-width: 220px;
         }
         .icao-input {
             width: 100%;
-            height: 54px;
-            border-radius: var(--radius-md);
-            border: 1.5px solid rgba(255, 255, 255, 0.08);
-            background: var(--bg-input);
+            height: 48px;
+            border-radius: var(--radius);
+            border: 1px solid var(--simbrief-input-border);
+            background: var(--simbrief-input-bg);
             color: #fff;
-            padding: 0 20px;
+            padding: 0 16px;
             font-size: 15px;
             font-family: var(--font-mono);
             font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
             outline: none;
-            transition: var(--transition-smooth);
-            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: 0.2s;
         }
         .icao-input::placeholder {
-            color: var(--text-muted);
+            color: #5b6270;
             font-family: var(--font-sans);
             text-transform: none;
-            letter-spacing: 0.05em;
+            letter-spacing: normal;
             font-weight: 400;
         }
-        .icao-input:hover {
-            border-color: rgba(255, 255, 255, 0.18);
-        }
         .icao-input:focus {
-            border-color: var(--accent-cyan);
-            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3), 0 0 0 6px rgba(0, 180, 216, 0.08),
-                0 0 30px rgba(0, 180, 216, 0.06);
+            border-color: var(--simbrief-input-focus);
+            box-shadow: 0 0 0 3px rgba(240,173,78,0.1);
         }
 
         .search-btn {
-            height: 54px;
-            padding: 0 30px;
+            height: 48px;
+            padding: 0 28px;
             border: none;
-            border-radius: var(--radius-md);
-            background: linear-gradient(135deg, #0d4f75 0%, #0a3a55 50%, #0d4f75 100%);
-            color: #fff;
+            border-radius: var(--radius);
+            background: var(--simbrief-accent);
+            color: #000;
             font-weight: 700;
             font-size: 14px;
             cursor: pointer;
-            transition: var(--transition-smooth);
-            letter-spacing: 0.04em;
+            transition: 0.2s;
+            letter-spacing: 0.5px;
             white-space: nowrap;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 180, 216, 0.2);
-            position: relative;
-            overflow: hidden;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-        }
-        .search-btn::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.06) 50%, transparent 60%);
-            background-size: 200% 200%;
-            animation: btnShimmer 3s ease-in-out infinite;
-        }
-        @keyframes btnShimmer {
-            0%,
-            100% {
-                background-position: -100% 0;
-            }
-            50% {
-                background-position: 200% 0;
-            }
         }
         .search-btn:hover {
-            background: linear-gradient(135deg, #156592 0%, #0f5070 50%, #156592 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 200, 240, 0.35),
-                0 0 40px rgba(0, 180, 216, 0.15);
+            background: var(--simbrief-accent-hover);
+            transform: translateY(-1px);
         }
-        .search-btn:active {
-            transform: translateY(0);
-            transition: 0.08s ease;
-        }
-
-        .recent-chips {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            padding: 0 28px 8px;
-            min-height: 0;
-            transition: var(--transition-smooth);
-        }
-        .recent-chips:not(:empty) {
-            padding: 4px 28px 16px;
-        }
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 6px 14px;
-            border-radius: 50px;
-            background: var(--bg-card);
-            border: 1px solid var(--border-subtle);
-            font-size: 12px;
-            font-family: var(--font-mono);
-            font-weight: 500;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: var(--transition-fast);
-            user-select: none;
-            white-space: nowrap;
-        }
-        .chip:hover {
-            background: var(--bg-card-hover);
-            border-color: rgba(255, 255, 255, 0.18);
-            color: #fff;
-        }
-        .chip-remove {
-            font-size: 14px;
-            opacity: 0.5;
-            cursor: pointer;
-            padding: 0 2px;
-        }
-        .chip-remove:hover {
-            opacity: 1;
-            color: var(--accent-red);
-        }
-        .chip-label {
-            font-size: 10px;
-            color: var(--text-muted);
-            letter-spacing: 0.06em;
-            font-family: var(--font-sans);
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
+        /* Results grid – raw data two columns, ATIS full width */
         .results {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
-            padding: 24px 28px 28px;
+            padding: 24px;
         }
-        @media (max-width: 900px) {
+
+        .card {
+            background: var(--simbrief-card);
+            border: 1px solid var(--simbrief-border);
+            border-radius: 5px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .card.metar-card {
+            /* could span if needed, but left as normal */
+        }
+        .card.atis-card {
+            grid-column: 1 / -1; /* full width below METAR/TAF */
+        }
+
+        .card-header {
+            padding: 14px 18px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid var(--simbrief-border);
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--simbrief-accent);
+            letter-spacing: 0.4px;
+        }
+        .card-body {
+            padding: 16px 18px;
+            flex: 1;
+            min-height: 140px;
+        }
+        .card-body pre {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 1.6;
+            color: #d0d6e0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin: 0;
+        }
+
+        .loading-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% {background-position: 200% 0;}
+            100% {background-position: -200% 0;}
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: var(--simbrief-text-secondary);
+            font-size: 12px;
+        }
+        .footer span {
+            color: var(--simbrief-accent);
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 16px;
+            }
             .results {
                 grid-template-columns: 1fr;
-                gap: 16px;
-                padding: 16px 16px 20px;
+                padding: 16px;
+            }
+            .card.atis-card {
+                grid-column: auto;
             }
             .search-row {
                 flex-direction: column;
@@ -423,728 +256,212 @@
             .search-btn {
                 width: 100%;
             }
-            .app {
-                padding: 12px 8px 24px;
-            }
-            .topbar {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            .panel-header {
-                padding: 18px 16px 14px;
-            }
-            .recent-chips {
-                padding: 0 16px 8px;
-            }
-            .recent-chips:not(:empty) {
-                padding: 4px 16px 14px;
-            }
-        }
-
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-card);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            position: relative;
-            transition: var(--transition-smooth);
-            box-shadow: var(--shadow-card);
-            display: flex;
-            flex-direction: column;
-        }
-        .card:hover {
-            box-shadow: var(--shadow-card-hover);
-            border-color: rgba(255, 255, 255, 0.13);
-            transform: translateY(-1px);
-        }
-        .card-accent-top {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2.5px;
-            z-index: 1;
-            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        }
-        .card-accent-cyan {
-            background: linear-gradient(90deg, var(--accent-cyan), rgba(0, 180, 216, 0.2), transparent);
-        }
-        .card-accent-blue {
-            background: linear-gradient(90deg, var(--accent-blue), rgba(59, 130, 246, 0.2), transparent);
-        }
-        .card-accent-amber {
-            background: linear-gradient(90deg, var(--accent-amber), rgba(245, 158, 11, 0.2), transparent);
-        }
-        .card-accent-magenta {
-            background: linear-gradient(90deg, var(--accent-magenta), rgba(217, 70, 239, 0.2), transparent);
-        }
-
-        .card-header {
-            padding: 16px 20px 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 1px solid var(--border-subtle);
-            position: relative;
-            z-index: 1;
-        }
-        .card-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            flex-shrink: 0;
-        }
-        .card-icon-metar {
-            background: rgba(0, 180, 216, 0.12);
-            color: var(--accent-cyan);
-        }
-        .card-icon-taf {
-            background: rgba(59, 130, 246, 0.12);
-            color: var(--accent-blue-bright);
-        }
-        .card-icon-atis {
-            background: rgba(245, 158, 11, 0.12);
-            color: var(--accent-amber);
-        }
-        .card-icon-notam {
-            background: rgba(217, 70, 239, 0.12);
-            color: var(--accent-magenta);
-        }
-
-        .card-title-text {
-            font-weight: 700;
-            font-size: 14px;
-            letter-spacing: 0.02em;
-            color: #fff;
-        }
-        .card-subtitle {
-            font-size: 11px;
-            color: var(--text-muted);
-            letter-spacing: 0.03em;
-            font-weight: 400;
-        }
-
-        .card-body {
-            padding: 18px 20px;
-            flex: 1;
-            position: relative;
-            z-index: 1;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-        }
-        .card-body pre {
-            font-family: var(--font-mono);
-            font-size: 13px;
-            line-height: 1.7;
-            color: #dde7f2;
-            white-space: pre-wrap;
-            word-break: break-word;
-            margin: 0;
-            background: transparent;
-            flex: 1;
-        }
-
-        .metar-visual-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .metar-stat {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-sm);
-            padding: 12px 14px;
-            text-align: center;
-        }
-        .metar-stat-value {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            color: #fff;
-            line-height: 1.1;
-        }
-        .metar-stat-value.temp-hot {
-            color: #f87171;
-        }
-        .metar-stat-value.temp-warm {
-            color: #fbbf24;
-        }
-        .metar-stat-value.temp-mild {
-            color: #4ade80;
-        }
-        .metar-stat-value.temp-cool {
-            color: #60a5fa;
-        }
-        .metar-stat-value.temp-cold {
-            color: #a5b4fc;
-        }
-        .metar-stat-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            margin-top: 4px;
-            font-weight: 500;
-        }
-        .metar-stat-unit {
-            font-size: 12px;
-            font-weight: 400;
-            color: var(--text-muted);
-        }
-
-        .wind-compass-wrap {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 0;
-        }
-        .wind-compass {
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            position: relative;
-            background: rgba(255, 255, 255, 0.02);
-        }
-        .wind-arrow {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 3px;
-            height: 28px;
-            background: var(--accent-cyan);
-            border-radius: 2px;
-            transform-origin: bottom center;
-            transform: translate(-50%, -100%) rotate(0deg);
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
-        }
-        .wind-arrow::after {
-            content: '';
-            position: absolute;
-            top: -6px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-left: 7px solid transparent;
-            border-right: 7px solid transparent;
-            border-bottom: 10px solid var(--accent-cyan);
-            filter: drop-shadow(0 0 4px rgba(0, 180, 216, 0.6));
-        }
-        .wind-center-dot {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #fff;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-        }
-
-        .flight-cat {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 11px;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            margin-top: 8px;
-        }
-        .flight-cat-vfr {
-            background: rgba(16, 185, 129, 0.15);
-            color: #4ade80;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        .flight-cat-mvfr {
-            background: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, 0.3);
-        }
-        .flight-cat-ifr {
-            background: rgba(245, 158, 11, 0.15);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-        .flight-cat-lifr {
-            background: rgba(239, 68, 68, 0.15);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .loading-shimmer {
-            background: linear-gradient(90deg,
-                    transparent 0%,
-                    rgba(255, 255, 255, 0.03) 40%,
-                    rgba(255, 255, 255, 0.06) 50%,
-                    rgba(255, 255, 255, 0.03) 60%,
-                    transparent 100%);
-            background-size: 200% 100%;
-            animation: shimmer 2s ease-in-out infinite;
-        }
-        @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
-        }
-
-        .footer {
-            margin-top: 20px;
-            color: var(--text-muted);
-            font-size: 12px;
-            text-align: center;
-            letter-spacing: 0.03em;
-            padding: 0 4px;
-        }
-        .footer span {
-            color: var(--accent-cyan);
         }
     </style>
 </head>
 <body>
 
-    <div class="app">
-        <div class="topbar">
-            <div class="logo-group">
-                <div class="logo-icon">🛫</div>
-                <div>
-                    <div class="logo-text">SKY<span>OPS</span></div>
-                    <div class="logo-sub">Dispatch Weather</div>
-                </div>
-            </div>
-            <div class="status-badge">
-                <div class="status-dot"></div>
-                LIVE AVIATION NETWORK
-            </div>
-        </div>
-
-        <div class="panel">
-            <div class="panel-header">
-                <h1>Airport Weather Search</h1>
-                <p>Real‑time METAR · TAF · ATIS · NOTAMs — Enter any ICAO code</p>
-            </div>
-
-            <div class="search-row">
-                <div class="input-wrapper">
-                    <input id="icaoInput" class="icao-input" type="text" placeholder="FAOR · FACT · EGLL · KJFK · OMDB" value="FAOR" maxlength="4" autocomplete="off" spellcheck="false">
-                </div>
-                <button class="search-btn" id="searchBtn">🔍 SEARCH WEATHER</button>
-            </div>
-
-            <div class="recent-chips" id="recentChips"></div>
-
-            <div class="results">
-                <!-- METAR Card -->
-                <div class="card metar-card">
-                    <div class="card-accent-top card-accent-cyan"></div>
-                    <div class="card-header">
-                        <div class="card-icon card-icon-metar">📡</div>
-                        <div>
-                            <div class="card-title-text">METAR</div>
-                            <div class="card-subtitle">Meteorological Aerodrome Report</div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <pre id="metarRaw">Waiting for search...</pre>
-                        <div id="metarVisual" style="display:none;"></div>
-                    </div>
-                </div>
-
-                <!-- TAF Card -->
-                <div class="card">
-                    <div class="card-accent-top card-accent-blue"></div>
-                    <div class="card-header">
-                        <div class="card-icon card-icon-taf">📋</div>
-                        <div>
-                            <div class="card-title-text">TAF</div>
-                            <div class="card-subtitle">Terminal Aerodrome Forecast</div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <pre id="tafRaw">Waiting for search...</pre>
-                    </div>
-                </div>
-
-                <!-- ATIS Card -->
-                <div class="card">
-                    <div class="card-accent-top card-accent-amber"></div>
-                    <div class="card-header">
-                        <div class="card-icon card-icon-atis">🎙️</div>
-                        <div>
-                            <div class="card-title-text">ATIS</div>
-                            <div class="card-subtitle">Automatic Terminal Information Service</div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <pre id="atisRaw">Waiting for search...</pre>
-                    </div>
-                </div>
-
-                <!-- NOTAMs Card -->
-                <div class="card">
-                    <div class="card-accent-top card-accent-magenta"></div>
-                    <div class="card-header">
-                        <div class="card-icon card-icon-notam">⚠️</div>
-                        <div>
-                            <div class="card-title-text">NOTAMs</div>
-                            <div class="card-subtitle">Notice to Air Missions</div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <pre id="notamsRaw">NOTAM integration ready — connect to FAA NOTAM API or local database for live data.</pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer">
-            SkyOps Dispatch Weather · Real‑time aviation data · <span>NOAA</span> & <span>VATSIM</span> sources
+<div class="app">
+    <div class="topbar">
+        <div class="logo">SKY<span>OPS</span> DISPATCH</div>
+        <div class="status">
+            <div class="dot"></div>
+            LIVE WEATHER NETWORK
         </div>
     </div>
 
-    <script>
-        (function() {
-            const icaoInput = document.getElementById('icaoInput');
-            const searchBtn = document.getElementById('searchBtn');
-            const metarRaw = document.getElementById('metarRaw');
-            const metarVisual = document.getElementById('metarVisual');
-            const tafRaw = document.getElementById('tafRaw');
-            const atisRaw = document.getElementById('atisRaw');
-            const notamsRaw = document.getElementById('notamsRaw');
-            const recentChips = document.getElementById('recentChips');
+    <div class="panel">
+        <div class="panel-header">
+            <h1>Airport Weather Search</h1>
+            <p>Real‑time METAR · TAF · ATIS — enter ICAO code</p>
+        </div>
 
-            const RECENT_KEY = 'skyops_recent_icaos';
-            const MAX_RECENT = 8;
+        <div class="search-row">
+            <div class="input-wrapper">
+                <input id="icaoInput" class="icao-input" type="text" placeholder="EGLL · KJFK · OMDB · FAOR" maxlength="4" autocomplete="off" spellcheck="false">
+            </div>
+            <button class="search-btn" id="searchBtn">SEARCH WEATHER</button>
+        </div>
 
-            // ── CORS proxy fallback chain ──
-            const PROXY_LIST = [
-                'https://corsproxy.io/?',           // primary proxy
-                'https://api.allorigins.win/raw?url=' // secondary
-            ];
+        <div class="results">
+            <!-- METAR Card -->
+            <div class="card metar-card">
+                <div class="card-header">📡 METAR</div>
+                <div class="card-body">
+                    <pre id="metarRaw">Enter an ICAO code and press search.</pre>
+                </div>
+            </div>
 
-            async function safeFetch(url, options = {}) {
-                // Try direct fetch first
+            <!-- TAF Card -->
+            <div class="card">
+                <div class="card-header">📋 TAF</div>
+                <div class="card-body">
+                    <pre id="tafRaw">Enter an ICAO code and press search.</pre>
+                </div>
+            </div>
+
+            <!-- ATIS Card (spans full width) -->
+            <div class="card atis-card">
+                <div class="card-header">🎙️ ATIS (VATSIM)</div>
+                <div class="card-body">
+                    <pre id="atisRaw">ATIS data will appear here if available on VATSIM.</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        SkyOps Dispatch Weather · NOAA & VATSIM data · <span>SimBrief‑inspired</span>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const icaoInput = document.getElementById('icaoInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const metarRaw = document.getElementById('metarRaw');
+        const tafRaw = document.getElementById('tafRaw');
+        const atisRaw = document.getElementById('atisRaw');
+
+        // CORS proxy fallback to avoid "Failed to fetch"
+        const PROXY_LIST = [
+            'https://corsproxy.io/?',
+            'https://api.allorigins.win/raw?url='
+        ];
+
+        async function safeFetch(url, options = {}) {
+            // Try direct first
+            try {
+                const res = await fetch(url, { signal: AbortSignal.timeout(12000), ...options });
+                if (res.ok) return res;
+                throw new Error(`HTTP ${res.status}`);
+            } catch (directErr) {
+                console.warn('Direct fetch failed, trying proxy:', directErr.message);
+            }
+
+            // Fallback to proxies
+            for (const proxy of PROXY_LIST) {
                 try {
-                    const res = await fetch(url, { signal: AbortSignal.timeout(12000), ...options });
+                    const proxyUrl = proxy + encodeURIComponent(url);
+                    const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000), ...options });
                     if (res.ok) return res;
-                    throw new Error(`HTTP ${res.status}`);
-                } catch (directErr) {
-                    console.warn('Direct fetch failed, trying proxies:', directErr.message);
+                } catch (proxyErr) {
+                    console.warn('Proxy attempt failed:', proxy, proxyErr.message);
                 }
+            }
+            throw new Error('All fetch methods failed. Check your connection or try again later.');
+        }
 
-                // Fallback to proxies
-                for (const proxy of PROXY_LIST) {
+        async function searchWeather() {
+            const icao = icaoInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+            if (!icao || icao.length < 4) {
+                metarRaw.textContent = '⚠️ Please enter a valid 4‑letter ICAO code.';
+                tafRaw.textContent = 'Waiting for valid ICAO...';
+                atisRaw.textContent = 'Waiting for valid ICAO...';
+                return;
+            }
+
+            // Set loading
+            const setLoading = (el) => {
+                el.textContent = 'Loading...';
+                el.classList.add('loading-shimmer');
+            };
+            setLoading(metarRaw);
+            setLoading(tafRaw);
+            setLoading(atisRaw);
+            searchBtn.disabled = true;
+            searchBtn.textContent = '⏳ LOADING...';
+
+            try {
+                const [metarRes, tafRes, vatsimRes] = await Promise.allSettled([
+                    safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
+                    safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
+                    safeFetch('https://data.vatsim.net/v3/vatsim-data.json')
+                ]);
+
+                // ── METAR ──
+                if (metarRes.status === 'fulfilled') {
                     try {
-                        const proxyUrl = proxy + encodeURIComponent(url);
-                        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000), ...options });
-                        if (res.ok) return res;
-                    } catch (proxyErr) {
-                        console.warn('Proxy attempt failed:', proxy, proxyErr.message);
-                    }
-                }
-                throw new Error('All fetch methods failed. Please check your internet connection or try again later.');
-            }
-
-            // ── Recent ICAOs ──
-            function getRecents() {
-                try {
-                    const stored = localStorage.getItem(RECENT_KEY);
-                    return stored ? JSON.parse(stored) : [];
-                } catch (e) {
-                    return [];
-                }
-            }
-
-            function saveRecents(list) {
-                try {
-                    localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, MAX_RECENT)));
-                } catch (e) {}
-            }
-
-            function addRecent(icao) {
-                let list = getRecents();
-                list = list.filter(i => i !== icao);
-                list.unshift(icao);
-                saveRecents(list);
-                renderRecents();
-            }
-
-            function removeRecent(icao) {
-                let list = getRecents();
-                list = list.filter(i => i !== icao);
-                saveRecents(list);
-                renderRecents();
-            }
-
-            function renderRecents() {
-                const list = getRecents();
-                if (list.length === 0) {
-                    recentChips.innerHTML = '';
-                    return;
-                }
-                recentChips.innerHTML = '<span class="chip-label">Recent:</span>' +
-                    list.map(icao =>
-                        `<span class="chip" data-icao="${icao}">${icao}<span class="chip-remove" data-remove="${icao}">&times;</span></span>`
-                    ).join('');
-            }
-
-            recentChips.addEventListener('click', (e) => {
-                const chip = e.target.closest('.chip');
-                const removeBtn = e.target.closest('.chip-remove');
-                if (removeBtn) {
-                    e.stopPropagation();
-                    const icao = removeBtn.dataset.remove;
-                    if (icao) removeRecent(icao);
-                    return;
-                }
-                if (chip && chip.dataset.icao) {
-                    icaoInput.value = chip.dataset.icao;
-                    searchWeather();
-                }
-            });
-
-            // ── Temperature color ──
-            function tempClass(celsius) {
-                if (celsius === null || celsius === undefined || isNaN(celsius)) return '';
-                if (celsius >= 35) return 'temp-hot';
-                if (celsius >= 25) return 'temp-warm';
-                if (celsius >= 15) return 'temp-mild';
-                if (celsius >= 5) return 'temp-cool';
-                return 'temp-cold';
-            }
-
-            function flightCatBadge(cat) {
-                if (!cat) return '';
-                const map = {
-                    'VFR': 'flight-cat-vfr',
-                    'MVFR': 'flight-cat-mvfr',
-                    'IFR': 'flight-cat-ifr',
-                    'LIFR': 'flight-cat-lifr',
-                };
-                const cls = map[cat.toUpperCase()] || 'flight-cat-vfr';
-                return `<span class="flight-cat ${cls}">● ${cat.toUpperCase()}</span>`;
-            }
-
-            function degToCardinal(deg) {
-                if (deg === null || deg === undefined || isNaN(deg)) return '—';
-                const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
-                    'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'
-                ];
-                const idx = Math.round(deg / 22.5) % 16;
-                return dirs[idx];
-            }
-
-            function buildMetarVisual(data) {
-                if (!data || data.length === 0) return '';
-                const d = data[0];
-                const temp = d.temp ?? null;
-                const dewp = d.dewp ?? null;
-                const wdir = d.wdir ?? null;
-                const wspd = d.wspd ?? null;
-                const wgst = d.wgst || null;
-                const visib = d.visib ?? null;
-                const altim = d.altim ?? null;
-                const clouds = d.clouds || [];
-                const wxStr = d.wxString || '';
-                const flightCat = d.flightCategory || '';
-                const name = d.name || '';
-                const obsTime = d.obsTime || '';
-
-                let cloudStr = clouds.map(c => `${c.cover || ''}${c.base ? ' at ' + c.base + 'ft' : ''}`).join(', ');
-                if (!cloudStr && !wxStr && visib === null && temp === null && dewp === null) return '';
-
-                let html = '<div class="metar-visual-grid">';
-                if (temp !== null) {
-                    html += `<div class="metar-stat"><div class="metar-stat-value ${tempClass(temp)}">${temp}<span class="metar-stat-unit">°C</span></div><div class="metar-stat-label">Temperature</div></div>`;
-                }
-                if (dewp !== null) {
-                    html += `<div class="metar-stat"><div class="metar-stat-value ${tempClass(dewp)}">${dewp}<span class="metar-stat-unit">°C</span></div><div class="metar-stat-label">Dewpoint</div></div>`;
-                }
-                if (wdir !== null && wspd !== null) {
-                    html += `<div class="metar-stat"><div class="wind-compass-wrap"><div class="wind-compass"><div class="wind-arrow" style="transform: translate(-50%, -100%) rotate(${wdir}deg);"></div><div class="wind-center-dot"></div></div></div><div class="metar-stat-value" style="font-size:18px;">${wdir}° <span style="font-size:13px;">/ ${wspd}kt</span></div><div class="metar-stat-label">Wind — ${degToCardinal(wdir)}${wgst ? ' G' + wgst + 'kt' : ''}</div></div>`;
-                }
-                if (visib !== null) {
-                    const visStr = visib >= 9999 ? '10km+' : visib + ' SM';
-                    html += `<div class="metar-stat"><div class="metar-stat-value">${visStr}</div><div class="metar-stat-label">Visibility</div></div>`;
-                }
-                if (altim !== null) {
-                    html += `<div class="metar-stat"><div class="metar-stat-value">${altim}<span class="metar-stat-unit"> hPa</span></div><div class="metar-stat-label">Altimeter</div></div>`;
-                }
-                html += '</div>';
-
-                if (cloudStr || wxStr) {
-                    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;font-size:12px;color:#a0aec0;">';
-                    if (cloudStr) html += `<span style="background:rgba(255,255,255,0.03);padding:4px 10px;border-radius:6px;">☁️ ${cloudStr}</span>`;
-                    if (wxStr) html += `<span style="background:rgba(255,255,255,0.03);padding:4px 10px;border-radius:6px;">🌧️ ${wxStr}</span>`;
-                    html += '</div>';
-                }
-
-                html += '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:4px;">';
-                if (flightCat) html += flightCatBadge(flightCat);
-                if (name) html += `<span style="font-size:12px;color:#a0aec0;font-weight:500;">${name}</span>`;
-                if (obsTime) html += `<span style="font-size:11px;color:#6b7280;">Observed: ${new Date(obsTime).toUTCString()}</span>`;
-                html += '</div>';
-                return html;
-            }
-
-            async function searchWeather() {
-                const icao = icaoInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-
-                if (!icao || icao.length < 4) {
-                    metarRaw.textContent = '⚠️ Please enter a valid 4‑letter ICAO code.';
-                    metarVisual.innerHTML = '';
-                    metarVisual.style.display = 'none';
-                    tafRaw.textContent = 'Waiting for valid ICAO...';
-                    atisRaw.textContent = 'Waiting for valid ICAO...';
-                    notamsRaw.textContent = 'NOTAM integration ready.';
-                    return;
-                }
-
-                addRecent(icao);
-
-                // Loading state
-                const setLoading = (el) => {
-                    el.textContent = 'Loading...';
-                    el.classList.add('loading-shimmer');
-                };
-                setLoading(metarRaw);
-                metarVisual.innerHTML = '';
-                metarVisual.style.display = 'none';
-                setLoading(tafRaw);
-                setLoading(atisRaw);
-                setLoading(notamsRaw);
-                searchBtn.disabled = true;
-                searchBtn.textContent = '⏳ LOADING...';
-
-                try {
-                    // Fetch all data in parallel using safeFetch
-                    const [metarRes, tafRes, vatsimRes] = await Promise.allSettled([
-                        safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
-                        safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
-                        safeFetch('https://data.vatsim.net/v3/vatsim-data.json')
-                    ]);
-
-                    // ── Process METAR ──
-                    if (metarRes.status === 'fulfilled') {
-                        try {
-                            const metarData = await metarRes.value.json();
-                            if (metarData && metarData.length > 0 && metarData[0].rawOb) {
-                                metarRaw.textContent = metarData[0].rawOb;
-                                metarRaw.classList.remove('loading-shimmer');
-                                const visualHtml = buildMetarVisual(metarData);
-                                if (visualHtml) {
-                                    metarVisual.innerHTML = visualHtml;
-                                    metarVisual.style.display = 'block';
-                                } else {
-                                    metarVisual.innerHTML = '';
-                                    metarVisual.style.display = 'none';
-                                }
-                            } else {
-                                metarRaw.textContent = `⚠️ No METAR data for ${icao}. The airport may not exist or no observation is available.`;
-                                metarRaw.classList.remove('loading-shimmer');
-                                metarVisual.innerHTML = '';
-                                metarVisual.style.display = 'none';
-                            }
-                        } catch (err) {
-                            metarRaw.textContent = `❌ Failed to parse METAR: ${err.message}`;
-                            metarRaw.classList.remove('loading-shimmer');
+                        const data = await metarRes.value.json();
+                        if (data && data.length > 0 && data[0].rawOb) {
+                            metarRaw.textContent = data[0].rawOb;
+                        } else {
+                            metarRaw.textContent = `⚠️ No METAR available for ${icao}.`;
                         }
-                    } else {
-                        metarRaw.textContent = `❌ METAR fetch failed: ${metarRes.reason?.message || 'Unknown error'}`;
-                        metarRaw.classList.remove('loading-shimmer');
+                    } catch (e) {
+                        metarRaw.textContent = `❌ METAR parse error: ${e.message}`;
                     }
-
-                    // ── Process TAF ──
-                    if (tafRes.status === 'fulfilled') {
-                        try {
-                            const tafData = await tafRes.value.json();
-                            tafRaw.textContent = tafData?.[0]?.rawTAF || `⚠️ No TAF available for ${icao}.`;
-                        } catch (err) {
-                            tafRaw.textContent = `❌ Failed to parse TAF: ${err.message}`;
-                        }
-                    } else {
-                        tafRaw.textContent = `❌ TAF fetch failed: ${tafRes.reason?.message || 'Unknown error'}`;
-                    }
-                    tafRaw.classList.remove('loading-shimmer');
-
-                    // ── Process ATIS (VATSIM) ──
-                    if (vatsimRes.status === 'fulfilled') {
-                        try {
-                            const vatsimData = await vatsimRes.value.json();
-                            let atisFound = null;
-                            if (vatsimData && Array.isArray(vatsimData.atis)) {
-                                atisFound = vatsimData.atis.find(a =>
-                                    a.callsign && a.callsign.toUpperCase().includes(icao)
-                                );
-                            }
-                            if (atisFound && atisFound.text_atis?.length > 0) {
-                                let atisText = atisFound.text_atis.join('\n');
-                                if (atisFound.atis_code) {
-                                    atisText = `📻 ATIS Code: ${atisFound.atis_code}\n📡 Frequency: ${atisFound.frequency || 'N/A'}\n📋 Callsign: ${atisFound.callsign || 'N/A'}\n\n${atisText}`;
-                                }
-                                atisRaw.textContent = atisText;
-                            } else {
-                                atisRaw.textContent = `⚠️ No active VATSIM ATIS for ${icao}. The airport may not have an online controller right now.`;
-                            }
-                        } catch (err) {
-                            atisRaw.textContent = `⚠️ VATSIM data parse error: ${err.message}`;
-                        }
-                    } else {
-                        atisRaw.textContent = `⚠️ VATSIM ATIS unavailable: ${vatsimRes.reason?.message || 'Network issue'}. METAR/TAF still valid.`;
-                    }
-                    atisRaw.classList.remove('loading-shimmer');
-
-                    // ── NOTAMs placeholder ──
-                    notamsRaw.textContent = `📝 NOTAMs for ${icao}\n\nReal‑time NOTAMs require connection to an official NOTAM API (FAA, ICAO).\nFor flight simulation, you can integrate:\n  • VATSIM pilot briefings\n  • Navigraph charts\n  • SimBrief NOTAMs\n\nConnect your API key to enable live feeds.`;
-                    notamsRaw.classList.remove('loading-shimmer');
-
-                } catch (err) {
-                    console.error(err);
-                    [metarRaw, tafRaw, atisRaw].forEach(el => {
-                        el.textContent = `❌ Unexpected error: ${err.message}`;
-                        el.classList.remove('loading-shimmer');
-                    });
-                    notamsRaw.textContent = 'NOTAM integration ready.';
-                    notamsRaw.classList.remove('loading-shimmer');
-                } finally {
-                    searchBtn.disabled = false;
-                    searchBtn.textContent = '🔍 SEARCH WEATHER';
+                } else {
+                    metarRaw.textContent = `❌ METAR fetch failed: ${metarRes.reason?.message || 'Unknown error'}`;
                 }
+                metarRaw.classList.remove('loading-shimmer');
+
+                // ── TAF ──
+                if (tafRes.status === 'fulfilled') {
+                    try {
+                        const data = await tafRes.value.json();
+                        tafRaw.textContent = data?.[0]?.rawTAF || `⚠️ No TAF available for ${icao}.`;
+                    } catch (e) {
+                        tafRaw.textContent = `❌ TAF parse error: ${e.message}`;
+                    }
+                } else {
+                    tafRaw.textContent = `❌ TAF fetch failed: ${tafRes.reason?.message || 'Unknown error'}`;
+                }
+                tafRaw.classList.remove('loading-shimmer');
+
+                // ── ATIS (VATSIM) ──
+                if (vatsimRes.status === 'fulfilled') {
+                    try {
+                        const vatsimData = await vatsimRes.value.json();
+                        let atisFound = null;
+                        if (vatsimData && Array.isArray(vatsimData.atis)) {
+                            atisFound = vatsimData.atis.find(a =>
+                                a.callsign && a.callsign.toUpperCase().includes(icao)
+                            );
+                        }
+                        if (atisFound && atisFound.text_atis?.length > 0) {
+                            let atisText = atisFound.text_atis.join('\n');
+                            if (atisFound.atis_code) {
+                                atisText = `ATIS ${atisFound.atis_code} · ${atisFound.frequency || '—'}\nCallsign: ${atisFound.callsign}\n\n${atisText}`;
+                            }
+                            atisRaw.textContent = atisText;
+                        } else {
+                            atisRaw.textContent = `⚠️ No active VATSIM ATIS for ${icao}.`;
+                        }
+                    } catch (e) {
+                        atisRaw.textContent = `⚠️ VATSIM parse error: ${e.message}`;
+                    }
+                } else {
+                    atisRaw.textContent = `⚠️ VATSIM ATIS unavailable: ${vatsimRes.reason?.message || 'Network error'}.`;
+                }
+                atisRaw.classList.remove('loading-shimmer');
+
+            } catch (err) {
+                console.error(err);
+                [metarRaw, tafRaw, atisRaw].forEach(el => {
+                    el.textContent = `❌ Unexpected error: ${err.message}`;
+                    el.classList.remove('loading-shimmer');
+                });
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = 'SEARCH WEATHER';
             }
+        }
 
-            searchBtn.addEventListener('click', searchWeather);
-            icaoInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    searchWeather();
-                }
-            });
-            icaoInput.addEventListener('input', () => {
-                icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
-            });
+        searchBtn.addEventListener('click', searchWeather);
+        icaoInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchWeather();
+            }
+        });
+        icaoInput.addEventListener('input', () => {
+            icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+        });
 
-            renderRecents();
-            window.addEventListener('DOMContentLoaded', () => {
-                if (icaoInput.value.trim().length === 4) {
-                    searchWeather();
-                }
-            });
-
-            window.searchWeather = searchWeather;
-        })();
-    </script>
+        // No auto-search, no recent chips
+    })();
+</script>
 </body>
 </html>
