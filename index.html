@@ -52,12 +52,6 @@
             -moz-osx-font-smoothing: grayscale;
             display: flex;
             flex-direction: column;
-            /* Hide any default body scrollbar */
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-        }
-        body::-webkit-scrollbar {
-            display: none;
         }
 
         /* ── Top bar ── */
@@ -66,16 +60,15 @@
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             padding: 0 16px;
             height: 48px;
             flex-shrink: 0;
             z-index: 50;
-            position: relative;
+            gap: 16px;
+            flex-wrap: wrap;
         }
         .brand {
-            position: absolute;
-            left: 16px;
             font-weight: 700;
             font-size: 14px;
             letter-spacing: -0.2px;
@@ -84,6 +77,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-shrink: 0;
         }
         .brand-diamond {
             width: 20px;
@@ -94,8 +88,8 @@
             box-shadow: 0 0 10px var(--accent-glow);
         }
         .search-wrap {
-            width: 440px;
-            max-width: calc(100vw - 200px);
+            flex: 1;
+            max-width: 440px;
             position: relative;
             display: flex;
             align-items: center;
@@ -150,8 +144,6 @@
             background: rgba(255, 255, 255, 0.05);
         }
         .time-display {
-            position: absolute;
-            right: 16px;
             display: flex;
             align-items: center;
             gap: 14px;
@@ -159,6 +151,7 @@
             font-size: 11px;
             color: #a0a6b0;
             white-space: nowrap;
+            flex-shrink: 0;
         }
         .time-display span {
             padding: 3px 6px;
@@ -172,34 +165,10 @@
             font-size: 9px;
         }
 
-        @media (max-width: 850px) {
-            .top-bar {
-                flex-wrap: wrap;
-                height: auto;
-                padding: 8px 12px;
-                gap: 8px;
-                justify-content: flex-start;
-            }
-            .brand {
-                position: static;
-                margin-right: auto;
-            }
-            .time-display {
-                position: static;
-                margin-left: 0;
-                order: 2;
-            }
-            .search-wrap {
-                width: 100%;
-                max-width: 100%;
-                order: 3;
-            }
-        }
-
         /* ── Main scrollable area ── */
         .main-scroll {
             flex: 1;
-            overflow-y: overlay;
+            overflow-y: auto;
             overflow-x: hidden;
             padding: 10px 14px 14px;
             scrollbar-width: thin;
@@ -207,6 +176,8 @@
         }
         .main-scroll::-webkit-scrollbar {
             width: 5px;
+        }
+        .main-scroll::-webkit-scrollbar-track {
             background: transparent;
         }
         .main-scroll::-webkit-scrollbar-thumb {
@@ -240,6 +211,20 @@
         }
 
         @media (max-width: 850px) {
+            .top-bar {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 8px 12px;
+                gap: 8px;
+            }
+            .search-wrap {
+                max-width: 100%;
+                order: 3;
+            }
+            .time-display {
+                order: 2;
+                margin-left: auto;
+            }
             .content-grid {
                 grid-template-columns: 1fr;
             }
@@ -305,7 +290,7 @@
             color: #c8ced9;
             white-space: pre-wrap;
             word-break: break-word;
-            overflow-y: overlay;
+            overflow-y: auto;
             max-height: 280px;
             scrollbar-width: thin;
             scrollbar-color: var(--scrollbar-thumb) transparent;
@@ -313,6 +298,8 @@
         .card-body::-webkit-scrollbar {
             width: 3px;
             height: 3px;
+        }
+        .card-body::-webkit-scrollbar-track {
             background: transparent;
         }
         .card-body::-webkit-scrollbar-thumb {
@@ -334,7 +321,7 @@
             white-space: pre-wrap;
             word-break: break-word;
         }
-        .card-body pre + pre {
+        .card-body pre+pre {
             margin-top: 7px;
             padding-top: 7px;
             border-top: 1px solid rgba(255, 255, 255, 0.03);
@@ -401,13 +388,15 @@
         .runway-table-wrap {
             overflow-x: auto;
             max-height: 260px;
-            overflow-y: overlay;
+            overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: var(--scrollbar-thumb) transparent;
         }
         .runway-table-wrap::-webkit-scrollbar {
             width: 3px;
             height: 3px;
+        }
+        .runway-table-wrap::-webkit-scrollbar-track {
             background: transparent;
         }
         .runway-table-wrap::-webkit-scrollbar-thumb {
@@ -555,35 +544,6 @@
             background: rgba(239, 68, 68, 0.18);
             color: #f87171;
         }
-
-        /* ── METAR category banner inside card ── */
-        .metar-cat-banner {
-            margin-bottom: 6px;
-            font-family: var(--font-sans);
-            font-weight: 700;
-            font-size: 10px;
-            padding: 3px 8px;
-            border-radius: var(--radius-sm);
-            display: inline-block;
-            text-transform: uppercase;
-        }
-
-        /* ── TAF trend date line ── */
-        .taf-issue-time {
-            display: block;
-            font-size: 9px;
-            color: #5b606d;
-            font-weight: 400;
-            font-family: var(--font-sans);
-            margin-bottom: 2px;
-            letter-spacing: 0.2px;
-        }
-        .taf-block {
-            margin-bottom: 10px;
-        }
-        .taf-block:last-child {
-            margin-bottom: 0;
-        }
     </style>
 </head>
 <body>
@@ -656,16 +616,15 @@
             <div class="card card-runways" id="runwayCard" style="display:none;">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Runway Details</span>
-                    <span class="card-age" style="font-size:9px;color:var(--amber);">* Combined runway data — per‑threshold values may differ, verify with AIP</span>
+                    <span class="card-age" style="font-size:9px;color:var(--amber);">* Per‑threshold data estimated from combined runway values — verify with AIP</span>
                 </div>
                 <div class="runway-table-wrap">
                     <table class="runway-table">
                         <thead>
                             <tr>
                                 <th>Runway</th>
-                                <th>Length (m)</th>
-                                <th>Width (m)</th>
-                                <th>Surface</th>
+                                <th>Threshold Coordinates</th>
+                                <th>THR Elev (ft)</th>
                                 <th>TORA (m)</th>
                                 <th>TODA (m)</th>
                                 <th>ASDA (m)</th>
@@ -673,12 +632,11 @@
                                 <th>SWY (m)</th>
                                 <th>CWY (m)</th>
                                 <th>Slope</th>
-                                <th>THR Elev (ft)</th>
-                                <th>Coordinates</th>
+                                <th>Surface</th>
                             </tr>
                         </thead>
                         <tbody id="runwayTbody">
-                            <tr><td colspan="13" class="na-cell">— No runway data —</td></tr>
+                            <tr><td colspan="11" class="na-cell">— No runway data —</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -812,7 +770,7 @@
             function updateAges() {
                 if (metarReceiptTimes.length > 0) metarAgeEl.textContent =
                     `Issued: ${formatTimeAgo(metarReceiptTimes[0])}`;
-                if (tafReceiptTime) tafAgeEl.textContent = `Latest issued: ${formatTimeAgo(tafReceiptTime)}`;
+                if (tafReceiptTime) tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafReceiptTime)}`;
                 if (atisFetchTime) atisAgeEl.textContent = `Fetched: ${formatTimeAgo(atisFetchTime)}`;
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
             }
@@ -825,7 +783,6 @@
 
             // ── Decimal to DMS ──
             function toDMS(deg, isLat) {
-                if (deg == null || isNaN(deg)) return '—';
                 const abs = Math.abs(deg);
                 const d = Math.floor(abs);
                 const m = Math.floor((abs - d) * 60);
@@ -886,7 +843,8 @@
                     clouds.push(`${cm[1]} @ ${parseInt(cm[2]) * 100}ft`);
                 }
                 if (clouds.length) res.clouds = clouds.join(', ');
-                else if (metar.includes('CAVOK') || metar.includes('SKC') || metar.includes('CLR')) res.clouds = 'Clear';
+                else if (metar.includes('CAVOK') || metar.includes('SKC') || metar.includes('CLR')) res.clouds =
+                    'Clear';
                 else if (metar.includes('NSC')) res.clouds = 'No sig. cloud';
 
                 const qnhMatch = metar.match(/\bQ(\d{4})\b/);
@@ -906,11 +864,14 @@
                 const smCat = metar.match(/\b(\d+)SM\b/);
                 if (smCat) visM = parseInt(smCat[1]) * 1609;
                 const visSM = visM / 1609;
-                if (ceil > 3000 && visSM > 5) { res.flightCat = 'VFR'; res.flightCatClass = 'fc-vfr'; }
-                else if ((ceil >= 1000 && ceil <= 3000) || (visSM >= 3 && visSM <= 5)) { res.flightCat = 'MVFR'; res.flightCatClass = 'fc-mvfr'; }
-                else if ((ceil >= 500 && ceil < 1000) || (visSM >= 1 && visSM < 3)) { res.flightCat = 'IFR'; res.flightCatClass = 'fc-ifr'; }
-                else if (ceil < 500 || visSM < 1) { res.flightCat = 'LIFR'; res.flightCatClass = 'fc-lifr'; }
-                else { res.flightCat = 'VFR'; res.flightCatClass = 'fc-vfr'; }
+                if (ceil > 3000 && visSM > 5) { res.flightCat = 'VFR';
+                    res.flightCatClass = 'fc-vfr'; } else if ((ceil >= 1000 && ceil <= 3000) || (visSM >= 3 && visSM <= 5)) {
+                    res.flightCat = 'MVFR';
+                    res.flightCatClass = 'fc-mvfr';
+                } else if ((ceil >= 500 && ceil < 1000) || (visSM >= 1 && visSM < 3)) { res.flightCat = 'IFR';
+                    res.flightCatClass = 'fc-ifr'; } else if (ceil < 500 || visSM < 1) { res.flightCat = 'LIFR';
+                    res.flightCatClass = 'fc-lifr'; } else { res.flightCat = 'VFR';
+                    res.flightCatClass = 'fc-vfr'; }
                 return res;
             }
 
@@ -935,13 +896,22 @@
                 dsQnh.textContent = '—';
             }
 
+            function setBody(el, content, isPlaceholder = false) {
+                if (isPlaceholder) {
+                    el.innerHTML = `<span class="placeholder">${content}</span>`;
+                } else {
+                    const items = Array.isArray(content) ? content : [content];
+                    el.innerHTML = items.map(t => `<pre>${escapeHTML(t)}</pre>`).join('\n');
+                }
+            }
+
             function escapeHTML(str) {
                 const div = document.createElement('div');
                 div.textContent = str;
                 return div.innerHTML;
             }
 
-            // ── Feet/meters conversion ──
+            // ── Convert feet to meters ──
             function ftToM(ft) {
                 if (ft == null || isNaN(ft)) return null;
                 return Math.round(ft * 0.3048);
@@ -977,48 +947,63 @@
                     runwayCard.style.display = '';
                     let rowsHtml = '';
                     rawRunways.forEach(rw => {
-                        const designation = rw.id || '??';
-                        const lengthM = ftToM(rw.length_ft);
-                        const widthM = ftToM(rw.width_ft);
+                        // Split designation into two directions
+                        const parts = (rw.id || '').split('/');
+                        const directions = parts.length === 2 ? parts : [rw.id || '??', '??'];
+                        const lenFt = rw.length_ft;
+                        const widthFt = rw.width_ft;
                         const surface = rw.surface || '—';
-                        const toraM = ftToM(rw.tora);
-                        const todaM = ftToM(rw.toda);
-                        const asdaM = ftToM(rw.asda);
-                        const ldaM = ftToM(rw.lda);
-                        const swyM = ftToM(rw.swy);
-                        const cwyM = ftToM(rw.cwy);
+                        const toraFt = rw.tora;
+                        const todaFt = rw.toda;
+                        const asdaFt = rw.asda;
+                        const ldaFt = rw.lda;
+                        const swyFt = rw.swy;
+                        const cwyFt = rw.cwy;
                         const slopeVal = rw.slope;
                         const slopeSign = rw.slope_sign || '';
-                        let slopeStr = '—';
-                        if (slopeVal != null) {
-                            const signChar = (slopeSign === 'U' || slopeSign === 'u') ? 'U' : (slopeSign === 'D' || slopeSign === 'd') ? 'D' : '';
-                            slopeStr = `${slopeVal}% ${signChar}`.trim();
-                        }
-                        const thrElevFt = rw.threshold_elev_ft != null ? `${rw.threshold_elev_ft} ft` : '—';
-                        const coordStr = (rw.threshold_lat != null && rw.threshold_lon != null) ?
-                            `${toDMS(rw.threshold_lat, true)} ${toDMS(rw.threshold_lon, false)}` : '—';
+                        const thrLat = rw.threshold_lat;
+                        const thrLon = rw.threshold_lon;
+                        const thrElevFt = rw.threshold_elev_ft;
 
-                        rowsHtml += `
-                            <tr>
-                                <td class="rw-designation">${escapeHTML(designation)}</td>
-                                <td>${lengthM !== null ? lengthM + ' m' : '—'}</td>
-                                <td>${widthM !== null ? widthM + ' m' : '—'}</td>
-                                <td>${escapeHTML(surface)}</td>
-                                <td>${toraM !== null ? toraM + ' m' : '—'}</td>
-                                <td>${todaM !== null ? todaM + ' m' : '—'}</td>
-                                <td>${asdaM !== null ? asdaM + ' m' : '—'}</td>
-                                <td>${ldaM !== null ? ldaM + ' m' : '—'}</td>
-                                <td>${swyM !== null ? swyM + ' m' : '—'}</td>
-                                <td>${cwyM !== null ? cwyM + ' m' : '—'}</td>
-                                <td>${slopeStr}</td>
-                                <td>${thrElevFt}</td>
-                                <td>${coordStr}</td>
-                            </tr>`;
+                        directions.forEach(dir => {
+                            const designation = dir.trim();
+                            const coordStr = (thrLat != null && thrLon != null) ?
+                                `${toDMS(thrLat, true)} ${toDMS(thrLon, false)}` :
+                                '—';
+                            const thrElevStr = thrElevFt != null ? `${thrElevFt} ft` : '—';
+                            const toraStr = ftToM(toraFt) !== null ? ftToM(toraFt) + ' m' : '—';
+                            const todaStr = ftToM(todaFt) !== null ? ftToM(todaFt) + ' m' : '—';
+                            const asdaStr = ftToM(asdaFt) !== null ? ftToM(asdaFt) + ' m' : '—';
+                            const ldaStr = ftToM(ldaFt) !== null ? ftToM(ldaFt) + ' m' : '—';
+                            const swyStr = ftToM(swyFt) !== null ? ftToM(swyFt) + ' m' : '—';
+                            const cwyStr = ftToM(cwyFt) !== null ? ftToM(cwyFt) + ' m' : '—';
+                            let slopeStr = '—';
+                            if (slopeVal != null) {
+                                const signChar = (slopeSign === 'U' || slopeSign === 'u') ? 'U' : (slopeSign ===
+                                    'D' || slopeSign === 'd') ? 'D' : '';
+                                slopeStr = `${slopeVal}% ${signChar}`.trim();
+                            }
+                            rowsHtml += `
+                                <tr>
+                                    <td class="rw-designation">${escapeHTML(designation)}</td>
+                                    <td>${coordStr}</td>
+                                    <td>${thrElevStr}</td>
+                                    <td>${toraStr}</td>
+                                    <td>${todaStr}</td>
+                                    <td>${asdaStr}</td>
+                                    <td>${ldaStr}</td>
+                                    <td>${swyStr}</td>
+                                    <td>${cwyStr}</td>
+                                    <td>${slopeStr}</td>
+                                    <td>${escapeHTML(surface)}</td>
+                                </tr>`;
+                        });
                     });
                     runwayTbody.innerHTML = rowsHtml;
                 } else {
                     runwayCard.style.display = '';
-                    runwayTbody.innerHTML = '<tr><td colspan="13" class="na-cell">— No runway data available —</td></tr>';
+                    runwayTbody.innerHTML =
+                        '<tr><td colspan="11" class="na-cell">— No runway data available —</td></tr>';
                 }
             }
 
@@ -1033,9 +1018,9 @@
             async function searchWeather(icaoOverride) {
                 const icao = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
                 if (!icao || icao.length < 4) {
-                    metarBody.innerHTML = '<span class="placeholder">⚠️ Please enter a valid 4‑letter ICAO code.</span>';
-                    tafBody.innerHTML = '<span class="placeholder">Waiting for valid ICAO...</span>';
-                    atisBody.innerHTML = '<span class="placeholder">Waiting for valid ICAO...</span>';
+                    setBody(metarBody, '⚠️ Please enter a valid 4‑letter ICAO code.', true);
+                    setBody(tafBody, 'Waiting for valid ICAO...', true);
+                    setBody(atisBody, 'Waiting for valid ICAO...', true);
                     metarAgeEl.textContent = tafAgeEl.textContent = atisAgeEl.textContent = '';
                     hideDecoded();
                     hideAirportInfo();
@@ -1061,9 +1046,11 @@
                 searchBtn.style.pointerEvents = 'none';
 
                 try {
-                    const [metarRes, tafHistoryRes, vatsimRes, airportRes] = await Promise.allSettled([
-                        safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=3&taf=false`),
-                        safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=true&hours=72`),
+                    const [metarRes, tafRes, vatsimRes, airportRes] = await Promise.allSettled([
+                        safeFetch(
+                            `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=3&taf=false`
+                            ),
+                        safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
                         safeFetch('https://data.vatsim.net/v3/vatsim-data.json'),
                         safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
                     ]);
@@ -1075,67 +1062,43 @@
                             if (data && data.length > 0) {
                                 const entries = data.filter(d => d.rawOb).map(d => d.rawOb.trim());
                                 const unique = [...new Set(entries)];
-                                const decoded = decodeMetar(unique[0] || '');
-                                let metarHTML = '';
-                                if (decoded.flightCatClass) {
-                                    metarHTML += `<div class="metar-cat-banner flight-cat-badge ${decoded.flightCatClass}">${decoded.flightCat}</div>`;
-                                }
-                                metarHTML += unique.map(t => `<pre>${escapeHTML(t)}</pre>`).join('\n');
-                                metarBody.innerHTML = metarHTML;
-                                metarReceiptTimes = data.filter(d => d.receiptTime).map(d => new Date(d.receiptTime)).sort((a, b) => b - a);
+                                setBody(metarBody, unique);
+                                metarReceiptTimes = data.filter(d => d.receiptTime).map(d => new Date(d
+                                    .receiptTime)).sort((a, b) => b - a);
                                 if (unique.length) updateDecoded(unique[0]);
                             } else {
-                                metarBody.innerHTML = '<span class="placeholder">⚠️ No METAR available for ' + icao + '.</span>';
+                                setBody(metarBody, `⚠️ No METAR available for ${icao}.`, true);
                             }
                         } catch (e) {
-                            metarBody.innerHTML = `<span class="placeholder">❌ Error: ${e.message}</span>`;
+                            setBody(metarBody, `❌ Error: ${e.message}`, true);
                         }
                     } else {
-                        metarBody.innerHTML = '<span class="placeholder">❌ METAR fetch failed.</span>';
+                        setBody(metarBody, `❌ METAR fetch failed.`, true);
                     }
 
-                    // TAF history (last 72h)
-                    if (tafHistoryRes.status === 'fulfilled') {
+                    // TAF
+                    if (tafRes.status === 'fulfilled') {
                         try {
-                            const allData = await tafHistoryRes.value.json();
-                            const tafEntries = allData.filter(d => d.rawTAF).map(d => ({
-                                raw: d.rawTAF.trim(),
-                                time: d.receiptTime ? new Date(d.receiptTime) : new Date()
-                            }));
-                            // Unique by raw text, keep latest time
-                            const uniqueTafs = [];
-                            const seen = new Set();
-                            tafEntries.sort((a, b) => b.time - a.time);
-                            for (const entry of tafEntries) {
-                                if (!seen.has(entry.raw)) {
-                                    seen.add(entry.raw);
-                                    uniqueTafs.push(entry);
-                                }
-                            }
-                            if (uniqueTafs.length > 0) {
-                                tafReceiptTime = uniqueTafs[0].time;
-                                let tafHTML = '';
-                                uniqueTafs.forEach((taf, idx) => {
-                                    const dateStr = taf.time.toISOString().slice(0, 16).replace('T', ' ') + 'Z';
-                                    const label = idx === 0 ? '' : `<span class="taf-issue-time">Issued ${dateStr}</span>`;
-                                    tafHTML += `<div class="taf-block">${label}<pre>${escapeHTML(taf.raw)}</pre></div>`;
-                                });
-                                tafBody.innerHTML = tafHTML;
+                            const data = await tafRes.value.json();
+                            if (data && data[0]?.rawTAF) {
+                                setBody(tafBody, [data[0].rawTAF.trim()]);
+                                tafReceiptTime = data[0].receiptTime ? new Date(data[0].receiptTime) : new Date();
                             } else {
-                                tafBody.innerHTML = '<span class="placeholder">⚠️ No TAF data in the last 72 hours for ' + icao + '.</span>';
+                                setBody(tafBody, `⚠️ No TAF available for ${icao}.`, true);
                             }
                         } catch (e) {
-                            tafBody.innerHTML = `<span class="placeholder">❌ Error: ${e.message}</span>`;
+                            setBody(tafBody, `❌ Error: ${e.message}`, true);
                         }
                     } else {
-                        tafBody.innerHTML = '<span class="placeholder">❌ TAF data fetch failed.</span>';
+                        setBody(tafBody, `❌ TAF fetch failed.`, true);
                     }
 
                     // VATSIM ATIS
                     if (vatsimRes.status === 'fulfilled') {
                         try {
                             const vatsim = await vatsimRes.value.json();
-                            const atisList = vatsim?.atis?.filter(a => a.callsign?.toUpperCase().includes(icao));
+                            const atisList = vatsim?.atis?.filter(a => a.callsign?.toUpperCase().includes(
+                            icao));
                             const atis = atisList?.find(a => a.atis_code) || atisList?.[0];
                             if (atis && atis.text_atis?.length) {
                                 const lines = [
@@ -1144,16 +1107,16 @@
                                     '',
                                     ...atis.text_atis,
                                 ];
-                                atisBody.innerHTML = `<pre>${escapeHTML(lines.join('\n'))}</pre>`;
+                                setBody(atisBody, [lines.join('\n')]);
                                 atisFetchTime = new Date();
                             } else {
-                                atisBody.innerHTML = `<span class="placeholder">⚠️ No active VATSIM ATIS for ${icao}.</span>`;
+                                setBody(atisBody, `⚠️ No active VATSIM ATIS for ${icao}.`, true);
                             }
                         } catch (e) {
-                            atisBody.innerHTML = `<span class="placeholder">⚠️ Error: ${e.message}</span>`;
+                            setBody(atisBody, `⚠️ Error: ${e.message}`, true);
                         }
                     } else {
-                        atisBody.innerHTML = '<span class="placeholder">⚠️ VATSIM ATIS unavailable.</span>';
+                        setBody(atisBody, `⚠️ VATSIM ATIS unavailable.`, true);
                     }
 
                     // Airport info
@@ -1172,6 +1135,7 @@
                                         length_ft: rw.length_ft,
                                         width_ft: rw.width_ft,
                                         surface: rw.surface,
+                                        heading_deg: rw.heading_deg,
                                         tora: rw.tora,
                                         toda: rw.toda,
                                         asda: rw.asda,
@@ -1187,6 +1151,7 @@
                                 });
                             } else {
                                 hideAirportInfo();
+                                console.warn('Airport API returned empty for', icao);
                             }
                         } catch (e) {
                             hideAirportInfo();
@@ -1199,9 +1164,8 @@
                     startAgeUpdates();
                 } catch (err) {
                     console.error(err);
-                    metarBody.innerHTML = `<span class="placeholder">❌ Unexpected error: ${err.message}</span>`;
-                    tafBody.innerHTML = `<span class="placeholder">❌ Unexpected error: ${err.message}</span>`;
-                    atisBody.innerHTML = `<span class="placeholder">❌ Unexpected error: ${err.message}</span>`;
+                    [metarBody, tafBody, atisBody].forEach(el => setBody(el,
+                        `❌ Unexpected error: ${err.message}`, true));
                     hideDecoded();
                     hideAirportInfo();
                 } finally {
