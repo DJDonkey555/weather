@@ -33,7 +33,6 @@
             --radius: 5px;
             --radius-sm: 3px;
             --transition: 0.15s ease;
-            --header-h: 44px;
             --scrollbar-thumb: #3a3d46;
         }
 
@@ -55,59 +54,67 @@
             flex-direction: column;
         }
 
-        /* ── Minimal top bar ── */
+        /* ── Top bar ── */
         .top-bar {
-            height: var(--header-h);
             background: var(--surface);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
+            justify-content: space-between;
             padding: 0 16px;
-            gap: 16px;
+            height: 48px;
             flex-shrink: 0;
             z-index: 50;
+            gap: 16px;
+            flex-wrap: wrap;
         }
-        .top-bar .brand {
+        .brand {
             font-weight: 700;
-            font-size: 13px;
+            font-size: 14px;
             letter-spacing: -0.2px;
             color: #fff;
             white-space: nowrap;
             display: flex;
             align-items: center;
-            gap: 7px;
+            gap: 8px;
             flex-shrink: 0;
         }
         .brand-diamond {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             background: var(--accent);
             border-radius: 3px;
             transform: rotate(45deg);
-            flex-shrink: 0;
-            box-shadow: 0 0 8px var(--accent-glow);
+            box-shadow: 0 0 10px var(--accent-glow);
         }
-        .top-bar .search-wrap {
+        .search-wrap {
             flex: 1;
-            max-width: 380px;
+            max-width: 440px;
             position: relative;
-            margin-left: auto;
-        }
-        .top-bar .icao-input {
-            width: 100%;
-            height: 30px;
-            border-radius: var(--radius-sm);
-            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
             background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+        .search-wrap:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+        .icao-input {
+            width: 100%;
+            height: 32px;
+            border: none;
+            background: transparent;
             color: #fff;
-            padding: 0 32px 0 10px;
-            font-size: 13px;
+            padding: 0 38px 0 12px;
+            font-size: 14px;
             font-family: var(--font-mono);
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.07em;
             outline: none;
-            transition: border-color var(--transition), box-shadow var(--transition);
         }
         .icao-input::placeholder {
             color: #4a4f5a;
@@ -115,11 +122,7 @@
             text-transform: none;
             letter-spacing: normal;
             font-weight: 400;
-            font-size: 11px;
-        }
-        .icao-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 2px var(--accent-glow);
+            font-size: 12px;
         }
         .search-icon-btn {
             position: absolute;
@@ -130,15 +133,36 @@
             border: none;
             color: #7a808d;
             cursor: pointer;
-            padding: 4px 7px;
+            padding: 4px 8px;
             border-radius: 3px;
-            font-size: 14px;
+            font-size: 15px;
             transition: color var(--transition), background var(--transition);
             line-height: 1;
         }
         .search-icon-btn:hover {
             color: #fff;
             background: rgba(255, 255, 255, 0.05);
+        }
+        .time-display {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: #a0a6b0;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .time-display span {
+            padding: 3px 6px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 3px;
+        }
+        .time-label {
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            font-size: 9px;
         }
 
         /* ── Main scrollable area ── */
@@ -165,7 +189,7 @@
         .content-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto auto auto;
+            grid-template-rows: auto auto auto auto;
             gap: 8px;
             max-width: 1200px;
             margin: 0 auto;
@@ -187,6 +211,20 @@
         }
 
         @media (max-width: 850px) {
+            .top-bar {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 8px 12px;
+                gap: 8px;
+            }
+            .search-wrap {
+                max-width: 100%;
+                order: 3;
+            }
+            .time-display {
+                order: 2;
+                margin-left: auto;
+            }
             .content-grid {
                 grid-template-columns: 1fr;
             }
@@ -196,9 +234,6 @@
             .card-airport,
             .card-atis {
                 grid-column: 1 / -1;
-            }
-            .top-bar .search-wrap {
-                max-width: 200px;
             }
         }
 
@@ -352,7 +387,7 @@
         /* ── Runway table ── */
         .runway-table-wrap {
             overflow-x: auto;
-            max-height: 220px;
+            max-height: 260px;
             overflow-y: auto;
             scrollbar-width: thin;
             scrollbar-color: var(--scrollbar-thumb) transparent;
@@ -372,22 +407,22 @@
             width: 100%;
             border-collapse: collapse;
             font-family: var(--font-mono);
-            font-size: 10.5px;
-            min-width: 700px;
+            font-size: 10px;
+            min-width: 900px;
         }
         .runway-table th,
         .runway-table td {
-            padding: 5px 8px;
+            padding: 5px 6px;
             text-align: center;
             white-space: nowrap;
             border-bottom: 1px solid rgba(255, 255, 255, 0.025);
         }
         .runway-table th {
             font-family: var(--font-sans);
-            font-size: 8.5px;
+            font-size: 8px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
             color: var(--text-muted);
             background: rgba(0, 0, 0, 0.2);
             position: sticky;
@@ -406,17 +441,16 @@
             font-size: 11px;
             letter-spacing: 0.3px;
         }
-        .runway-table .est-tag {
+        .runway-table .na-cell {
+            color: #4a4f5a;
+            font-style: italic;
+        }
+        .note-est {
             font-size: 8px;
             color: var(--amber);
             font-family: var(--font-sans);
             font-weight: 600;
-            vertical-align: super;
-            margin-left: 1px;
-        }
-        .runway-table .na-cell {
-            color: #4a4f5a;
-            font-style: italic;
+            margin-left: 2px;
         }
 
         /* ── Shimmer loader ── */
@@ -514,27 +548,31 @@
 </head>
 <body>
 
-    <!-- ═══════════ Top bar (minimal) ═══════════ -->
+    <!-- ═══════════ Top bar ═══════════ -->
     <header class="top-bar">
         <div class="brand">
             <span class="brand-diamond"></span> SKYOPS
         </div>
-        <div class="search-wrap">
+        <div class="search-wrap" id="searchWrap">
             <input
             id="icaoInput"
             class="icao-input"
             type="text"
-            placeholder="ICAO · EGLL · KJFK · OMDB"
+            placeholder="Enter ICAO code..."
             maxlength="4"
             autocomplete="off"
             spellcheck="false"
             aria-label="ICAO airport code"
             >
-            <button class="search-icon-btn" id="searchBtn" title="Search">&#x1F50D;</button>
+            <button class="search-icon-btn" id="searchBtn" title="Search weather">&#x1F50D;</button>
+        </div>
+        <div class="time-display" id="timeDisplay">
+            <span><span class="time-label">UTC</span> <span id="utcTime">--:--:--</span></span>
+            <span><span class="time-label">Local</span> <span id="localTime">--:--:--</span></span>
         </div>
     </header>
 
-    <!-- ═══════════ Main scrollable content ═══════════ -->
+    <!-- ═══════════ Main content ═══════════ -->
     <div class="main-scroll" id="mainScroll">
         <div class="content-grid">
 
@@ -578,24 +616,27 @@
             <div class="card card-runways" id="runwayCard" style="display:none;">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Runway Details</span>
-                    <span class="card-age" style="font-size:8px;color:var(--amber);">* TORA/TODA/ASDA/LDA estimated from runway length — verify with AIP</span>
+                    <span class="card-age" style="font-size:9px;color:var(--amber);">* Per‑threshold data estimated from combined runway values — verify with AIP</span>
                 </div>
                 <div class="runway-table-wrap">
                     <table class="runway-table">
                         <thead>
                             <tr>
                                 <th>Runway</th>
-                                <th>Length × Width</th>
+                                <th>Threshold Coordinates</th>
+                                <th>THR Elev (ft)</th>
+                                <th>TORA (m)</th>
+                                <th>TODA (m)</th>
+                                <th>ASDA (m)</th>
+                                <th>LDA (m)</th>
+                                <th>SWY (m)</th>
+                                <th>CWY (m)</th>
+                                <th>Slope</th>
                                 <th>Surface</th>
-                                <th>Heading</th>
-                                <th>TORA <span class="est-tag">est</span></th>
-                                <th>TODA <span class="est-tag">est</span></th>
-                                <th>ASDA <span class="est-tag">est</span></th>
-                                <th>LDA <span class="est-tag">est</span></th>
                             </tr>
                         </thead>
                         <tbody id="runwayTbody">
-                            <tr><td colspan="8" class="na-cell">— No runway data —</td></tr>
+                            <tr><td colspan="11" class="na-cell">— No runway data —</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -663,6 +704,8 @@
             const airportRwyCount = document.getElementById('airportRwyCount');
             const airportCoords = document.getElementById('airportCoords');
             const runwayTbody = document.getElementById('runwayTbody');
+            const utcTimeSpan = document.getElementById('utcTime');
+            const localTimeSpan = document.getElementById('localTime');
 
             let lastIcao = '';
             let metarReceiptTimes = [];
@@ -670,6 +713,16 @@
             let atisFetchTime = null;
             let airportFetchTime = null;
             let ageInterval = null;
+            let clockInterval = null;
+
+            // ── Clock update ──
+            function updateClocks() {
+                const now = new Date();
+                utcTimeSpan.textContent = now.toISOString().slice(11, 19);
+                localTimeSpan.textContent = now.toTimeString().slice(0, 8);
+            }
+            updateClocks();
+            clockInterval = setInterval(updateClocks, 1000);
 
             // ── Proxy fallback ──
             const PROXY_LIST = [
@@ -858,53 +911,99 @@
                 return div.innerHTML;
             }
 
+            // ── Convert feet to meters ──
+            function ftToM(ft) {
+                if (ft == null || isNaN(ft)) return null;
+                return Math.round(ft * 0.3048);
+            }
+
             // ── Display airport info ──
-            function displayAirportInfo(data) {
-                if (!data) {
+            function displayAirportInfo(icao, airportObj) {
+                if (!airportObj) {
                     airportCard.style.display = 'none';
                     runwayCard.style.display = 'none';
                     return;
                 }
                 airportCard.style.display = '';
-                airportName.textContent = data.name || 'Unknown Airport';
-                airportIcaoBadge.textContent = data.icao || lastIcao;
-                airportElev.textContent = data.elevation_ft != null ? `${data.elevation_ft} ft` : '—';
-                airportCoords.textContent = data.lat != null ?
-                    `${toDMS(data.lat, true)}  ${toDMS(data.lon, false)}` :
+                const name = airportObj.name || 'Unknown';
+                const elevMeters = airportObj.elevation_m;
+                const elevFt = elevMeters != null ? Math.round(elevMeters * 3.28084) : null;
+                const lat = airportObj.lat;
+                const lon = airportObj.lon;
+
+                airportName.textContent = name;
+                airportIcaoBadge.textContent = icao;
+                airportElev.textContent = elevFt != null ? `${elevFt} ft` : '—';
+                airportCoords.textContent = (lat != null && lon != null) ?
+                    `${toDMS(lat, true)}  ${toDMS(lon, false)}` :
                     '—';
                 airportFetchTime = new Date();
                 airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
 
-                const runways = data.runways || [];
-                airportRwyCount.textContent = runways.length > 0 ? `${runways.length} runway${runways.length>1?'s':''}` :
-                    '—';
+                const rawRunways = airportObj.runways || [];
+                airportRwyCount.textContent = rawRunways.length > 0 ? `${rawRunways.length} physical runway${rawRunways.length>1?'s':''}` : '—';
 
-                if (runways.length > 0) {
+                if (rawRunways.length > 0) {
                     runwayCard.style.display = '';
-                    runwayTbody.innerHTML = runways.map(rw => {
-                        const lengthFt = rw.length_ft || 0;
-                        const widthFt = rw.width_ft || 0;
+                    let rowsHtml = '';
+                    rawRunways.forEach(rw => {
+                        // Split designation into two directions
+                        const parts = (rw.id || '').split('/');
+                        const directions = parts.length === 2 ? parts : [rw.id || '??', '??'];
+                        const lenFt = rw.length_ft;
+                        const widthFt = rw.width_ft;
                         const surface = rw.surface || '—';
-                        const heading = rw.heading_deg != null ? `${String(rw.heading_deg).padStart(3,'0')}°` :
-                            '—';
-                        const designation = rw.id || '—';
-                        const tora = lengthFt > 0 ? `${lengthFt.toLocaleString()} ft` : '—';
-                        return `
+                        const toraFt = rw.tora;
+                        const todaFt = rw.toda;
+                        const asdaFt = rw.asda;
+                        const ldaFt = rw.lda;
+                        const swyFt = rw.swy;
+                        const cwyFt = rw.cwy;
+                        const slopeVal = rw.slope;
+                        const slopeSign = rw.slope_sign || '';
+                        const thrLat = rw.threshold_lat;
+                        const thrLon = rw.threshold_lon;
+                        const thrElevFt = rw.threshold_elev_ft;
+
+                        directions.forEach(dir => {
+                            const designation = dir.trim();
+                            const coordStr = (thrLat != null && thrLon != null) ?
+                                `${toDMS(thrLat, true)} ${toDMS(thrLon, false)}` :
+                                '—';
+                            const thrElevStr = thrElevFt != null ? `${thrElevFt} ft` : '—';
+                            const toraStr = ftToM(toraFt) !== null ? ftToM(toraFt) + ' m' : '—';
+                            const todaStr = ftToM(todaFt) !== null ? ftToM(todaFt) + ' m' : '—';
+                            const asdaStr = ftToM(asdaFt) !== null ? ftToM(asdaFt) + ' m' : '—';
+                            const ldaStr = ftToM(ldaFt) !== null ? ftToM(ldaFt) + ' m' : '—';
+                            const swyStr = ftToM(swyFt) !== null ? ftToM(swyFt) + ' m' : '—';
+                            const cwyStr = ftToM(cwyFt) !== null ? ftToM(cwyFt) + ' m' : '—';
+                            let slopeStr = '—';
+                            if (slopeVal != null) {
+                                const signChar = (slopeSign === 'U' || slopeSign === 'u') ? 'U' : (slopeSign ===
+                                    'D' || slopeSign === 'd') ? 'D' : '';
+                                slopeStr = `${slopeVal}% ${signChar}`.trim();
+                            }
+                            rowsHtml += `
                                 <tr>
                                     <td class="rw-designation">${escapeHTML(designation)}</td>
-                                    <td>${lengthFt>0?lengthFt.toLocaleString()+' × '+widthFt.toLocaleString()+' ft':'—'}</td>
+                                    <td>${coordStr}</td>
+                                    <td>${thrElevStr}</td>
+                                    <td>${toraStr}</td>
+                                    <td>${todaStr}</td>
+                                    <td>${asdaStr}</td>
+                                    <td>${ldaStr}</td>
+                                    <td>${swyStr}</td>
+                                    <td>${cwyStr}</td>
+                                    <td>${slopeStr}</td>
                                     <td>${escapeHTML(surface)}</td>
-                                    <td>${heading}</td>
-                                    <td>${tora}</td>
-                                    <td>${tora}</td>
-                                    <td>${tora}</td>
-                                    <td>${tora}</td>
                                 </tr>`;
-                    }).join('');
+                        });
+                    });
+                    runwayTbody.innerHTML = rowsHtml;
                 } else {
                     runwayCard.style.display = '';
                     runwayTbody.innerHTML =
-                        '<tr><td colspan="8" class="na-cell">— No runway data available for this airport —</td></tr>';
+                        '<tr><td colspan="11" class="na-cell">— No runway data available —</td></tr>';
                 }
             }
 
@@ -1026,19 +1125,28 @@
                             const aptData = await airportRes.value.json();
                             if (aptData && aptData.length > 0) {
                                 const apt = aptData[0];
-                                displayAirportInfo({
-                                    icao: apt.icaoId || apt.id || icao,
+                                displayAirportInfo(icao, {
                                     name: apt.name || apt.facilityName || null,
-                                    lat: apt.lat || null,
-                                    lon: apt.lon || null,
-                                    elevation_ft: apt.elev != null ? Math.round(apt.elev) : null,
+                                    elevation_m: apt.elev,
+                                    lat: apt.lat,
+                                    lon: apt.lon,
                                     runways: (apt.runways || []).map(rw => ({
                                         id: rw.id || rw.name || null,
-                                        length_ft: rw.length_ft || rw.length || null,
-                                        width_ft: rw.width_ft || rw.width || null,
-                                        surface: rw.surface || null,
-                                        heading_deg: rw.heading_deg || rw.heading || rw
-                                            .direction || null,
+                                        length_ft: rw.length_ft,
+                                        width_ft: rw.width_ft,
+                                        surface: rw.surface,
+                                        heading_deg: rw.heading_deg,
+                                        tora: rw.tora,
+                                        toda: rw.toda,
+                                        asda: rw.asda,
+                                        lda: rw.lda,
+                                        swy: rw.swy,
+                                        cwy: rw.cwy,
+                                        slope: rw.slope,
+                                        slope_sign: rw.slope_sign,
+                                        threshold_lat: rw.threshold_lat,
+                                        threshold_lon: rw.threshold_lon,
+                                        threshold_elev_ft: rw.threshold_elev_ft,
                                     })),
                                 });
                             } else {
