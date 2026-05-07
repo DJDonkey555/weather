@@ -3,758 +3,361 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Weather & NOTAM · SimBrief Style</title>
+  <title>SkyOps Dispatch Weather</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-      background: #eef0f3;
-      color: #1e2b3c;
-      line-height: 1.5;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
+    :root {
+      --global-graphite: #292b30;
+      --global-skyblue: #289ed6;
+      --global-skydark: #13506c;
+      --global-msfs-blue: #00b3ff;
+      --main-background: #292b31;
+      --main-div-background: #33353b;
+      --main-div-highlight: #3d3f45;
+      --main-button-background: #25272b;
+      --main-button-cta: #16649d;
+      --main-button-cta-hover: #1a76b9;
+      --main-text-color: #f5f5f5;
+      --main-input-border: #222324;
+      --main-input-border-hover: #535a61;
+      --main-input-border-focus: #289ed6;
+      --main-input-background: #2e3036;
     }
 
-    /* ===== DARK HEADER (SimBrief style) ===== */
-    .top-bar {
-      background: #1b2a3a;
-      padding: 0 20px;
-      height: 56px;
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #292b31;
+      color: white;
+      font-family: 'Open Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+      radial-gradient(circle at top right, rgba(40,158,214,0.1), transparent 20%),
+      radial-gradient(circle at bottom left, rgba(0,179,255,0.05), transparent 30%);
+      pointer-events: none;
+    }
+
+    .app {
+      padding: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .topbar {
+      height: 60px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-      flex-shrink: 0;
+      margin-bottom: 20px;
     }
-    .top-bar .brand {
-      color: #ffffff;
-      font-size: 1.2rem;
+
+    .logo {
+      font-size: 28px;
       font-weight: 700;
-      letter-spacing: -0.2px;
-    }
-    .top-bar .brand span {
-      color: #6cb4ee;
-    }
-    .top-bar .subtitle {
-      color: #a0b3c5;
-      font-size: 0.8rem;
-      font-weight: 400;
+      letter-spacing: 1px;
     }
 
-    /* ===== MAIN CONTAINER ===== */
-    .main-container {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      padding: 24px 16px 50px;
-    }
-    .content-wrapper {
-      width: 100%;
-      max-width: 1100px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+    .logo span {
+      color: var(--global-msfs-blue);
     }
 
-    /* ===== SEARCH CARD ===== */
-    .search-card {
-      background: #ffffff;
-      border-radius: 8px;
-      padding: 28px 30px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-      border: 1px solid #dce1e8;
-    }
-    .search-card h1 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #1e2b3c;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 18px;
-      flex-wrap: wrap;
-    }
-    .search-card h1 .subtext {
-      font-weight: 400;
-      color: #5b6f82;
-      font-size: 0.85rem;
-    }
-    .toggle-options-btn {
-      margin-left: auto;
-      background: none;
-      border: 1px solid #b0bec5;
-      padding: 5px 12px;
-      border-radius: 5px;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: #2c3e50;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: 0.2s;
-      background: #ffffff;
-    }
-    .toggle-options-btn:hover {
-      background: #e3e8ef;
-      border-color: #90a4ae;
-    }
-    .toggle-options-btn svg {
-      width: 13px;
-      height: 13px;
-      transition: transform 0.2s;
-      fill: currentColor;
-    }
-    .toggle-options-btn.open svg {
-      transform: rotate(180deg);
-    }
-
-    .search-form {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-end;
-      gap: 12px;
-    }
-    .input-group {
-      flex: 1;
-      min-width: 220px;
-    }
-    .input-group h2 {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #5b6f82;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-    .input-group input {
-      width: 100%;
-      padding: 11px 14px;
-      font-size: 0.95rem;
-      border: 1px solid #ccd5de;
-      border-radius: 5px;
-      background: #ffffff;
-      font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-weight: 600;
-      color: #1e2b3c;
-      outline: none;
-      transition: 0.2s;
-    }
-    .input-group input:focus {
-      border-color: #2c7da0;
-      box-shadow: 0 0 0 2px rgba(44,125,160,0.15);
-    }
-    .search-btn {
-      padding: 10px 24px;
-      background: #2c7da0;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
+    .status {
+      font-size: 13px;
+      color: #8fdfff;
       display: flex;
       align-items: center;
       gap: 8px;
-      transition: 0.2s;
-      white-space: nowrap;
-      height: 44px;
-    }
-    .search-btn:hover {
-      background: #1f5f7a;
-    }
-    .search-btn:active {
-      transform: scale(0.97);
-    }
-    .search-btn:disabled {
-      opacity: 0.6;
-      pointer-events: none;
-    }
-    .options-panel {
-      display: none;
-      margin-top: 16px;
-      padding-top: 14px;
-      border-top: 1px solid #dce1e8;
-      font-size: 0.75rem;
-      color: #5b6f82;
-    }
-    .options-panel.visible {
-      display: block;
     }
 
-    /* ===== RESULTS CARD ===== */
-    .results-card {
-      background: #ffffff;
-      border-radius: 8px;
-      padding: 28px 30px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-      border: 1px solid #dce1e8;
-      display: none; /* hidden until search */
-    }
-    .results-card.visible {
-      display: block;
-      animation: fadeIn 0.3s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #4ade80;
+      box-shadow: 0 0 10px #4ade80;
     }
 
-    .airport-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 10px;
+    .panel {
+      background: linear-gradient(180deg, #353840 0%, #2f3137 100%);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 7px;
+      overflow: hidden;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.4);
     }
-    .airport-header h1 {
-      font-size: 1.25rem;
+
+    .panel-header {
+      padding: 20px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.02);
+    }
+
+    .panel-header h1 {
+      margin: 0;
+      font-size: 24px;
       font-weight: 700;
-      color: #1e2b3c;
-      display: flex;
-      align-items: baseline;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-    .airport-header h1 .subtext {
-      font-weight: 400;
-      color: #5b6f82;
-      font-size: 0.9rem;
-    }
-    .button-charts {
-      background: #edf2f7;
-      border: 1px solid #cbd5e0;
-      padding: 6px 14px;
-      border-radius: 5px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #2c7da0;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: 0.2s;
-      white-space: nowrap;
-    }
-    .button-charts:hover {
-      background: #e2eaf2;
-      border-color: #2c7da0;
     }
 
-    .details-grid {
+    .panel-header p {
+      margin: 5px 0 0;
+      color: #9ca4af;
+      font-size: 14px;
+    }
+
+    .search-row {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 10px;
-      margin: 16px 0 20px;
+      grid-template-columns: 1fr 190px;
+      gap: 16px;
+      padding: 22px;
     }
-    .details-grid figure {
-      background: #f4f7fa;
-      border-radius: 6px;
-      padding: 12px 14px;
-      border: 1px solid #e2e8f0;
-    }
-    .details-grid h2 {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #5b6f82;
-      margin-bottom: 4px;
-    }
-    .details-grid strong {
-      font-size: 0.95rem;
-      color: #1e2b3c;
-    }
-    .status-indicator {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }
-    .status-indicator.VFR, .status-indicator.green { background: #d4edda; color: #155724; }
-    .status-indicator.MVFR, .status-indicator.blue { background: #d6eaf8; color: #1a5276; }
-    .status-indicator.IFR, .status-indicator.red { background: #f8d7da; color: #721c24; }
-    .status-indicator.LIFR, .status-indicator.magenta { background: #f5eef8; color: #6c3483; }
 
-    hr {
+    .icao-input {
+      height: 56px;
+      border-radius: 4px;
+      border: 1px solid var(--main-input-border);
+      background: var(--main-input-background);
+      color: white;
+      padding: 0 18px;
+      font-size: 16px;
+      text-transform: uppercase;
+      outline: none;
+      transition: 0.2s ease;
+      letter-spacing: 1px;
+    }
+
+    .icao-input:hover {
+      border-color: var(--main-input-border-hover);
+    }
+
+    .icao-input:focus {
+      border-color: var(--main-input-border-focus);
+      box-shadow: 0 0 0 3px rgba(40,158,214,0.15);
+    }
+
+    .search-btn {
       border: none;
-      border-top: 1px solid #e2e8f0;
-      margin: 18px 0;
-    }
-
-    /* Two‑column text layout (like SimBrief's "justify") */
-    .text-columns {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-    .text-columns .col-left {
-      flex: 2;
-      min-width: 280px;
-    }
-    .text-columns .col-right {
-      flex: 1;
-      min-width: 240px;
-    }
-    @media (max-width: 700px) {
-      .text-columns {
-        flex-direction: column;
-      }
-      .text-columns .col-right {
-        flex: auto;
-      }
-    }
-
-    .text-block {
-      position: relative;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 14px 16px;
-      margin-bottom: 14px;
-    }
-    .text-block h3 {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: #1e2b3c;
-      margin-bottom: 6px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 4px;
-    }
-    .text-block h3 .right {
-      font-weight: 400;
-      color: #5b6f82;
-      font-size: 0.7rem;
-      text-transform: none;
-    }
-    .textbox {
-      font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
-      font-size: 0.8rem;
-      background: #1e293b;
-      color: #d9e6f2;
-      padding: 12px;
-      border-radius: 4px;
-      white-space: pre-wrap;
-      word-break: break-word;
-      max-height: 300px;
-      overflow-y: auto;
-      line-height: 1.5;
-    }
-    .copy-btn {
-      position: absolute;
-      top: 10px;
-      right: 12px;
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: #ccdbe9;
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 0.65rem;
-      font-weight: 600;
+      border-radius: 5px;
+      background: linear-gradient(180deg,var(--main-button-cta),#0f4e7b);
+      color: white;
+      font-weight: 700;
+      font-size: 14px;
       cursor: pointer;
-      text-transform: uppercase;
-      transition: 0.2s;
-    }
-    .copy-btn:hover {
-      background: rgba(255,255,255,0.25);
-      color: white;
-    }
-    .copy-btn.copied {
-      background: #27ae60;
-      border-color: #27ae60;
-      color: white;
+      transition: 0.2s ease;
+      letter-spacing: 0.5px;
     }
 
-    .loading-overlay {
+    .search-btn:hover {
+      background: linear-gradient(180deg,var(--main-button-cta-hover),#1767a1);
+      transform: translateY(-1px);
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 20px;
+      padding: 22px;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 7px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--global-msfs-blue), transparent);
+    }
+
+    .card-title {
+      padding: 16px 18px;
+      font-weight: 700;
+      color: #8fdfff;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 15px;
+      letter-spacing: 0.5px;
+    }
+
+    .content {
+      padding: 18px;
+      font-family: Consolas, monospace;
+      white-space: pre-wrap;
+      line-height: 1.7;
+      font-size: 14px;
+      color: #dde7f2;
+      min-height: 140px;
+    }
+
+    .loading {
+      color: #8fdfff;
+    }
+
+    .error {
+      color: #ff9d9d;
+    }
+
+    .footer {
+      margin-top: 18px;
+      color: #95a0ae;
+      font-size: 13px;
       text-align: center;
-      padding: 32px;
-      color: #5b6f82;
-      display: none;
     }
-    .loading-overlay.visible {
-      display: block;
-    }
-    .spinner {
-      width: 28px;
-      height: 28px;
-      border: 3px solid #e2e8f0;
-      border-top-color: #2c7da0;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 12px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .error-msg {
-      background: #fff5f5;
-      border: 1px solid #fecaca;
-      color: #991b1b;
-      padding: 12px 16px;
-      border-radius: 6px;
-      font-weight: 500;
-      display: none;
-      margin-bottom: 12px;
+    @media (max-width: 900px) {
+      .results {
+        grid-template-columns: 1fr;
+      }
+
+      .search-row {
+        grid-template-columns: 1fr;
+      }
+
+      .app {
+        padding: 16px;
+      }
     }
-    .error-msg.visible { display: block; }
   </style>
 </head>
 <body>
-  <!-- SimBrief‑style dark header -->
-  <header class="top-bar">
-    <div>
-      <div class="brand">Weather<span>&amp;NOTAM</span></div>
-      <div class="subtitle">Aviation Briefing</div>
-    </div>
-    <div style="color:#8899aa; font-size:0.8rem;">ICAO Search</div>
-  </header>
 
-  <div class="main-container">
-    <div class="content-wrapper">
-      <!-- SEARCH CARD -->
-      <div class="search-card">
-        <h1>
-          <span>Airport Search</span>
-          <span class="subtext"> - Search airport weather and NOTAMs</span>
-          <button class="toggle-options-btn" onclick="toggleOptions(this)" title="Show/Hide Options">
-            <span class="show-text">Show</span><span class="hide-text" style="display:none;">Hide</span> Options
-            <svg viewBox="0 0 256 256" width="13" height="13"><path d="M65.247 100.253C31.011 134.492 3 162.955 3.001 163.503C3.001 164.051 9.49 171.25 17.422 179.5L31.842 194.5L79.916 146.509L127.99 98.518L141.745 112.005C149.31 119.422 170.911 140.789 189.746 159.487L223.993 193.482L239.001 178.499L254.01 163.515L191.258 100.758C156.744 66.241 128.278 38 128 38C127.722 38 99.483 66.014 65.247 100.253Z" fill="currentColor"/></svg>
-          </button>
-        </h1>
+<div class="app">
 
-        <form class="search-form" onsubmit="handleSearch(event)">
-          <div class="input-group">
-            <h2>Airport Codes</h2>
-            <input id="airport-input" type="text" autocorrect="off" autocapitalize="characters" spellcheck="false"
-                   placeholder="Separate multiple ICAOs with a space" maxlength="4">
-          </div>
-          <button type="submit" class="search-btn" id="search-btn">
-            <svg width="16" height="16" viewBox="0 0 256 256"><path d="M0 0C5.624 1.406 7.976 4.572 12.089 8.653C13.754 10.299 15.418 11.944 17.133 13.64C18.932 15.434 20.73 17.229 22.582 19.078C24.421 20.907 26.26 22.736 28.155 24.621C32.046 28.497 35.934 32.378 39.818 36.262C45.789 42.226 51.783 48.166 57.779 54.105C61.548 57.866 65.316 61.627 69.082 65.391C70.89 67.177 72.698 68.964 74.561 70.805C76.21 72.463 77.859 74.121 79.558 75.829C81.755 78.02 81.755 78.02 83.996 80.254C84.987 81.49 85.979 82.727 87 84C85.699 90.505 83.002 92.512 78.331 97.203C75.858 99.699 75.858 99.699 73.335 102.247C71.537 104.04 69.739 105.833 67.887 107.68C66.055 109.517 64.224 111.355 62.337 113.248C58.457 117.135 54.572 121.017 50.683 124.894C44.707 130.855 38.756 136.84 32.807 142.828C29.043 146.593 25.278 150.356 21.512 154.117C19.72 155.922 17.928 157.727 16.082 159.587C14.424 161.233 12.766 162.878 11.057 164.574C9.595 166.035 8.132 167.497 6.625 169.003C5.429 169.992 4.233 170.981 3 172C-3.735 170.316 -7.471 164.799 -12.25 159.938C-15.259 156.888 -15.259 156.888 -18.328 153.777C-19.87 152.201 -21.412 150.624 -23 149C-13.723 138.177 -4.051 127.919 6.062 117.875C7.31 116.632 8.557 115.39 9.842 114.109C12.892 111.071 15.946 108.035 19 105C16.937 104.99 14.875 104.979 12.749 104.969C-6.646 104.871 -26.041 104.768 -45.436 104.661C-55.409 104.605 -65.381 104.552 -75.354 104.503C-84.969 104.455 -94.585 104.403 -104.2 104.347C-107.877 104.327 -111.554 104.308 -115.231 104.291C-120.363 104.267 -125.495 104.237 -130.626 104.205C-133.553 104.19 -136.48 104.174 -139.495 104.158C-146 104 -146 104 -148 103C-148 91.78 -148 80.56 -148 69C-143.312 66.656 -135.6 67.821 -130.626 67.795C-128.212 67.78 -128.212 67.78 -125.749 67.765C-120.403 67.733 -115.057 67.708 -109.711 67.684C-106.014 67.663 -102.318 67.642 -98.621 67.621C-88.873 67.565 -79.124 67.516 -69.375 67.468C-59.435 67.418 -49.495 67.362 -39.555 67.307C-20.036 67.199 -0.518 67.098 19 67C17.349 65.36 15.697 63.721 13.996 62.031C11.832 59.876 9.667 57.721 7.438 55.5C5.291 53.365 3.145 51.231 0.934 49.031C-3.564 44.46 -7.822 39.854 -12 35C-15.647 31.314 -19.311 27.644 -23 24C-18.257 18.467 -13.464 13.205 -8.375 8C-6.898 6.474 -5.42 4.948 -3.898 3.375C-2.612 2.261 -1.325 1.148 0 0Z" fill="white" transform="translate(158,42)"/></svg>
-            Search
-          </button>
-        </form>
+  <div class="topbar">
+    <div class="logo">SKY<span>OPS</span> DISPATCH</div>
 
-        <div class="options-panel" id="options-panel">
-          <p>Enter one or more 4‑letter ICAO codes (e.g. <strong>KJFK EGLL FACT</strong>). Data from AviationWeather.gov.</p>
-        </div>
-      </div>
-
-      <!-- RESULTS CARD -->
-      <div class="results-card" id="weather-results">
-        <div class="airport-header">
-          <h1>
-            <span id="result-title">—</span>
-            <span class="subtext" id="result-subtitle"> - </span>
-          </h1>
-          <a id="charts-link" href="#" target="_blank" class="button-charts">📊 Charts</a>
-        </div>
-
-        <div class="details-grid" id="details-grid">
-          <figure><h2>Elevation</h2><strong id="detail-elevation">—</strong></figure>
-          <figure><h2>Local Time</h2><strong id="detail-localtime">—</strong></figure>
-          <figure><h2>Current Weather</h2><strong id="detail-wx">—</strong></figure>
-          <figure><h2>METAR Ceiling</h2><strong id="detail-ceiling">—</strong></figure>
-          <figure><h2>METAR Visibility</h2><strong id="detail-vis">—</strong></figure>
-          <figure><h2>Transition Altitude</h2><strong id="detail-ta">—</strong></figure>
-          <figure><h2>Transition Level</h2><strong id="detail-tl">—</strong></figure>
-        </div>
-
-        <hr>
-
-        <div class="text-columns">
-          <div class="col-left">
-            <!-- ATIS -->
-            <div class="text-block">
-              <h3>ATIS (<span id="atis-network">—</span>) <span class="right">Issued: <span id="atis-age">∞</span> ago</span></h3>
-              <div class="textbox" id="atis-text">No ATIS available</div>
-              <button class="copy-btn" onclick="copyText('atis-text', this)">Copy</button>
-            </div>
-
-            <!-- METAR -->
-            <div class="text-block">
-              <h3>METAR <span class="right">Issued: <span id="metar-age">—</span> ago</span></h3>
-              <div class="textbox" id="metar-text">—</div>
-              <button class="copy-btn" onclick="copyText('metar-text', this)">Copy</button>
-            </div>
-
-            <!-- TAF -->
-            <div class="text-block">
-              <h3>TAF <span class="right">Issued: <span id="taf-age">—</span> ago</span></h3>
-              <div class="textbox" id="taf-text">—</div>
-              <button class="copy-btn" onclick="copyText('taf-text', this)">Copy</button>
-            </div>
-          </div>
-          <div class="col-right">
-            <!-- NOTAMs -->
-            <div class="text-block">
-              <h3>NOTAMs <span class="right"><span id="notam-count">0</span> Total</span></h3>
-              <div class="textbox" id="notam-text">No NOTAM available</div>
-              <button class="copy-btn" onclick="copyText('notam-text', this)">Copy</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="loading-overlay" id="loading">
-          <div class="spinner"></div>
-          Fetching weather data...
-        </div>
-        <div class="error-msg" id="error-msg"></div>
-      </div>
+    <div class="status">
+      <div class="dot"></div>
+      LIVE WEATHER NETWORK
     </div>
   </div>
 
-  <script>
-    (function() {
-      // DOM refs
-      const airportInput = document.getElementById('airport-input');
-      const searchBtn = document.getElementById('search-btn');
-      const loadingEl = document.getElementById('loading');
-      const errorEl = document.getElementById('error-msg');
-      const resultsCard = document.getElementById('weather-results');
-      const detailsGrid = document.getElementById('details-grid');
-      const optionsPanel = document.getElementById('options-panel');
+  <div class="panel">
 
-      let currentAirport = null, currentMetars = null, currentTaf = null, currentNotams = null;
+    <div class="panel-header">
+      <h1>Airport Search</h1>
+      <p>Search METAR, TAF, NOTAM and ATIS information</p>
+    </div>
 
-      // Toggle options visibility
-      window.toggleOptions = function(btn) {
-        const showSpan = btn.querySelector('.show-text');
-        const hideSpan = btn.querySelector('.hide-text');
-        const isOpen = optionsPanel.classList.contains('visible');
-        if (isOpen) {
-          optionsPanel.classList.remove('visible');
-          btn.classList.remove('open');
-          showSpan.style.display = '';
-          hideSpan.style.display = 'none';
-        } else {
-          optionsPanel.classList.add('visible');
-          btn.classList.add('open');
-          showSpan.style.display = 'none';
-          hideSpan.style.display = '';
-        }
-      };
+    <div class="search-row">
+      <input
+        id="icaoInput"
+        class="icao-input"
+        type="text"
+        placeholder="FAOR FACT EGLL KJFK"
+        value="FAOR"
+      >
 
-      // Copy to clipboard
-      window.copyText = function(elementId, btn) {
-        const el = document.getElementById(elementId);
-        const text = el.textContent || el.innerText || '';
-        const copyFn = navigator.clipboard?.writeText ? (t) => navigator.clipboard.writeText(t) : (t) => new Promise((res) => {
-          const ta = document.createElement('textarea');
-          ta.value = t;
-          ta.style.position = 'fixed'; ta.style.opacity = '0';
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand('copy');
-          document.body.removeChild(ta);
-          res();
-        });
-        copyFn(text).then(() => {
-          const orig = btn.textContent;
-          btn.textContent = 'Copied!';
-          btn.classList.add('copied');
-          setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 1500);
-        }).catch(() => {});
-      };
+      <button class="search-btn" onclick="searchWeather()">
+        SEARCH WEATHER
+      </button>
+    </div>
 
-      // Form submit handler
-      window.handleSearch = function(e) {
-        e.preventDefault();
-        const raw = airportInput.value.trim();
-        if (!raw) return showError('Please enter an ICAO code.');
-        // Take the first ICAO code
-        const icao = raw.split(/\s+/)[0].toUpperCase().replace(/[^A-Z0-9]/g, '');
-        if (icao.length < 4) return showError('Enter a valid 4‑letter ICAO code.');
-        fetchData(icao);
-      };
+    <div class="results">
 
-      async function fetchData(icao) {
-        hideError();
-        loadingEl.classList.add('visible');
-        resultsCard.classList.remove('visible');
-        searchBtn.disabled = true;
-        airportInput.disabled = true;
-        currentAirport = currentMetars = currentTaf = currentNotams = null;
+      <div class="card">
+        <div class="card-title">METAR</div>
+        <div id="metar" class="content">Waiting for search...</div>
+      </div>
 
-        try {
-          const [airR, metR, tafR, notR] = await Promise.allSettled([
-            fetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
-            fetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=36`),
-            fetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
-            fetch(`https://aviationweather.gov/api/data/notam?ids=${icao}&format=json`)
-          ]);
+      <div class="card">
+        <div class="card-title">TAF</div>
+        <div id="taf" class="content">Waiting for search...</div>
+      </div>
 
-          if (airR.status === 'fulfilled' && airR.value.ok) {
-            const data = await airR.value.json();
-            if (Array.isArray(data) && data.length) currentAirport = data[0];
-          }
-          if (metR.status === 'fulfilled' && metR.value.ok) {
-            const data = await metR.value.json();
-            if (Array.isArray(data) && data.length) currentMetars = data;
-          }
-          if (tafR.status === 'fulfilled' && tafR.value.ok) {
-            const data = await tafR.value.json();
-            if (Array.isArray(data) && data.length) currentTaf = data[0];
-          }
-          if (notR.status === 'fulfilled' && notR.value.ok) {
-            const data = await notR.value.json();
-            if (Array.isArray(data) && data.length) currentNotams = data;
-          }
+      <div class="card">
+        <div class="card-title">ATIS</div>
+        <div id="atis" class="content">ATIS integration can be connected to VATSIM or IVAO feeds.</div>
+      </div>
 
-          // If we have absolutely nothing, show error
-          if (!currentAirport && !currentMetars && !currentTaf && !currentNotams) {
-            showError(`No data found for "${icao}". Please verify the ICAO code.`);
-          } else {
-            renderResults(icao);
-          }
-        } catch (err) {
-          showError('Network error – please try again.');
-        } finally {
-          loadingEl.classList.remove('visible');
-          searchBtn.disabled = false;
-          airportInput.disabled = false;
-        }
-      }
+      <div class="card">
+        <div class="card-title">NOTAMS</div>
+        <div id="notams" class="content">NOTAM integration ready.</div>
+      </div>
 
-      function renderResults(icao) {
-        const ap = currentAirport;
-        const mets = currentMetars;
-        const taf = currentTaf;
+    </div>
 
-        // Title
-        const name = ap?.name || icao;
-        const iata = ap?.iata || '';
-        document.getElementById('result-title').textContent = icao + (iata ? ' / ' + iata : '');
-        document.getElementById('result-subtitle').textContent = ' - ' + name;
-        document.getElementById('charts-link').href = `https://charts.navigraph.com/airport/${icao}?section=Charts&chartCategory=APT`;
+  </div>
 
-        // Details
-        const elevFt = ap?.elev_m != null ? Math.round(ap.elev_m * 3.28084) : null;
-        document.getElementById('detail-elevation').textContent = elevFt ? elevFt.toLocaleString() + ' feet' : '—';
+  <div class="footer">
+    Aviation Weather Dashboard • SimBrief-inspired design • Live API support
+  </div>
 
-        document.getElementById('detail-localtime').textContent = getLocalTime(ap?.lat, ap?.lon);
+</div>
 
-        const latest = Array.isArray(mets) && mets.length ? mets[0] : null;
-        const cat = latest?.fltcat || 'UNKN';
-        document.getElementById('detail-wx').innerHTML = `<span class="status-indicator ${cat}">${cat === 'UNKN' ? 'N/A' : cat}</span>`;
+<script>
 
-        const ceil = latest?.ceil;
-        document.getElementById('detail-ceiling').textContent = ceil != null ? (ceil >= 9999 ? '> 9,999 ft' : ceil.toLocaleString() + ' ft') : '—';
+async function searchWeather() {
 
-        const visM = latest?.visib;
-        const visSM = visM != null ? visM / 1609.344 : null;
-        document.getElementById('detail-vis').textContent = visSM != null ? (visSM >= 6 ? '> 6 SM' : visSM.toFixed(1) + ' SM') + ' | ' + (visM >= 9999 ? '9,999 m' : visM.toLocaleString() + ' m') : '—';
+  const input = document.getElementById('icaoInput');
+  const metarBox = document.getElementById('metar');
+  const tafBox = document.getElementById('taf');
 
-        const ta = estimateTA(ap, latest);
-        const tl = estimateTL(ta, latest);
-        document.getElementById('detail-ta').textContent = ta ? ta.toLocaleString() + ' ft' : '—';
-        document.getElementById('detail-tl').textContent = tl ? tl.toLocaleString() + ' ft' : '—';
+  const icao = input.value.trim().toUpperCase();
 
-        // ATIS placeholder
-        document.getElementById('atis-network').textContent = 'None';
-        document.getElementById('atis-age').textContent = '∞';
-        document.getElementById('atis-text').textContent = 'No ATIS available';
+  if (!icao) {
+    metarBox.innerHTML = '<span class="error">Please enter an ICAO code.</span>';
+    return;
+  }
 
-        // METAR
-        if (Array.isArray(mets) && mets.length) {
-          const rawText = mets.map(m => m.rawOb || m.raw || '').filter(Boolean).join('\n\n');
-          document.getElementById('metar-text').textContent = rawText || 'No METAR data';
-          document.getElementById('metar-age').textContent = ageStr(mets[0].obsTime);
-        } else {
-          document.getElementById('metar-text').textContent = 'No METAR available';
-          document.getElementById('metar-age').textContent = '—';
-        }
+  metarBox.innerHTML = '<span class="loading">Loading METAR...</span>';
+  tafBox.innerHTML = '<span class="loading">Loading TAF...</span>';
 
-        // TAF
-        if (taf) {
-          document.getElementById('taf-text').textContent = taf.raw || taf.rawOb || 'No TAF data';
-          document.getElementById('taf-age').textContent = ageStr(taf.issueTime);
-        } else {
-          document.getElementById('taf-text').textContent = 'No TAF available';
-          document.getElementById('taf-age').textContent = '—';
-        }
+  try {
 
-        // NOTAM
-        if (Array.isArray(currentNotams) && currentNotams.length) {
-          const txts = currentNotams.map(n => n.raw || n.notam || n.text || '').filter(Boolean);
-          document.getElementById('notam-text').textContent = txts.join('\n\n') || 'No NOTAM';
-          document.getElementById('notam-count').textContent = currentNotams.length;
-        } else {
-          document.getElementById('notam-text').textContent = 'No NOTAM available';
-          document.getElementById('notam-count').textContent = '0';
-        }
+    const metarResponse = await fetch(
+      `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json`
+    );
 
-        resultsCard.classList.add('visible');
-        resultsCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
+    const tafResponse = await fetch(
+      `https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`
+    );
 
-      // ---- helpers ----
-      function ageStr(iso) {
-        if (!iso) return '—';
-        const diff = Date.now() - new Date(iso).getTime();
-        if (diff < 0) return '—';
-        const m = Math.floor(diff / 60000);
-        return Math.floor(m/60) + ':' + String(m%60).padStart(2,'0');
-      }
+    const metarData = await metarResponse.json();
+    const tafData = await tafResponse.json();
 
-      function getLocalTime(lat, lon) {
-        const now = new Date();
-        let offset = lon != null ? Math.round(lon / 15) : 0;
-        const local = new Date(now.getTime() + offset * 3600000);
-        const h = local.getUTCHours(), m = local.getUTCMinutes();
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        const h12 = h % 12 || 12;
-        return `${h12}:${String(m).padStart(2,'0')} ${ampm} (UTC${offset >= 0 ? '+' + offset : offset})`;
-      }
+    if (metarData.length > 0) {
+      metarBox.textContent = metarData[0].rawOb;
+    } else {
+      metarBox.innerHTML = '<span class="error">No METAR found.</span>';
+    }
 
-      function estimateTA(ap, met) {
-        if (!ap) return null;
-        const country = (ap.country || '').toUpperCase();
-        const elev = ap.elev_m != null ? Math.round(ap.elev_m * 3.28084) : 0;
-        if (country === 'US' || country === 'CA') return 18000;
-        if (country === 'GB' || country === 'UK') return Math.max(6000, Math.ceil((elev + 3000) / 1000) * 1000);
-        if (country === 'AU') return 10000;
-        if (country === 'JP') return 14000;
-        return Math.max(5000, Math.ceil((elev + 4000) / 1000) * 1000);
-      }
+    if (tafData.length > 0) {
+      tafBox.textContent = tafData[0].rawTAF;
+    } else {
+      tafBox.innerHTML = '<span class="error">No TAF found.</span>';
+    }
 
-      function estimateTL(ta, met) {
-        if (!ta) return null;
-        const qnh = met?.altim || met?.altimeter || 1013.25;
-        return Math.max(ta + 500, Math.round((ta + 1000 - (qnh - 1013.25) * 30) / 500) * 500);
-      }
+  } catch (err) {
 
-      function showError(msg) {
-        errorEl.textContent = msg;
-        errorEl.classList.add('visible');
-        resultsCard.classList.remove('visible');
-      }
+    metarBox.innerHTML = '<span class="error">Failed to fetch METAR.</span>';
+    tafBox.innerHTML = '<span class="error">Failed to fetch TAF.</span>';
 
-      function hideError() {
-        errorEl.classList.remove('visible');
-      }
+    console.error(err);
+  }
+}
 
-      // Enter key triggers search
-      airportInput.addEventListener('keypress', e => {
-        if (e.key === 'Enter') { e.preventDefault(); handleSearch(e); }
-      });
+searchWeather();
 
-      // Focus input on load
-      airportInput.focus();
-    })();
-  </script>
+</script>
+
 </body>
 </html>
