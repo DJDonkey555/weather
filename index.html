@@ -65,10 +65,8 @@
             overflow-x: hidden;
             position: relative;
             line-height: 1.5;
-            letter-spacing: -0.01em;
         }
 
-        /* ── Animated background orbs ── */
         body::before {
             content: '';
             position: fixed;
@@ -103,7 +101,6 @@
             }
         }
 
-        /* ── Subtle grid texture ── */
         body::after {
             content: '';
             position: fixed;
@@ -118,7 +115,6 @@
             -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 70%);
         }
 
-        /* ── App container ── */
         .app {
             position: relative;
             z-index: 1;
@@ -127,7 +123,6 @@
             padding: 24px 28px 40px;
         }
 
-        /* ── Topbar ── */
         .topbar {
             display: flex;
             align-items: center;
@@ -228,7 +223,6 @@
             }
         }
 
-        /* ── Panel ── */
         .panel {
             background: var(--bg-surface);
             border: 1px solid var(--border-subtle);
@@ -253,7 +247,6 @@
             padding: 24px 28px 20px;
             border-bottom: 1px solid var(--border-subtle);
             background: rgba(255, 255, 255, 0.012);
-            position: relative;
         }
         .panel-header h1 {
             margin: 0;
@@ -266,11 +259,8 @@
             margin: 4px 0 0;
             color: var(--text-muted);
             font-size: 13px;
-            font-weight: 400;
-            letter-spacing: 0.01em;
         }
 
-        /* ── Search row ── */
         .search-row {
             display: flex;
             gap: 14px;
@@ -284,7 +274,6 @@
         .input-wrapper {
             flex: 1;
             min-width: 220px;
-            position: relative;
         }
         .icao-input {
             width: 100%;
@@ -305,15 +294,13 @@
         }
         .icao-input::placeholder {
             color: var(--text-muted);
-            letter-spacing: 0.05em;
             font-family: var(--font-sans);
-            font-weight: 400;
             text-transform: none;
-            font-size: 14px;
+            letter-spacing: 0.05em;
+            font-weight: 400;
         }
         .icao-input:hover {
             border-color: rgba(255, 255, 255, 0.18);
-            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.3), 0 0 0 4px rgba(255, 255, 255, 0.015);
         }
         .icao-input:focus {
             border-color: var(--accent-cyan);
@@ -330,14 +317,13 @@
             color: #fff;
             font-weight: 700;
             font-size: 14px;
-            font-family: var(--font-sans);
             cursor: pointer;
             transition: var(--transition-smooth);
             letter-spacing: 0.04em;
             white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 180, 216, 0.2);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 180, 216, 0.2);
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
         }
         .search-btn::after {
@@ -366,10 +352,8 @@
         .search-btn:active {
             transform: translateY(0);
             transition: 0.08s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
         }
 
-        /* ── Recent chips ── */
         .recent-chips {
             display: flex;
             gap: 8px;
@@ -392,7 +376,6 @@
             font-size: 12px;
             font-family: var(--font-mono);
             font-weight: 500;
-            letter-spacing: 0.05em;
             color: var(--text-secondary);
             cursor: pointer;
             transition: var(--transition-fast);
@@ -403,15 +386,12 @@
             background: var(--bg-card-hover);
             border-color: rgba(255, 255, 255, 0.18);
             color: #fff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
         }
         .chip-remove {
             font-size: 14px;
             opacity: 0.5;
             cursor: pointer;
             padding: 0 2px;
-            transition: var(--transition-fast);
-            line-height: 1;
         }
         .chip-remove:hover {
             opacity: 1;
@@ -424,7 +404,6 @@
             font-family: var(--font-sans);
         }
 
-        /* ── Results grid ── */
         .results {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -438,8 +417,8 @@
                 padding: 16px 16px 20px;
             }
             .search-row {
-                padding: 16px;
                 flex-direction: column;
+                padding: 16px;
             }
             .search-btn {
                 width: 100%;
@@ -455,9 +434,6 @@
             .panel-header {
                 padding: 18px 16px 14px;
             }
-            .panel-header h1 {
-                font-size: 19px;
-            }
             .recent-chips {
                 padding: 0 16px 8px;
             }
@@ -466,7 +442,6 @@
             }
         }
 
-        /* ── Card ── */
         .card {
             background: var(--bg-card);
             border: 1px solid var(--border-card);
@@ -575,7 +550,6 @@
             flex: 1;
         }
 
-        /* ── METAR visual breakdown ── */
         .metar-visual-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -588,11 +562,6 @@
             border-radius: var(--radius-sm);
             padding: 12px 14px;
             text-align: center;
-            transition: var(--transition-fast);
-        }
-        .metar-stat:hover {
-            background: rgba(255, 255, 255, 0.04);
-            border-color: rgba(255, 255, 255, 0.12);
         }
         .metar-stat-value {
             font-size: 22px;
@@ -630,7 +599,6 @@
             color: var(--text-muted);
         }
 
-        /* ── Wind compass ── */
         .wind-compass-wrap {
             display: flex;
             align-items: center;
@@ -644,7 +612,6 @@
             border: 2px solid rgba(255, 255, 255, 0.2);
             position: relative;
             background: rgba(255, 255, 255, 0.02);
-            transition: var(--transition-smooth);
         }
         .wind-arrow {
             position: absolute;
@@ -682,7 +649,6 @@
             box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
         }
 
-        /* ── Flight category badge ── */
         .flight-cat {
             display: inline-flex;
             align-items: center;
@@ -716,7 +682,6 @@
             border: 1px solid rgba(239, 68, 68, 0.3);
         }
 
-        /* ── Loading shimmer ── */
         .loading-shimmer {
             background: linear-gradient(90deg,
                     transparent 0%,
@@ -726,7 +691,6 @@
                     transparent 100%);
             background-size: 200% 100%;
             animation: shimmer 2s ease-in-out infinite;
-            border-radius: var(--radius-sm);
         }
         @keyframes shimmer {
             0% {
@@ -737,73 +701,22 @@
             }
         }
 
-        /* ── Status colors ── */
-        .text-success {
-            color: var(--accent-green);
-        }
-        .text-warning {
-            color: var(--accent-amber);
-        }
-        .text-danger {
-            color: var(--accent-red);
-        }
-        .text-info {
-            color: var(--accent-cyan);
-        }
-        .text-muted {
-            color: var(--text-muted);
-        }
-
-        /* ── Footer ── */
         .footer {
             margin-top: 20px;
             color: var(--text-muted);
             font-size: 12px;
             text-align: center;
             letter-spacing: 0.03em;
-            font-weight: 400;
             padding: 0 4px;
         }
         .footer span {
             color: var(--accent-cyan);
-        }
-
-        /* ── Scrollbar ── */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* ── Responsive fine-tuning ── */
-        @media (min-width: 1100px) {
-            .results {
-                grid-template-columns: 1fr 1fr;
-            }
-            .card.metar-card {
-                grid-column: 1 / -1;
-            }
-        }
-        @media (max-width: 1099px) and (min-width: 901px) {
-            .results {
-                grid-template-columns: 1fr 1fr;
-            }
         }
     </style>
 </head>
 <body>
 
     <div class="app">
-        <!-- ── Topbar ── -->
         <div class="topbar">
             <div class="logo-group">
                 <div class="logo-icon">🛫</div>
@@ -818,34 +731,21 @@
             </div>
         </div>
 
-        <!-- ── Main Panel ── -->
         <div class="panel">
             <div class="panel-header">
                 <h1>Airport Weather Search</h1>
-                <p>Real-time METAR · TAF · ATIS · NOTAMs — Enter any ICAO code</p>
+                <p>Real‑time METAR · TAF · ATIS · NOTAMs — Enter any ICAO code</p>
             </div>
 
             <div class="search-row">
                 <div class="input-wrapper">
-                    <input
-                    id="icaoInput"
-                    class="icao-input"
-                    type="text"
-                    placeholder="FAOR · FACT · EGLL · KJFK · OMDB"
-                    value="FAOR"
-                    maxlength="4"
-                    autocomplete="off"
-                    spellcheck="false"
-                    >
+                    <input id="icaoInput" class="icao-input" type="text" placeholder="FAOR · FACT · EGLL · KJFK · OMDB" value="FAOR" maxlength="4" autocomplete="off" spellcheck="false">
                 </div>
-                <button class="search-btn" onclick="searchWeather()" id="searchBtn">
-                    🔍 SEARCH WEATHER
-                </button>
+                <button class="search-btn" id="searchBtn">🔍 SEARCH WEATHER</button>
             </div>
 
             <div class="recent-chips" id="recentChips"></div>
 
-            <!-- ── Results Grid ── -->
             <div class="results">
                 <!-- METAR Card -->
                 <div class="card metar-card">
@@ -857,7 +757,7 @@
                             <div class="card-subtitle">Meteorological Aerodrome Report</div>
                         </div>
                     </div>
-                    <div class="card-body" id="metarBody">
+                    <div class="card-body">
                         <pre id="metarRaw">Waiting for search...</pre>
                         <div id="metarVisual" style="display:none;"></div>
                     </div>
@@ -911,18 +811,16 @@
         </div>
 
         <div class="footer">
-            SkyOps Dispatch Weather · Real-time aviation data · <span>NOAA</span> & <span>VATSIM</span> sources
+            SkyOps Dispatch Weather · Real‑time aviation data · <span>NOAA</span> & <span>VATSIM</span> sources
         </div>
     </div>
 
     <script>
         (function() {
-            // ── DOM refs ──
             const icaoInput = document.getElementById('icaoInput');
             const searchBtn = document.getElementById('searchBtn');
             const metarRaw = document.getElementById('metarRaw');
             const metarVisual = document.getElementById('metarVisual');
-            const metarBody = document.getElementById('metarBody');
             const tafRaw = document.getElementById('tafRaw');
             const atisRaw = document.getElementById('atisRaw');
             const notamsRaw = document.getElementById('notamsRaw');
@@ -930,6 +828,35 @@
 
             const RECENT_KEY = 'skyops_recent_icaos';
             const MAX_RECENT = 8;
+
+            // ── CORS proxy fallback chain ──
+            const PROXY_LIST = [
+                'https://corsproxy.io/?',           // primary proxy
+                'https://api.allorigins.win/raw?url=' // secondary
+            ];
+
+            async function safeFetch(url, options = {}) {
+                // Try direct fetch first
+                try {
+                    const res = await fetch(url, { signal: AbortSignal.timeout(12000), ...options });
+                    if (res.ok) return res;
+                    throw new Error(`HTTP ${res.status}`);
+                } catch (directErr) {
+                    console.warn('Direct fetch failed, trying proxies:', directErr.message);
+                }
+
+                // Fallback to proxies
+                for (const proxy of PROXY_LIST) {
+                    try {
+                        const proxyUrl = proxy + encodeURIComponent(url);
+                        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000), ...options });
+                        if (res.ok) return res;
+                    } catch (proxyErr) {
+                        console.warn('Proxy attempt failed:', proxy, proxyErr.message);
+                    }
+                }
+                throw new Error('All fetch methods failed. Please check your internet connection or try again later.');
+            }
 
             // ── Recent ICAOs ──
             function getRecents() {
@@ -944,7 +871,7 @@
             function saveRecents(list) {
                 try {
                     localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, MAX_RECENT)));
-                } catch (e) { /* quota exceeded, ignore */ }
+                } catch (e) {}
             }
 
             function addRecent(icao) {
@@ -974,7 +901,6 @@
                     ).join('');
             }
 
-            // Delegate clicks on recent chips
             recentChips.addEventListener('click', (e) => {
                 const chip = e.target.closest('.chip');
                 const removeBtn = e.target.closest('.chip-remove');
@@ -1000,7 +926,6 @@
                 return 'temp-cold';
             }
 
-            // ── Flight category ──
             function flightCatBadge(cat) {
                 if (!cat) return '';
                 const map = {
@@ -1013,7 +938,6 @@
                 return `<span class="flight-cat ${cls}">● ${cat.toUpperCase()}</span>`;
             }
 
-            // ── Wind direction to cardinal ──
             function degToCardinal(deg) {
                 if (deg === null || deg === undefined || isNaN(deg)) return '—';
                 const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
@@ -1023,113 +947,64 @@
                 return dirs[idx];
             }
 
-            // ── Build METAR visual ──
             function buildMetarVisual(data) {
                 if (!data || data.length === 0) return '';
-
                 const d = data[0];
-                const temp = d.temp !== null && d.temp !== undefined ? d.temp : null;
-                const dewp = d.dewp !== null && d.dewp !== undefined ? d.dewp : null;
-                const wdir = d.wdir !== null && d.wdir !== undefined ? d.wdir : null;
-                const wspd = d.wspd !== null && d.wspd !== undefined ? d.wspd : null;
+                const temp = d.temp ?? null;
+                const dewp = d.dewp ?? null;
+                const wdir = d.wdir ?? null;
+                const wspd = d.wspd ?? null;
                 const wgst = d.wgst || null;
-                const visib = d.visib !== null && d.visib !== undefined ? d.visib : null;
-                const altim = d.altim !== null && d.altim !== undefined ? d.altim : null;
+                const visib = d.visib ?? null;
+                const altim = d.altim ?? null;
                 const clouds = d.clouds || [];
                 const wxStr = d.wxString || '';
                 const flightCat = d.flightCategory || '';
                 const name = d.name || '';
                 const obsTime = d.obsTime || '';
 
-                let cloudStr = clouds.map(c => `${c.cover || ''}${c.base ? ' at ' + c.base + 'ft' : ''}`).join(
-                ', ');
-                if (!cloudStr && !wxStr && visib === null && temp === null) {
-                    // Not enough parsed data, skip visual
-                    return '';
-                }
+                let cloudStr = clouds.map(c => `${c.cover || ''}${c.base ? ' at ' + c.base + 'ft' : ''}`).join(', ');
+                if (!cloudStr && !wxStr && visib === null && temp === null && dewp === null) return '';
 
                 let html = '<div class="metar-visual-grid">';
-
-                // Temperature
                 if (temp !== null) {
-                    html += `
-                <div class="metar-stat">
-                  <div class="metar-stat-value ${tempClass(temp)}">${temp}<span class="metar-stat-unit">°C</span></div>
-                  <div class="metar-stat-label">Temperature</div>
-                </div>`;
+                    html += `<div class="metar-stat"><div class="metar-stat-value ${tempClass(temp)}">${temp}<span class="metar-stat-unit">°C</span></div><div class="metar-stat-label">Temperature</div></div>`;
                 }
-                // Dewpoint
                 if (dewp !== null) {
-                    html += `
-                <div class="metar-stat">
-                  <div class="metar-stat-value ${tempClass(dewp)}">${dewp}<span class="metar-stat-unit">°C</span></div>
-                  <div class="metar-stat-label">Dewpoint</div>
-                </div>`;
+                    html += `<div class="metar-stat"><div class="metar-stat-value ${tempClass(dewp)}">${dewp}<span class="metar-stat-unit">°C</span></div><div class="metar-stat-label">Dewpoint</div></div>`;
                 }
-                // Wind
                 if (wdir !== null && wspd !== null) {
-                    html += `
-                <div class="metar-stat">
-                  <div class="wind-compass-wrap">
-                    <div class="wind-compass">
-                      <div class="wind-arrow" style="transform: translate(-50%, -100%) rotate(${wdir}deg);"></div>
-                      <div class="wind-center-dot"></div>
-                    </div>
-                  </div>
-                  <div class="metar-stat-value" style="font-size:18px;">${wdir}° <span style="font-size:13px;">/ ${wspd}kt</span></div>
-                  <div class="metar-stat-label">Wind — ${degToCardinal(wdir)}${wgst ? ' G' + wgst + 'kt' : ''}</div>
-                </div>`;
+                    html += `<div class="metar-stat"><div class="wind-compass-wrap"><div class="wind-compass"><div class="wind-arrow" style="transform: translate(-50%, -100%) rotate(${wdir}deg);"></div><div class="wind-center-dot"></div></div></div><div class="metar-stat-value" style="font-size:18px;">${wdir}° <span style="font-size:13px;">/ ${wspd}kt</span></div><div class="metar-stat-label">Wind — ${degToCardinal(wdir)}${wgst ? ' G' + wgst + 'kt' : ''}</div></div>`;
                 }
-                // Visibility
                 if (visib !== null) {
                     const visStr = visib >= 9999 ? '10km+' : visib + ' SM';
-                    html += `
-                <div class="metar-stat">
-                  <div class="metar-stat-value">${visStr}</div>
-                  <div class="metar-stat-label">Visibility</div>
-                </div>`;
+                    html += `<div class="metar-stat"><div class="metar-stat-value">${visStr}</div><div class="metar-stat-label">Visibility</div></div>`;
                 }
-                // Altimeter
                 if (altim !== null) {
-                    html += `
-                <div class="metar-stat">
-                  <div class="metar-stat-value">${altim}<span class="metar-stat-unit"> hPa</span></div>
-                  <div class="metar-stat-label">Altimeter</div>
-                </div>`;
+                    html += `<div class="metar-stat"><div class="metar-stat-value">${altim}<span class="metar-stat-unit"> hPa</span></div><div class="metar-stat-label">Altimeter</div></div>`;
                 }
                 html += '</div>';
 
-                // Clouds & Weather
                 if (cloudStr || wxStr) {
                     html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;font-size:12px;color:#a0aec0;">';
-                    if (cloudStr) html +=
-                        '<span style="background:rgba(255,255,255,0.03);padding:4px 10px;border-radius:6px;">☁️ ' +
-                        cloudStr + '</span>';
-                    if (wxStr) html +=
-                        '<span style="background:rgba(255,255,255,0.03);padding:4px 10px;border-radius:6px;">🌧️ ' +
-                        wxStr + '</span>';
+                    if (cloudStr) html += `<span style="background:rgba(255,255,255,0.03);padding:4px 10px;border-radius:6px;">☁️ ${cloudStr}</span>`;
+                    if (wxStr) html += `<span style="background:rgba(255,255,255,0.03);padding:4px 10px;border-radius:6px;">🌧️ ${wxStr}</span>`;
                     html += '</div>';
                 }
 
-                // Flight category + airport name + obs time
                 html += '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:4px;">';
                 if (flightCat) html += flightCatBadge(flightCat);
-                if (name) html +=
-                    '<span style="font-size:12px;color:#a0aec0;font-weight:500;">' + name + '</span>';
-                if (obsTime) html +=
-                    '<span style="font-size:11px;color:#6b7280;">Observed: ' + new Date(obsTime).toUTCString() +
-                    '</span>';
+                if (name) html += `<span style="font-size:12px;color:#a0aec0;font-weight:500;">${name}</span>`;
+                if (obsTime) html += `<span style="font-size:11px;color:#6b7280;">Observed: ${new Date(obsTime).toUTCString()}</span>`;
                 html += '</div>';
-
                 return html;
             }
 
-            // ── Main search function ──
             async function searchWeather() {
                 const icao = icaoInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
 
                 if (!icao || icao.length < 4) {
-                    metarRaw.textContent = '⚠️ Please enter a valid 4-letter ICAO code.';
+                    metarRaw.textContent = '⚠️ Please enter a valid 4‑letter ICAO code.';
                     metarVisual.innerHTML = '';
                     metarVisual.style.display = 'none';
                     tafRaw.textContent = 'Waiting for valid ICAO...';
@@ -1138,91 +1013,75 @@
                     return;
                 }
 
-                // Add to recents
                 addRecent(icao);
 
-                // Set loading states
-                metarRaw.textContent = 'Loading METAR...';
-                metarRaw.classList.add('loading-shimmer');
+                // Loading state
+                const setLoading = (el) => {
+                    el.textContent = 'Loading...';
+                    el.classList.add('loading-shimmer');
+                };
+                setLoading(metarRaw);
                 metarVisual.innerHTML = '';
                 metarVisual.style.display = 'none';
-                tafRaw.textContent = 'Loading TAF...';
-                tafRaw.classList.add('loading-shimmer');
-                atisRaw.textContent = 'Loading ATIS...';
-                atisRaw.classList.add('loading-shimmer');
-                notamsRaw.textContent = 'Loading NOTAMs...';
-                notamsRaw.classList.add('loading-shimmer');
-
-                // Disable button during load
+                setLoading(tafRaw);
+                setLoading(atisRaw);
+                setLoading(notamsRaw);
                 searchBtn.disabled = true;
                 searchBtn.textContent = '⏳ LOADING...';
 
                 try {
-                    // ── Parallel fetch: METAR + TAF + VATSIM ──
+                    // Fetch all data in parallel using safeFetch
                     const [metarRes, tafRes, vatsimRes] = await Promise.allSettled([
-                        fetch(
-                            `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`,
-                            { signal: AbortSignal.timeout(15000) }
-                        ),
-                        fetch(
-                            `https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`,
-                            { signal: AbortSignal.timeout(15000) }
-                        ),
-                        fetch(
-                            'https://data.vatsim.net/v3/vatsim-data.json',
-                            { signal: AbortSignal.timeout(15000) }
-                        ),
+                        safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
+                        safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
+                        safeFetch('https://data.vatsim.net/v3/vatsim-data.json')
                     ]);
 
                     // ── Process METAR ──
-                    if (metarRes.status === 'fulfilled' && metarRes.value.ok) {
-                        const metarData = await metarRes.value.json();
-                        if (metarData && metarData.length > 0 && metarData[0].rawOb) {
-                            metarRaw.textContent = metarData[0].rawOb;
-                            metarRaw.classList.remove('loading-shimmer');
-                            const visualHtml = buildMetarVisual(metarData);
-                            if (visualHtml) {
-                                metarVisual.innerHTML = visualHtml;
-                                metarVisual.style.display = 'block';
+                    if (metarRes.status === 'fulfilled') {
+                        try {
+                            const metarData = await metarRes.value.json();
+                            if (metarData && metarData.length > 0 && metarData[0].rawOb) {
+                                metarRaw.textContent = metarData[0].rawOb;
+                                metarRaw.classList.remove('loading-shimmer');
+                                const visualHtml = buildMetarVisual(metarData);
+                                if (visualHtml) {
+                                    metarVisual.innerHTML = visualHtml;
+                                    metarVisual.style.display = 'block';
+                                } else {
+                                    metarVisual.innerHTML = '';
+                                    metarVisual.style.display = 'none';
+                                }
                             } else {
+                                metarRaw.textContent = `⚠️ No METAR data for ${icao}. The airport may not exist or no observation is available.`;
+                                metarRaw.classList.remove('loading-shimmer');
                                 metarVisual.innerHTML = '';
                                 metarVisual.style.display = 'none';
                             }
-                        } else {
-                            metarRaw.textContent = '⚠️ No METAR data available for ' + icao +
-                                '.\n\nThe airport may not exist or no recent observation is available.';
+                        } catch (err) {
+                            metarRaw.textContent = `❌ Failed to parse METAR: ${err.message}`;
                             metarRaw.classList.remove('loading-shimmer');
-                            metarVisual.innerHTML = '';
-                            metarVisual.style.display = 'none';
                         }
                     } else {
-                        const errMsg = metarRes.status === 'rejected' ? metarRes.reason?.message || 'Network error' :
-                            'HTTP ' + metarRes.value?.status;
-                        metarRaw.textContent = '❌ Failed to load METAR: ' + errMsg +
-                            '\n\nPlease check your connection and try again.';
+                        metarRaw.textContent = `❌ METAR fetch failed: ${metarRes.reason?.message || 'Unknown error'}`;
                         metarRaw.classList.remove('loading-shimmer');
-                        metarVisual.innerHTML = '';
-                        metarVisual.style.display = 'none';
                     }
 
                     // ── Process TAF ──
-                    if (tafRes.status === 'fulfilled' && tafRes.value.ok) {
-                        const tafData = await tafRes.value.json();
-                        if (tafData && tafData.length > 0 && tafData[0].rawTAF) {
-                            tafRaw.textContent = tafData[0].rawTAF;
-                        } else {
-                            tafRaw.textContent = '⚠️ No TAF available for ' + icao +
-                                '.\n\nThis airport may not issue TAFs or no forecast is currently published.';
+                    if (tafRes.status === 'fulfilled') {
+                        try {
+                            const tafData = await tafRes.value.json();
+                            tafRaw.textContent = tafData?.[0]?.rawTAF || `⚠️ No TAF available for ${icao}.`;
+                        } catch (err) {
+                            tafRaw.textContent = `❌ Failed to parse TAF: ${err.message}`;
                         }
                     } else {
-                        const errMsg = tafRes.status === 'rejected' ? tafRes.reason?.message || 'Network error' :
-                            'HTTP ' + tafRes.value?.status;
-                        tafRaw.textContent = '❌ Failed to load TAF: ' + errMsg;
+                        tafRaw.textContent = `❌ TAF fetch failed: ${tafRes.reason?.message || 'Unknown error'}`;
                     }
                     tafRaw.classList.remove('loading-shimmer');
 
-                    // ── Process VATSIM ATIS ──
-                    if (vatsimRes.status === 'fulfilled' && vatsimRes.value.ok) {
+                    // ── Process ATIS (VATSIM) ──
+                    if (vatsimRes.status === 'fulfilled') {
                         try {
                             const vatsimData = await vatsimRes.value.json();
                             let atisFound = null;
@@ -1231,59 +1090,33 @@
                                     a.callsign && a.callsign.toUpperCase().includes(icao)
                                 );
                             }
-                            if (atisFound && atisFound.text_atis && atisFound.text_atis.length > 0) {
+                            if (atisFound && atisFound.text_atis?.length > 0) {
                                 let atisText = atisFound.text_atis.join('\n');
                                 if (atisFound.atis_code) {
-                                    atisText = '📻 ATIS Code: ' + atisFound.atis_code + '\n📡 Frequency: ' + (
-                                        atisFound.frequency || 'N/A'
-                                    ) + '\n📋 Callsign: ' + (atisFound.callsign || 'N/A') +
-                                        '\n\n' + atisText;
+                                    atisText = `📻 ATIS Code: ${atisFound.atis_code}\n📡 Frequency: ${atisFound.frequency || 'N/A'}\n📋 Callsign: ${atisFound.callsign || 'N/A'}\n\n${atisText}`;
                                 }
                                 atisRaw.textContent = atisText;
                             } else {
-                                atisRaw.textContent =
-                                    '⚠️ No active VATSIM ATIS found for ' + icao +
-                                    '.\n\nThis airport may not have an active ATIS controller on VATSIM right now.\n\nTry again later or check the METAR for current conditions.';
+                                atisRaw.textContent = `⚠️ No active VATSIM ATIS for ${icao}. The airport may not have an online controller right now.`;
                             }
-                        } catch (parseErr) {
-                            atisRaw.textContent =
-                                '⚠️ VATSIM data received but could not be parsed.\n\n' + parseErr.message;
+                        } catch (err) {
+                            atisRaw.textContent = `⚠️ VATSIM data parse error: ${err.message}`;
                         }
                     } else {
-                        const errMsg = vatsimRes.status === 'rejected' ? vatsimRes.reason?.message || 'Network error' :
-                            'HTTP ' + vatsimRes.value?.status;
-                        atisRaw.textContent =
-                            '⚠️ VATSIM ATIS feed unavailable: ' + errMsg +
-                            '\n\nThis is common if VATSIM\'s data server is temporarily unreachable.\nThe METAR and TAF data above are still valid.';
+                        atisRaw.textContent = `⚠️ VATSIM ATIS unavailable: ${vatsimRes.reason?.message || 'Network issue'}. METAR/TAF still valid.`;
                     }
                     atisRaw.classList.remove('loading-shimmer');
 
-                    // ── NOTAMs (placeholder with helpful info) ──
-                    notamsRaw.textContent =
-                        '📝 NOTAMs for ' + icao +
-                        '\n\n' +
-                        'Real-time NOTAM data requires connection to an official NOTAM API.\n\n' +
-                        'Options:\n' +
-                        '  • FAA NOTAM API (US airports): https://notams.aim.faa.gov/\n' +
-                        '  • ICAO NOTAM portal (international)\n' +
-                        '  • Local aviation authority databases\n\n' +
-                        'For flight simulation, NOTAMs can be sourced from:\n' +
-                        '  • VATSIM pilot briefings\n' +
-                        '  • Navigraph charts integration\n' +
-                        '  • SimBrief flight plan NOTAMs\n\n' +
-                        'Connect your API key in Settings to enable live NOTAM feeds.';
+                    // ── NOTAMs placeholder ──
+                    notamsRaw.textContent = `📝 NOTAMs for ${icao}\n\nReal‑time NOTAMs require connection to an official NOTAM API (FAA, ICAO).\nFor flight simulation, you can integrate:\n  • VATSIM pilot briefings\n  • Navigraph charts\n  • SimBrief NOTAMs\n\nConnect your API key to enable live feeds.`;
                     notamsRaw.classList.remove('loading-shimmer');
 
                 } catch (err) {
-                    console.error('Search error:', err);
-                    metarRaw.textContent = '❌ Unexpected error: ' + err.message;
-                    metarRaw.classList.remove('loading-shimmer');
-                    metarVisual.innerHTML = '';
-                    metarVisual.style.display = 'none';
-                    tafRaw.textContent = '❌ Unexpected error during TAF fetch.';
-                    tafRaw.classList.remove('loading-shimmer');
-                    atisRaw.textContent = '❌ Unexpected error during ATIS fetch.';
-                    atisRaw.classList.remove('loading-shimmer');
+                    console.error(err);
+                    [metarRaw, tafRaw, atisRaw].forEach(el => {
+                        el.textContent = `❌ Unexpected error: ${err.message}`;
+                        el.classList.remove('loading-shimmer');
+                    });
                     notamsRaw.textContent = 'NOTAM integration ready.';
                     notamsRaw.classList.remove('loading-shimmer');
                 } finally {
@@ -1292,7 +1125,6 @@
                 }
             }
 
-            // ── Event listeners ──
             searchBtn.addEventListener('click', searchWeather);
             icaoInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -1300,22 +1132,17 @@
                     searchWeather();
                 }
             });
-
-            // Auto-uppercase and limit to 4 chars
             icaoInput.addEventListener('input', () => {
                 icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
             });
 
-            // ── Initialize ──
             renderRecents();
-            // Auto-search default ICAO on load
             window.addEventListener('DOMContentLoaded', () => {
                 if (icaoInput.value.trim().length === 4) {
                     searchWeather();
                 }
             });
 
-            // Expose for inline onclick
             window.searchWeather = searchWeather;
         })();
     </script>
