@@ -3,29 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyOps Dispatch | Aviation Weather</title>
+    <title>SkyOps Dispatch | Weather & NOTAM — SimBrief Style</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+    href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet">
 
     <style>
         :root {
-            --simbrief-bg: #0b0d12;
-            --simbrief-panel: #141820;
-            --simbrief-card: #1a1e27;
-            --simbrief-border: #242834;
-            --simbrief-text: #e1e5ee;
-            --simbrief-text-secondary: #9aa1b0;
-            --simbrief-accent: #f0ad4e;
-            --simbrief-accent-hover: #f7c06c;
-            --simbrief-input-bg: #0f1118;
-            --simbrief-input-border: #2d3240;
-            --simbrief-input-focus: #f0ad4e;
+            --sb-bg: #0b0d12;
+            --sb-surface: #10131a;
+            --sb-card: #141820;
+            --sb-border: #1c1f28;
+            --sb-border-light: #252833;
+            --sb-text: #e1e5ee;
+            --sb-text-muted: #8b909d;
+            --sb-text-dim: #5b606d;
+            --sb-accent: #f0ad4e;
+            --sb-accent-soft: rgba(240, 173, 78, 0.07);
+            --sb-accent-glow: rgba(240, 173, 78, 0.22);
+            --sb-danger: #e0556a;
+            --sb-green: #4ade80;
+            --sb-green-soft: rgba(74, 222, 128, 0.12);
+            --sb-blue: #60a5fa;
+            --sb-blue-soft: rgba(96, 165, 250, 0.10);
+            --sb-amber: #f59e0b;
+            --sb-red: #ef4444;
+            --sb-red-soft: rgba(239, 68, 68, 0.10);
+            --sb-input-bg: #0c0e14;
+            --sb-input-border: #222630;
+            --sb-hover-row: rgba(255, 255, 255, 0.012);
             --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-            --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+            --font-mono: 'JetBrains Mono', 'Consolas', 'SF Mono', 'Fira Code', monospace;
+            --radius-sm: 4px;
             --radius: 6px;
-            --shadow: 0 2px 12px rgba(0,0,0,0.4);
+            --radius-md: 8px;
+            --radius-lg: 10px;
+            --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.015);
+            --shadow-elevated: 0 4px 24px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.025);
+            --transition-fast: 0.15s ease;
+            --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -36,432 +55,1417 @@
 
         body {
             font-family: var(--font-sans);
-            background: var(--simbrief-bg);
-            color: var(--simbrief-text);
+            background: var(--sb-bg);
+            color: var(--sb-text);
             min-height: 100vh;
-            padding: 30px 40px;
             line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding: 0;
+            background-image:
+                radial-gradient(ellipse at 50% 0%, rgba(240, 173, 78, 0.015) 0%, transparent 65%),
+                radial-gradient(ellipse at 85% 20%, rgba(96, 165, 250, 0.01) 0%, transparent 50%);
         }
 
-        .app {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        /* SimBrief style top bar */
-        .topbar {
+        /* ── SimBrief-style top navigation bar ── */
+        .nav-top {
+            background: var(--sb-surface);
+            border-bottom: 1px solid var(--sb-border);
+            padding: 0 28px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 12px;
+            height: 50px;
+            gap: 28px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.45);
         }
-        .logo {
-            font-size: 24px;
+        .nav-brand {
             font-weight: 700;
-            letter-spacing: -0.5px;
+            font-size: 15px;
+            letter-spacing: -0.3px;
             color: #fff;
-        }
-        .logo span {
-            color: var(--simbrief-accent);
-        }
-        .status {
-            font-size: 13px;
-            color: var(--simbrief-text-secondary);
+            white-space: nowrap;
             display: flex;
             align-items: center;
             gap: 8px;
-            background: var(--simbrief-panel);
-            border: 1px solid var(--simbrief-border);
-            padding: 8px 16px;
-            border-radius: 4px;
+            cursor: default;
         }
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4ade80;
-            box-shadow: 0 0 8px #4ade80;
+        .nav-brand .icon-plane {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: var(--sb-accent);
+            border-radius: 3px;
+            position: relative;
+            transform: rotate(-15deg);
+            flex-shrink: 0;
         }
-
-        .panel {
-            background: var(--simbrief-panel);
-            border: 1px solid var(--simbrief-border);
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
+        .nav-brand .icon-plane::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 2px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 12px solid #0b0d12;
+            border-bottom: 8px solid transparent;
+            border-top: 4px solid transparent;
         }
-
-        .panel-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--simbrief-border);
-            background: rgba(255,255,255,0.02);
-        }
-        .panel-header h1 {
-            font-size: 20px;
-            font-weight: 600;
-            margin: 0 0 4px;
-            color: #fff;
-        }
-        .panel-header p {
-            font-size: 13px;
-            color: var(--simbrief-text-secondary);
-        }
-
-        /* Search row */
-        .search-row {
+        .nav-links {
             display: flex;
-            gap: 12px;
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--simbrief-border);
+            gap: 20px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--sb-text-muted);
+            letter-spacing: 0.15px;
         }
-        .input-wrapper {
-            flex: 1;
+        .nav-links span {
+            cursor: pointer;
+            transition: color var(--transition-fast);
+            white-space: nowrap;
+            padding: 4px 0;
+            border-bottom: 2px solid transparent;
+            font-size: 12px;
         }
-        .icao-input {
-            width: 100%;
-            height: 48px;
-            border-radius: var(--radius);
-            border: 1px solid var(--simbrief-input-border);
-            background: var(--simbrief-input-bg);
+        .nav-links span:hover {
             color: #fff;
-            padding: 0 16px;
-            font-size: 15px;
+        }
+        .nav-links span.active {
+            color: var(--sb-accent);
+            border-bottom-color: var(--sb-accent);
+        }
+        .nav-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--sb-text-muted);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .nav-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--sb-green);
+            box-shadow: 0 0 6px var(--sb-green);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                box-shadow: 0 0 4px var(--sb-green);
+            }
+            50% {
+                box-shadow: 0 0 14px var(--sb-green), 0 0 24px rgba(74, 222, 128, 0.35);
+            }
+        }
+
+        /* ── Main layout ── */
+        .app-container {
+            max-width: 1060px;
+            margin: 0 auto;
+            padding: 24px 28px 16px;
+        }
+
+        /* ── SimBrief section block ── */
+        .sb-section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .sb-section-title {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--sb-text-muted);
+            white-space: nowrap;
+        }
+        .sb-section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--sb-border);
+        }
+
+        /* ── Panel ── */
+        .sb-panel {
+            background: var(--sb-surface);
+            border: 1px solid var(--sb-border);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 20px;
+        }
+        .sb-panel-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--sb-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.006);
+        }
+        .sb-panel-header h2 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: -0.2px;
+            margin: 0;
+        }
+        .sb-panel-header .subtitle {
+            font-size: 11px;
+            color: var(--sb-text-muted);
+            font-weight: 400;
+            margin-left: 6px;
+        }
+        .sb-toggle-options {
+            font-size: 11px;
+            color: var(--sb-accent);
+            cursor: pointer;
+            font-weight: 500;
+            user-select: none;
+            transition: color var(--transition-fast);
+            white-space: nowrap;
+            letter-spacing: 0.2px;
+        }
+        .sb-toggle-options:hover {
+            color: #f7c06c;
+        }
+
+        /* ── Search row ── */
+        .sb-search-row {
+            display: flex;
+            gap: 8px;
+            padding: 14px 18px;
+            align-items: center;
+        }
+        .sb-input {
+            flex: 1;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--sb-input-border);
+            background: var(--sb-input-bg);
+            color: #fff;
+            padding: 0 13px;
+            font-size: 14px;
             font-family: var(--font-mono);
             font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.08em;
             outline: none;
-            transition: 0.2s;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+            max-width: 260px;
         }
-        .icao-input::placeholder {
-            color: #5b6270;
+        .sb-input::placeholder {
+            color: #4a4f5c;
             font-family: var(--font-sans);
             text-transform: none;
             letter-spacing: normal;
             font-weight: 400;
+            font-size: 12.5px;
         }
-        .icao-input:focus {
-            border-color: var(--simbrief-input-focus);
-            box-shadow: 0 0 0 3px rgba(240,173,78,0.1);
+        .sb-input:focus {
+            border-color: var(--sb-accent);
+            box-shadow: 0 0 0 3px var(--sb-accent-soft);
         }
-
-        .search-btn {
-            height: 48px;
-            padding: 0 28px;
+        .sb-btn {
+            height: 40px;
+            padding: 0 20px;
             border: none;
-            border-radius: var(--radius);
-            background: var(--simbrief-accent);
-            color: #000;
+            border-radius: var(--radius-sm);
+            background: var(--sb-accent);
+            color: #1a1a1a;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 12.5px;
             cursor: pointer;
-            transition: 0.2s;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
+            transition: all var(--transition-fast);
             white-space: nowrap;
+            font-family: var(--font-sans);
         }
-        .search-btn:hover {
-            background: var(--simbrief-accent-hover);
+        .sb-btn:hover {
+            background: #f7c06c;
             transform: translateY(-1px);
+            box-shadow: 0 4px 14px var(--sb-accent-glow);
         }
-        .search-btn:disabled {
-            opacity: 0.6;
+        .sb-btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .sb-btn:disabled {
+            opacity: 0.45;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            filter: grayscale(20%);
+        }
+        .sb-btn-secondary {
+            background: transparent;
+            border: 1px solid var(--sb-border-light);
+            color: var(--sb-text-muted);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .sb-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.025);
+            color: #fff;
+            box-shadow: none;
             transform: none;
         }
 
-        /* Results grid – raw data two columns, ATIS full width */
-        .results {
+        /* ── Results grid ── */
+        .sb-results-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 24px;
+            gap: 0;
+            border-top: 1px solid var(--sb-border);
+        }
+        .sb-results-grid .sb-figure-wrapper {
+            border-right: 1px solid var(--sb-border);
+            border-bottom: 1px solid var(--sb-border);
+        }
+        .sb-results-grid .sb-figure-wrapper:nth-child(2n) {
+            border-right: none;
+        }
+        .sb-results-grid .sb-figure-wrapper.full-width {
+            grid-column: 1 / -1;
+            border-right: none;
+            border-bottom: none;
         }
 
-        .card {
-            background: var(--simbrief-card);
-            border: 1px solid var(--simbrief-border);
-            border-radius: 5px;
-            overflow: hidden;
+        /* ── SimBrief-style figure ── */
+        .sb-figure {
+            padding: 0;
+            margin: 0;
+            background: var(--sb-card);
             display: flex;
             flex-direction: column;
+            min-height: 200px;
+            position: relative;
         }
-        .card.metar-card {
-            /* could span if needed, but left as normal */
-        }
-        .card.atis-card {
-            grid-column: 1 / -1; /* full width below METAR/TAF */
-        }
-
-        .card-header {
-            padding: 14px 18px;
-            background: rgba(0,0,0,0.2);
-            border-bottom: 1px solid var(--simbrief-border);
+        .sb-figure h3 {
+            font-size: 11.5px;
             font-weight: 600;
-            font-size: 14px;
-            color: var(--simbrief-accent);
-            letter-spacing: 0.4px;
-        }
-        .card-body {
-            padding: 16px 18px;
-            flex: 1;
-            min-height: 140px;
-        }
-        .card-body pre {
-            font-family: var(--font-mono);
-            font-size: 13px;
-            line-height: 1.6;
-            color: #d0d6e0;
-            white-space: pre-wrap;
-            word-break: break-word;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--sb-text-muted);
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.035);
+            background: rgba(0, 0, 0, 0.18);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
             margin: 0;
         }
+        .sb-figure h3 .figure-indicator {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: var(--sb-accent);
+            box-shadow: 0 0 5px var(--sb-accent-glow);
+            flex-shrink: 0;
+            margin-right: 6px;
+        }
+        .sb-figure h3 .figure-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sb-figure h3 .issued-age {
+            font-weight: 400;
+            font-size: 10.5px;
+            color: var(--sb-text-dim);
+            text-transform: none;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            margin-left: auto;
+        }
+        .sb-figure .textbox-wrapper {
+            padding: 14px 16px;
+            flex: 1;
+            position: relative;
+        }
+        .sb-figure .textbox {
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            line-height: 1.7;
+            color: #c8ced9;
+            white-space: pre-wrap;
+            word-break: break-word;
+            letter-spacing: 0.02em;
+            font-weight: 500;
+            display: block;
+            margin: 0;
+            overflow-x: auto;
+            max-height: 380px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--sb-border-light) transparent;
+        }
+        .sb-figure .textbox pre {
+            margin: 0;
+            padding: 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: inherit;
+            color: inherit;
+            letter-spacing: inherit;
+            font-weight: inherit;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .sb-figure .textbox pre+pre {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .sb-figure .placeholder {
+            color: var(--sb-text-dim);
+            font-family: var(--font-sans);
+            font-style: italic;
+            font-size: 13px;
+            letter-spacing: normal;
+            font-weight: 400;
+        }
 
-        .loading-shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+        /* ── Copy button ── */
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 30px;
+            height: 30px;
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--sb-text-dim);
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+            z-index: 5;
+            opacity: 0;
+        }
+        .sb-figure:hover .copy-btn,
+        .copy-btn.copied {
+            opacity: 1;
+        }
+        .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.07);
+            color: #fff;
+            border-color: var(--sb-border-light);
+        }
+        .copy-btn.copied {
+            background: var(--sb-green-soft);
+            color: var(--sb-green);
+            border-color: rgba(74, 222, 128, 0.3);
+        }
+
+        /* ── Decoded weather summary ── */
+        .decoded-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0;
+            border-top: 1px solid var(--sb-border);
+            background: rgba(0, 0, 0, 0.1);
+        }
+        .decoded-item {
+            flex: 1;
+            min-width: 100px;
+            padding: 12px 14px;
+            text-align: center;
+            border-right: 1px solid rgba(255, 255, 255, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            transition: background var(--transition-fast);
+        }
+        .decoded-item:last-child {
+            border-right: none;
+        }
+        .decoded-item:hover {
+            background: rgba(255, 255, 255, 0.012);
+        }
+        .decoded-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--sb-text-dim);
+        }
+        .decoded-value {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 600;
+            color: #e8ecf3;
+            letter-spacing: 0.03em;
+        }
+        .decoded-value.highlight-green {
+            color: var(--sb-green);
+        }
+        .decoded-value.highlight-amber {
+            color: var(--sb-amber);
+        }
+        .decoded-value.highlight-red {
+            color: var(--sb-red);
+        }
+        .flight-cat-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-weight: 700;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-family: var(--font-sans);
+        }
+        .flight-cat-vfr {
+            background: var(--sb-green-soft);
+            color: var(--sb-green);
+        }
+        .flight-cat-mvfr {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--sb-amber);
+        }
+        .flight-cat-ifr {
+            background: var(--sb-red-soft);
+            color: var(--sb-red);
+        }
+        .flight-cat-lifr {
+            background: rgba(239, 68, 68, 0.18);
+            color: #f87171;
+        }
+
+        /* ── Loading shimmer ── */
+        .shimmer {
+            background: linear-gradient(100deg,
+                    transparent 25%,
+                    rgba(255, 255, 255, 0.015) 40%,
+                    rgba(255, 255, 255, 0.03) 50%,
+                    rgba(255, 255, 255, 0.015) 60%,
+                    transparent 75%);
             background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
+            animation: shimmer 1.8s ease-in-out infinite;
+            border-radius: var(--radius-sm);
+            min-height: 50px;
         }
         @keyframes shimmer {
-            0% {background-position: 200% 0;}
-            100% {background-position: -200% 0;}
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
         }
 
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            color: var(--simbrief-text-secondary);
+        /* ── Toast notification ── */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #1a1d26;
+            border: 1px solid var(--sb-border-light);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
             font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-elevated);
+            font-family: var(--font-sans);
         }
-        .footer span {
-            color: var(--simbrief-accent);
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
 
-        @media (max-width: 700px) {
-            body {
-                padding: 16px;
+        /* ── Footer ── */
+        .sb-footer {
+            text-align: center;
+            padding: 18px 28px 24px;
+            font-size: 10.5px;
+            color: var(--sb-text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            letter-spacing: 0.2px;
+        }
+        .sb-footer span.sep {
+            color: var(--sb-border-light);
+            font-weight: 300;
+        }
+        .sb-footer .highlight {
+            color: var(--sb-accent);
+            font-weight: 500;
+        }
+
+        /* ── Scrollbar styling ── */
+        .textbox::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .textbox::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .textbox::-webkit-scrollbar-thumb {
+            background: var(--sb-border-light);
+            border-radius: 3px;
+        }
+        .textbox::-webkit-scrollbar-thumb:hover {
+            background: #3a3e4a;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 800px) {
+            .nav-top {
+                padding: 0 14px;
+                gap: 14px;
+                height: 46px;
             }
-            .results {
+            .nav-links {
+                gap: 10px;
+                font-size: 10.5px;
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+            }
+            .nav-links::-webkit-scrollbar {
+                display: none;
+            }
+            .nav-right {
+                font-size: 10px;
+                gap: 6px;
+                flex-shrink: 0;
+            }
+            .app-container {
+                padding: 14px 10px 8px;
+            }
+            .sb-results-grid {
                 grid-template-columns: 1fr;
-                padding: 16px;
             }
-            .card.atis-card {
+            .sb-results-grid .sb-figure-wrapper {
+                border-right: none;
+            }
+            .sb-results-grid .sb-figure-wrapper.full-width {
                 grid-column: auto;
             }
-            .search-row {
+            .sb-search-row {
                 flex-direction: column;
-                padding: 16px;
+                padding: 10px 12px;
+                gap: 8px;
             }
-            .search-btn {
+            .sb-input {
+                max-width: 100%;
                 width: 100%;
+            }
+            .sb-btn {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+            .decoded-summary {
+                flex-wrap: wrap;
+            }
+            .decoded-item {
+                min-width: 80px;
+                flex: 1 1 45%;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            }
+            .decoded-item:nth-child(2n) {
+                border-right: none;
+            }
+            .sb-figure .textbox {
+                font-size: 11px;
+                max-height: 260px;
+            }
+            .sb-figure h3 {
+                font-size: 10.5px;
+                padding: 10px 12px;
+            }
+            .sb-figure .textbox-wrapper {
+                padding: 10px 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-brand {
+                font-size: 13px;
+                gap: 5px;
+            }
+            .nav-brand .icon-plane {
+                width: 16px;
+                height: 16px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .nav-right {
+                font-size: 9px;
+            }
+            .sb-panel-header {
+                padding: 10px 12px;
+            }
+            .sb-panel-header h2 {
+                font-size: 13px;
+            }
+            .decoded-item {
+                min-width: 60px;
+                padding: 8px 10px;
+            }
+            .decoded-value {
+                font-size: 12px;
             }
         }
     </style>
 </head>
 <body>
 
-<div class="app">
-    <div class="topbar">
-        <div class="logo">SKY<span>OPS</span> DISPATCH</div>
-        <div class="status">
-            <div class="dot"></div>
-            LIVE WEATHER NETWORK
+    <!-- ═══════════ SimBrief-style top navigation ═══════════ -->
+    <nav class="nav-top">
+        <div class="nav-brand">
+            <span class="icon-plane"></span> SKYOPS
         </div>
-    </div>
+        <div class="nav-links">
+            <span>New Flight</span>
+            <span>Edit Flight</span>
+            <span>View Flight Plan</span>
+            <span>Saved Flights</span>
+            <span>Saved Airframes</span>
+            <span class="active">Weather & NOTAM</span>
+        </div>
+        <div class="nav-right">
+            <span class="nav-dot"></span> LIVE NETWORK
+        </div>
+    </nav>
 
-    <div class="panel">
-        <div class="panel-header">
-            <h1>Airport Weather Search</h1>
-            <p>Real‑time METAR · TAF · ATIS — enter ICAO code</p>
+    <!-- ═══════════ Main Content ═══════════ -->
+    <div class="app-container">
+
+        <!-- Section Header -->
+        <div class="sb-section-header">
+            <span class="sb-section-title">Weather & NOTAM</span>
+            <span class="sb-section-line"></span>
         </div>
 
-        <div class="search-row">
-            <div class="input-wrapper">
-                <input id="icaoInput" class="icao-input" type="text" placeholder="EGLL · KJFK · OMDB · FAOR" maxlength="4" autocomplete="off" spellcheck="false">
+        <!-- Panel: Airport Weather Search -->
+        <div class="sb-panel" id="mainPanel">
+            <div class="sb-panel-header">
+                <div>
+                    <h2>Airport Search</h2>
+                    <span class="subtitle">Search airport weather and NOTAMs</span>
+                </div>
+                <span class="sb-toggle-options" id="toggleOptions" title="Toggle search options">▲ Hide Options</span>
             </div>
-            <button class="search-btn" id="searchBtn">SEARCH WEATHER</button>
-        </div>
 
-        <div class="results">
-            <!-- METAR Card -->
-            <div class="card metar-card">
-                <div class="card-header">📡 METAR</div>
-                <div class="card-body">
-                    <pre id="metarRaw">Enter an ICAO code and press search.</pre>
+            <!-- Collapsible search area -->
+            <div id="optionsArea">
+                <div class="sb-search-row">
+                    <input
+                    id="icaoInput"
+                    class="sb-input"
+                    type="text"
+                    placeholder="EGLL · KJFK · OMDB · FAOR · YSSY"
+                    maxlength="4"
+                    autocomplete="off"
+                    spellcheck="false"
+                    aria-label="ICAO airport code"
+                    >
+                    <button class="sb-btn" id="searchBtn" aria-label="Search weather">SEARCH WEATHER</button>
+                    <button class="sb-btn sb-btn-secondary" id="refreshBtn" title="Refresh latest data" aria-label="Refresh data">↻ REFRESH</button>
                 </div>
             </div>
 
-            <!-- TAF Card -->
-            <div class="card">
-                <div class="card-header">📋 TAF</div>
-                <div class="card-body">
-                    <pre id="tafRaw">Enter an ICAO code and press search.</pre>
+            <!-- Decoded weather summary (hidden until data loads) -->
+            <div class="decoded-summary" id="decodedSummary" style="display:none;">
+                <div class="decoded-item">
+                    <span class="decoded-label">Flight Category</span>
+                    <span class="decoded-value" id="decodedFlightCat">—</span>
+                </div>
+                <div class="decoded-item">
+                    <span class="decoded-label">Temperature / Dew</span>
+                    <span class="decoded-value" id="decodedTemp">—</span>
+                </div>
+                <div class="decoded-item">
+                    <span class="decoded-label">Wind</span>
+                    <span class="decoded-value" id="decodedWind">—</span>
+                </div>
+                <div class="decoded-item">
+                    <span class="decoded-label">Visibility</span>
+                    <span class="decoded-value" id="decodedVis">—</span>
+                </div>
+                <div class="decoded-item">
+                    <span class="decoded-label">Clouds</span>
+                    <span class="decoded-value" id="decodedClouds">—</span>
+                </div>
+                <div class="decoded-item">
+                    <span class="decoded-label">QNH</span>
+                    <span class="decoded-value" id="decodedQnh">—</span>
                 </div>
             </div>
 
-            <!-- ATIS Card (spans full width) -->
-            <div class="card atis-card">
-                <div class="card-header">🎙️ ATIS (VATSIM)</div>
-                <div class="card-body">
-                    <pre id="atisRaw">ATIS data will appear here if available on VATSIM.</pre>
+            <!-- Results grid: METAR + TAF side by side, ATIS full width below -->
+            <div class="sb-results-grid">
+                <!-- METAR -->
+                <div class="sb-figure-wrapper">
+                    <figure class="sb-figure" id="metarFigure">
+                        <h3>
+                            <span class="figure-title-group">
+                                <span class="figure-indicator"></span> METAR
+                            </span>
+                            <span class="issued-age" id="metarAge"></span>
+                        </h3>
+                        <div class="textbox-wrapper">
+                            <button class="copy-btn" id="copyMetarBtn" title="Copy METAR to clipboard" aria-label="Copy METAR">
+                                📋
+                            </button>
+                            <strong class="textbox monospace pre metartaf notranslate" id="metarTextbox" translate="no">
+                                <span class="placeholder">Enter an ICAO code and press search.</span>
+                            </strong>
+                        </div>
+                    </figure>
+                </div>
+
+                <!-- TAF -->
+                <div class="sb-figure-wrapper">
+                    <figure class="sb-figure" id="tafFigure">
+                        <h3>
+                            <span class="figure-title-group">
+                                <span class="figure-indicator"></span> TAF
+                            </span>
+                            <span class="issued-age" id="tafAge"></span>
+                        </h3>
+                        <div class="textbox-wrapper">
+                            <button class="copy-btn" id="copyTafBtn" title="Copy TAF to clipboard" aria-label="Copy TAF">
+                                📋
+                            </button>
+                            <strong class="textbox monospace pre metartaf notranslate" id="tafTextbox" translate="no">
+                                <span class="placeholder">Enter an ICAO code and press search.</span>
+                            </strong>
+                        </div>
+                    </figure>
+                </div>
+
+                <!-- ATIS (VATSIM) — full width -->
+                <div class="sb-figure-wrapper full-width">
+                    <figure class="sb-figure" id="atisFigure">
+                        <h3>
+                            <span class="figure-title-group">
+                                <span class="figure-indicator"></span> ATIS · VATSIM
+                            </span>
+                            <span class="issued-age" id="atisAge"></span>
+                        </h3>
+                        <div class="textbox-wrapper">
+                            <button class="copy-btn" id="copyAtisBtn" title="Copy ATIS to clipboard" aria-label="Copy ATIS">
+                                📋
+                            </button>
+                            <strong class="textbox monospace pre metartaf notranslate" id="atisTextbox" translate="no">
+                                <span class="placeholder">ATIS data will appear here if available on VATSIM.</span>
+                            </strong>
+                        </div>
+                    </figure>
                 </div>
             </div>
         </div>
+
+        <!-- Toast notification -->
+        <div class="toast" id="toast"></div>
+
+        <!-- Footer -->
+        <div class="sb-footer">
+            <span>Terms of Service</span>
+            <span class="sep">·</span>
+            <span>Privacy Policy</span>
+            <span class="sep">·</span>
+            <span>© SkyOps Dispatch <span class="highlight">2026</span></span>
+            <span class="sep">·</span>
+            <span>Version <span class="highlight">2.38.1</span> (773)</span>
+            <span class="sep">·</span>
+            <span>NOAA & VATSIM data</span>
+        </div>
     </div>
 
-    <div class="footer">
-        SkyOps Dispatch Weather · NOAA & VATSIM data · <span>SimBrief‑inspired</span>
-    </div>
-</div>
+    <script>
+        (function() {
+            // ── DOM references ──
+            const icaoInput = document.getElementById('icaoInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const toggleOptions = document.getElementById('toggleOptions');
+            const optionsArea = document.getElementById('optionsArea');
+            const decodedSummary = document.getElementById('decodedSummary');
+            const toast = document.getElementById('toast');
 
-<script>
-    (function() {
-        const icaoInput = document.getElementById('icaoInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const metarRaw = document.getElementById('metarRaw');
-        const tafRaw = document.getElementById('tafRaw');
-        const atisRaw = document.getElementById('atisRaw');
+            // Textboxes (the <strong> elements)
+            const metarTextbox = document.getElementById('metarTextbox');
+            const tafTextbox = document.getElementById('tafTextbox');
+            const atisTextbox = document.getElementById('atisTextbox');
 
-        // CORS proxy fallback to avoid "Failed to fetch"
-        const PROXY_LIST = [
-            'https://corsproxy.io/?',
-            'https://api.allorigins.win/raw?url='
-        ];
+            // Age indicators
+            const metarAgeEl = document.getElementById('metarAge');
+            const tafAgeEl = document.getElementById('tafAge');
+            const atisAgeEl = document.getElementById('atisAge');
 
-        async function safeFetch(url, options = {}) {
-            // Try direct first
-            try {
-                const res = await fetch(url, { signal: AbortSignal.timeout(12000), ...options });
-                if (res.ok) return res;
-                throw new Error(`HTTP ${res.status}`);
-            } catch (directErr) {
-                console.warn('Direct fetch failed, trying proxy:', directErr.message);
+            // Decoded elements
+            const decodedFlightCat = document.getElementById('decodedFlightCat');
+            const decodedTemp = document.getElementById('decodedTemp');
+            const decodedWind = document.getElementById('decodedWind');
+            const decodedVis = document.getElementById('decodedVis');
+            const decodedClouds = document.getElementById('decodedClouds');
+            const decodedQnh = document.getElementById('decodedQnh');
+
+            // Copy buttons
+            const copyMetarBtn = document.getElementById('copyMetarBtn');
+            const copyTafBtn = document.getElementById('copyTafBtn');
+            const copyAtisBtn = document.getElementById('copyAtisBtn');
+
+            // ── State ──
+            let lastIcao = '';
+            let metarReceiptTimes = []; // store receipt times for age calculation
+            let tafReceiptTime = null;
+            let atisFetchTime = null;
+            let ageUpdateInterval = null;
+
+            // ── Toggle Options ──
+            let optionsVisible = true;
+            toggleOptions.addEventListener('click', () => {
+                optionsVisible = !optionsVisible;
+                optionsArea.style.display = optionsVisible ? 'block' : 'none';
+                toggleOptions.textContent = optionsVisible ? '▲ Hide Options' : '▼ Show Options';
+            });
+
+            // ── Toast notification ──
+            let toastTimer;
+
+            function showToast(message) {
+                clearTimeout(toastTimer);
+                toast.textContent = message;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 1800);
             }
 
-            // Fallback to proxies
-            for (const proxy of PROXY_LIST) {
+            // ── Copy to clipboard ──
+            async function copyText(text, buttonEl) {
                 try {
-                    const proxyUrl = proxy + encodeURIComponent(url);
-                    const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000), ...options });
+                    await navigator.clipboard.writeText(text);
+                    buttonEl.classList.add('copied');
+                    buttonEl.textContent = '✓';
+                    showToast('Copied to clipboard');
+                    setTimeout(() => {
+                        buttonEl.classList.remove('copied');
+                        buttonEl.textContent = '📋';
+                    }, 1500);
+                } catch (err) {
+                    // Fallback
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    textarea.style.opacity = '0';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    try {
+                        document.execCommand('copy');
+                        buttonEl.classList.add('copied');
+                        buttonEl.textContent = '✓';
+                        showToast('Copied to clipboard');
+                        setTimeout(() => {
+                            buttonEl.classList.remove('copied');
+                            buttonEl.textContent = '📋';
+                        }, 1500);
+                    } catch (fallbackErr) {
+                        showToast('Failed to copy');
+                    }
+                    document.body.removeChild(textarea);
+                }
+            }
+
+            // ── CORS proxy fallback ──
+            const PROXY_LIST = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url='
+            ];
+
+            async function safeFetch(url, options = {}) {
+                // Try direct first
+                try {
+                    const res = await fetch(url, { signal: AbortSignal.timeout(12000), ...options });
                     if (res.ok) return res;
-                } catch (proxyErr) {
-                    console.warn('Proxy attempt failed:', proxy, proxyErr.message);
+                    throw new Error(`HTTP ${res.status}`);
+                } catch (directErr) {
+                    console.warn('Direct fetch failed, trying proxy:', directErr.message);
+                }
+                // Fallback proxies
+                for (const proxy of PROXY_LIST) {
+                    try {
+                        const proxyUrl = proxy + encodeURIComponent(url);
+                        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000), ...options });
+                        if (res.ok) return res;
+                    } catch (proxyErr) {
+                        console.warn('Proxy attempt failed:', proxy, proxyErr.message);
+                    }
+                }
+                throw new Error('All fetch methods failed. Check connection or try again.');
+            }
+
+            // ── Time-ago formatter ──
+            function formatTimeAgo(date) {
+                if (!date) return '';
+                const now = new Date();
+                const diffMs = now - date;
+                if (diffMs < 0) return 'just now';
+                const diffSec = Math.floor(diffMs / 1000);
+                if (diffSec < 60) return `${diffSec}s ago`;
+                const diffMin = Math.floor(diffSec / 60);
+                if (diffMin < 60) return `${diffMin}m ago`;
+                const diffHr = Math.floor(diffMin / 60);
+                if (diffHr < 24) return `${diffHr}h ${diffMin % 60}m ago`;
+                const diffDays = Math.floor(diffHr / 24);
+                return `${diffDays}d ago`;
+            }
+
+            function updateAllAges() {
+                if (metarReceiptTimes.length > 0) {
+                    const latest = metarReceiptTimes[0]; // newest first
+                    metarAgeEl.textContent = latest ? `Issued: ${formatTimeAgo(latest)}` : '';
+                }
+                if (tafReceiptTime) {
+                    tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafReceiptTime)}`;
+                }
+                if (atisFetchTime) {
+                    atisAgeEl.textContent = `Fetched: ${formatTimeAgo(atisFetchTime)}`;
                 }
             }
-            throw new Error('All fetch methods failed. Check your connection or try again later.');
-        }
 
-        async function searchWeather() {
-            const icao = icaoInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-
-            if (!icao || icao.length < 4) {
-                metarRaw.textContent = '⚠️ Please enter a valid 4‑letter ICAO code.';
-                tafRaw.textContent = 'Waiting for valid ICAO...';
-                atisRaw.textContent = 'Waiting for valid ICAO...';
-                return;
+            function startAgeUpdates() {
+                if (ageUpdateInterval) clearInterval(ageUpdateInterval);
+                updateAllAges();
+                ageUpdateInterval = setInterval(updateAllAges, 25000);
             }
 
-            // Set loading
-            const setLoading = (el) => {
-                el.textContent = 'Loading...';
-                el.classList.add('loading-shimmer');
-            };
-            setLoading(metarRaw);
-            setLoading(tafRaw);
-            setLoading(atisRaw);
-            searchBtn.disabled = true;
-            searchBtn.textContent = '⏳ LOADING...';
+            // ── METAR decoder ──
+            function decodeMetar(rawMetar) {
+                const result = {
+                    flightCat: '—',
+                    flightCatClass: '',
+                    temp: '—',
+                    dew: '—',
+                    wind: '—',
+                    vis: '—',
+                    clouds: '—',
+                    qnh: '—',
+                };
 
-            try {
-                const [metarRes, tafRes, vatsimRes] = await Promise.allSettled([
-                    safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
-                    safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
-                    safeFetch('https://data.vatsim.net/v3/vatsim-data.json')
-                ]);
+                if (!rawMetar || rawMetar.length < 10) return result;
 
-                // ── METAR ──
-                if (metarRes.status === 'fulfilled') {
-                    try {
-                        const data = await metarRes.value.json();
-                        if (data && data.length > 0 && data[0].rawOb) {
-                            metarRaw.textContent = data[0].rawOb;
+                const metar = rawMetar.toUpperCase().trim();
+
+                // Temperature / Dewpoint: e.g., 09/04, M05/M08, 25/12
+                const tempDewMatch = metar.match(/\b(M?\d{2})\/(M?\d{2})\b/);
+                if (tempDewMatch) {
+                    const tempRaw = tempDewMatch[1].replace('M', '-');
+                    const dewRaw = tempDewMatch[2].replace('M', '-');
+                    result.temp = `${tempRaw}°C`;
+                    result.dew = `${dewRaw}°C`;
+                }
+
+                // Wind: e.g., 22006KT, VRB03KT, 22006G15KT, 00000KT
+                const windMatch = metar.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
+                if (windMatch) {
+                    const dir = windMatch[1];
+                    const speed = windMatch[2];
+                    const gust = windMatch[4];
+                    if (dir === '000' || (dir === 'VRB' && parseInt(speed) < 3)) {
+                        result.wind = 'Calm';
+                    } else if (dir === 'VRB') {
+                        result.wind = `VRB @ ${speed}kt`;
+                    } else {
+                        result.wind = `${dir}° @ ${speed}kt`;
+                    }
+                    if (gust) result.wind += ` G${gust}kt`;
+                }
+
+                // Visibility: e.g., 9999, CAVOK, 10SM, 5000, 1200
+                if (metar.includes('CAVOK')) {
+                    result.vis = 'CAVOK (10km+)';
+                } else {
+                    const visMatch = metar.match(/\b(\d{4})\b/);
+                    if (visMatch && !metar.match(/Q\d{4}/)?.index === metar.indexOf(visMatch[0])) {
+                        const visVal = parseInt(visMatch[1]);
+                        if (visVal >= 9999) {
+                            result.vis = '10km+';
+                        } else if (visVal >= 1000) {
+                            result.vis = `${(visVal / 1000).toFixed(1)}km`;
                         } else {
-                            metarRaw.textContent = `⚠️ No METAR available for ${icao}.`;
+                            result.vis = `${visVal}m`;
                         }
-                    } catch (e) {
-                        metarRaw.textContent = `❌ METAR parse error: ${e.message}`;
                     }
-                } else {
-                    metarRaw.textContent = `❌ METAR fetch failed: ${metarRes.reason?.message || 'Unknown error'}`;
-                }
-                metarRaw.classList.remove('loading-shimmer');
-
-                // ── TAF ──
-                if (tafRes.status === 'fulfilled') {
-                    try {
-                        const data = await tafRes.value.json();
-                        tafRaw.textContent = data?.[0]?.rawTAF || `⚠️ No TAF available for ${icao}.`;
-                    } catch (e) {
-                        tafRaw.textContent = `❌ TAF parse error: ${e.message}`;
+                    // Also check for SM format
+                    const smMatch = metar.match(/\b(\d+)SM\b/);
+                    if (smMatch) {
+                        result.vis = `${smMatch[1]}SM`;
                     }
-                } else {
-                    tafRaw.textContent = `❌ TAF fetch failed: ${tafRes.reason?.message || 'Unknown error'}`;
                 }
-                tafRaw.classList.remove('loading-shimmer');
 
-                // ── ATIS (VATSIM) ──
-                if (vatsimRes.status === 'fulfilled') {
-                    try {
-                        const vatsimData = await vatsimRes.value.json();
-                        let atisFound = null;
-                        if (vatsimData && Array.isArray(vatsimData.atis)) {
-                            atisFound = vatsimData.atis.find(a =>
-                                a.callsign && a.callsign.toUpperCase().includes(icao)
-                            );
-                        }
-                        if (atisFound && atisFound.text_atis?.length > 0) {
-                            let atisText = atisFound.text_atis.join('\n');
-                            if (atisFound.atis_code) {
-                                atisText = `ATIS ${atisFound.atis_code} · ${atisFound.frequency || '—'}\nCallsign: ${atisFound.callsign}\n\n${atisText}`;
+                // Clouds: FEW, SCT, BKN, OVC
+                const cloudPatterns = [];
+                const cloudRegex = /\b(FEW|SCT|BKN|OVC)(\d{3})\b/g;
+                let cloudMatch;
+                while ((cloudMatch = cloudRegex.exec(metar)) !== null) {
+                    const type = cloudMatch[1];
+                    const alt = parseInt(cloudMatch[2]) * 100;
+                    cloudPatterns.push(`${type} @ ${alt}ft`);
+                }
+                if (cloudPatterns.length > 0) {
+                    result.clouds = cloudPatterns.join(', ');
+                } else if (metar.includes('CAVOK') || metar.includes('SKC') || metar.includes('CLR')) {
+                    result.clouds = 'Clear';
+                } else if (metar.includes('NSC')) {
+                    result.clouds = 'No sig. cloud';
+                }
+
+                // QNH: e.g., Q1021, Q1009, A2992
+                const qnhMatch = metar.match(/\bQ(\d{4})\b/);
+                if (qnhMatch) {
+                    result.qnh = `${qnhMatch[1]} hPa`;
+                } else {
+                    const altMatch = metar.match(/\bA(\d{4})\b/);
+                    if (altMatch) {
+                        result.qnh = `${(parseInt(altMatch[1]) / 100).toFixed(2)} inHg`;
+                    }
+                }
+
+                // Flight category
+                let lowestCeiling = 99999;
+                const ceilingClouds = ['BKN', 'OVC'];
+                const ceilingRegex = /\b(BKN|OVC)(\d{3})\b/g;
+                let ceilMatch;
+                while ((ceilMatch = ceilingRegex.exec(metar)) !== null) {
+                    const alt = parseInt(ceilMatch[2]) * 100;
+                    if (alt < lowestCeiling) lowestCeiling = alt;
+                }
+                if (lowestCeiling === 99999) lowestCeiling = 99999; // effectively unlimited
+
+                // Parse visibility in meters for category
+                let visMeters = 99999;
+                const visMatchM = metar.match(/\b(\d{4})\b/);
+                if (visMatchM && !metar.includes('CAVOK')) {
+                    visMeters = parseInt(visMatchM[1]);
+                }
+                if (metar.includes('CAVOK')) visMeters = 99999;
+                const smMatchCat = metar.match(/\b(\d+)SM\b/);
+                if (smMatchCat) visMeters = parseInt(smMatchCat[1]) * 1609;
+
+                const visSM = visMeters / 1609;
+                const ceilingFt = lowestCeiling;
+
+                if (ceilingFt > 3000 && visSM > 5) {
+                    result.flightCat = 'VFR';
+                    result.flightCatClass = 'flight-cat-vfr';
+                } else if ((ceilingFt >= 1000 && ceilingFt <= 3000) || (visSM >= 3 && visSM <= 5)) {
+                    result.flightCat = 'MVFR';
+                    result.flightCatClass = 'flight-cat-mvfr';
+                } else if ((ceilingFt >= 500 && ceilingFt < 1000) || (visSM >= 1 && visSM < 3)) {
+                    result.flightCat = 'IFR';
+                    result.flightCatClass = 'flight-cat-ifr';
+                } else if (ceilingFt < 500 || visSM < 1) {
+                    result.flightCat = 'LIFR';
+                    result.flightCatClass = 'flight-cat-lifr';
+                } else {
+                    result.flightCat = 'VFR';
+                    result.flightCatClass = 'flight-cat-vfr';
+                }
+
+                return result;
+            }
+
+            function updateDecodedSummary(rawMetar) {
+                const decoded = decodeMetar(rawMetar);
+                decodedFlightCat.innerHTML =
+                    `<span class="flight-cat-badge ${decoded.flightCatClass}">${decoded.flightCat}</span>`;
+                decodedTemp.textContent = decoded.temp + (decoded.dew !== '—' ? ` / ${decoded.dew}` : '');
+                decodedWind.textContent = decoded.wind;
+                decodedVis.textContent = decoded.vis;
+                decodedClouds.textContent = decoded.clouds;
+                decodedQnh.textContent = decoded.qnh;
+                decodedSummary.style.display = 'flex';
+            }
+
+            function hideDecodedSummary() {
+                decodedSummary.style.display = 'none';
+                decodedFlightCat.innerHTML = '—';
+                decodedTemp.textContent = '—';
+                decodedWind.textContent = '—';
+                decodedVis.textContent = '—';
+                decodedClouds.textContent = '—';
+                decodedQnh.textContent = '—';
+            }
+
+            // ── Set textbox content with optional pre tags ──
+            function setTextboxContent(textboxEl, contentArray, isPlaceholder = false) {
+                if (isPlaceholder || !contentArray || contentArray.length === 0) {
+                    textboxEl.innerHTML =
+                        `<span class="placeholder">${typeof contentArray === 'string' ? contentArray : 'No data available.'}</span>`;
+                    return;
+                }
+                if (!Array.isArray(contentArray)) {
+                    contentArray = [contentArray];
+                }
+                const preTags = contentArray.map(text => `<pre>${escapeHTML(text)}</pre>`).join('\n');
+                textboxEl.innerHTML = preTags;
+            }
+
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ── Get plain text from textbox ──
+            function getPlainTextFromTextbox(textboxEl) {
+                const pres = textboxEl.querySelectorAll('pre');
+                if (pres.length > 0) {
+                    return Array.from(pres).map(p => p.textContent).join('\n\n');
+                }
+                return textboxEl.textContent || '';
+            }
+
+            // ── Main search function ──
+            async function searchWeather(icaoOverride) {
+                const icao = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+                if (!icao || icao.length < 4) {
+                    setTextboxContent(metarTextbox, '⚠️ Please enter a valid 4‑letter ICAO code.', true);
+                    setTextboxContent(tafTextbox, 'Waiting for valid ICAO...', true);
+                    setTextboxContent(atisTextbox, 'Waiting for valid ICAO...', true);
+                    metarAgeEl.textContent = '';
+                    tafAgeEl.textContent = '';
+                    atisAgeEl.textContent = '';
+                    hideDecodedSummary();
+                    metarReceiptTimes = [];
+                    tafReceiptTime = null;
+                    atisFetchTime = null;
+                    return;
+                }
+
+                lastIcao = icao;
+                icaoInput.value = icao;
+
+                // Loading state
+                metarTextbox.innerHTML = '<span class="shimmer" style="display:block;min-height:40px;"></span>';
+                tafTextbox.innerHTML = '<span class="shimmer" style="display:block;min-height:40px;"></span>';
+                atisTextbox.innerHTML = '<span class="shimmer" style="display:block;min-height:40px;"></span>';
+                metarAgeEl.textContent = '';
+                tafAgeEl.textContent = '';
+                atisAgeEl.textContent = '';
+                hideDecodedSummary();
+                metarReceiptTimes = [];
+                tafReceiptTime = null;
+                atisFetchTime = null;
+
+                searchBtn.disabled = true;
+                refreshBtn.disabled = true;
+                searchBtn.textContent = '⏳ LOADING...';
+
+                try {
+                    const [metarRes, tafRes, vatsimRes] = await Promise.allSettled([
+                        safeFetch(
+                            `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=3&taf=false`),
+                        safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
+                        safeFetch('https://data.vatsim.net/v3/vatsim-data.json')
+                    ]);
+
+                    // ── METAR (multiple entries) ──
+                    if (metarRes.status === 'fulfilled') {
+                        try {
+                            const data = await metarRes.value.json();
+                            if (data && Array.isArray(data) && data.length > 0) {
+                                const metarEntries = data
+                                    .filter(d => d.rawOb && d.rawOb.trim().length > 0)
+                                    .map(d => d.rawOb.trim());
+                                // Deduplicate
+                                const uniqueMetars = [...new Set(metarEntries)];
+                                setTextboxContent(metarTextbox, uniqueMetars);
+                                metarReceiptTimes = data
+                                    .filter(d => d.receiptTime)
+                                    .map(d => new Date(d.receiptTime))
+                                    .sort((a, b) => b - a);
+                                if (uniqueMetars.length > 0) {
+                                    updateDecodedSummary(uniqueMetars[0]);
+                                }
+                            } else {
+                                setTextboxContent(metarTextbox,
+                                    `⚠️ No METAR available for ${icao}.`, true);
+                                metarReceiptTimes = [];
                             }
-                            atisRaw.textContent = atisText;
-                        } else {
-                            atisRaw.textContent = `⚠️ No active VATSIM ATIS for ${icao}.`;
+                        } catch (e) {
+                            setTextboxContent(metarTextbox,
+                                `❌ METAR parse error: ${e.message}`, true);
+                            metarReceiptTimes = [];
                         }
-                    } catch (e) {
-                        atisRaw.textContent = `⚠️ VATSIM parse error: ${e.message}`;
+                    } else {
+                        setTextboxContent(metarTextbox,
+                            `❌ METAR fetch failed: ${metarRes.reason?.message || 'Unknown error'}`, true);
+                        metarReceiptTimes = [];
                     }
-                } else {
-                    atisRaw.textContent = `⚠️ VATSIM ATIS unavailable: ${vatsimRes.reason?.message || 'Network error'}.`;
+
+                    // ── TAF ──
+                    if (tafRes.status === 'fulfilled') {
+                        try {
+                            const data = await tafRes.value.json();
+                            if (data && Array.isArray(data) && data.length > 0 && data[0].rawTAF) {
+                                setTextboxContent(tafTextbox, [data[0].rawTAF.trim()]);
+                                tafReceiptTime = data[0].receiptTime ? new Date(data[0].receiptTime) : new Date();
+                            } else {
+                                setTextboxContent(tafTextbox,
+                                    `⚠️ No TAF available for ${icao}.`, true);
+                                tafReceiptTime = null;
+                            }
+                        } catch (e) {
+                            setTextboxContent(tafTextbox,
+                                `❌ TAF parse error: ${e.message}`, true);
+                            tafReceiptTime = null;
+                        }
+                    } else {
+                        setTextboxContent(tafTextbox,
+                            `❌ TAF fetch failed: ${tafRes.reason?.message || 'Unknown error'}`, true);
+                        tafReceiptTime = null;
+                    }
+
+                    // ── ATIS (VATSIM) ──
+                    if (vatsimRes.status === 'fulfilled') {
+                        try {
+                            const vatsimData = await vatsimRes.value.json();
+                            let atisFound = null;
+                            if (vatsimData && Array.isArray(vatsimData.atis)) {
+                                // Find all ATIS entries matching the ICAO
+                                const matchingAtis = vatsimData.atis.filter(a =>
+                                    a.callsign && a.callsign.toUpperCase().includes(icao)
+                                );
+                                if (matchingAtis.length > 0) {
+                                    // Prefer the one with atis_code (most recent)
+                                    atisFound = matchingAtis.find(a => a.atis_code) || matchingAtis[0];
+                                }
+                            }
+                            if (atisFound && atisFound.text_atis && atisFound.text_atis.length > 0) {
+                                let atisLines = [];
+                                atisLines.push(
+                                    `ATIS ${atisFound.atis_code || '—'} · ${atisFound.frequency || '—'}`);
+                                atisLines.push(`Callsign: ${atisFound.callsign}`);
+                                atisLines.push('');
+                                atisLines = atisLines.concat(atisFound.text_atis);
+                                setTextboxContent(atisTextbox, [atisLines.join('\n')]);
+                                atisFetchTime = new Date();
+                            } else {
+                                setTextboxContent(atisTextbox,
+                                    `⚠️ No active VATSIM ATIS for ${icao}.`, true);
+                                atisFetchTime = null;
+                            }
+                        } catch (e) {
+                            setTextboxContent(atisTextbox,
+                                `⚠️ VATSIM parse error: ${e.message}`, true);
+                            atisFetchTime = null;
+                        }
+                    } else {
+                        setTextboxContent(atisTextbox,
+                            `⚠️ VATSIM ATIS unavailable: ${vatsimRes.reason?.message || 'Network error'}.`,
+                            true);
+                        atisFetchTime = null;
+                    }
+
+                    startAgeUpdates();
+
+                } catch (err) {
+                    console.error(err);
+                    [metarTextbox, tafTextbox, atisTextbox].forEach(el => {
+                        el.innerHTML =
+                            `<span class="placeholder">❌ Unexpected error: ${escapeHTML(err.message)}</span>`;
+                    });
+                    hideDecodedSummary();
+                    metarReceiptTimes = [];
+                    tafReceiptTime = null;
+                    atisFetchTime = null;
+                    metarAgeEl.textContent = '';
+                    tafAgeEl.textContent = '';
+                    atisAgeEl.textContent = '';
+                } finally {
+                    searchBtn.disabled = false;
+                    refreshBtn.disabled = false;
+                    searchBtn.textContent = 'SEARCH WEATHER';
                 }
-                atisRaw.classList.remove('loading-shimmer');
-
-            } catch (err) {
-                console.error(err);
-                [metarRaw, tafRaw, atisRaw].forEach(el => {
-                    el.textContent = `❌ Unexpected error: ${err.message}`;
-                    el.classList.remove('loading-shimmer');
-                });
-            } finally {
-                searchBtn.disabled = false;
-                searchBtn.textContent = 'SEARCH WEATHER';
             }
-        }
 
-        searchBtn.addEventListener('click', searchWeather);
-        icaoInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchWeather();
-            }
-        });
-        icaoInput.addEventListener('input', () => {
-            icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
-        });
+            // ── Copy button event listeners ──
+            copyMetarBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const text = getPlainTextFromTextbox(metarTextbox);
+                if (text && !text.includes('placeholder') && !text.includes('⚠️') && !text.includes('❌')) {
+                    copyText(text, copyMetarBtn);
+                } else {
+                    showToast('Nothing to copy');
+                }
+            });
 
-        // No auto-search, no recent chips
-    })();
-</script>
+            copyTafBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const text = getPlainTextFromTextbox(tafTextbox);
+                if (text && !text.includes('placeholder') && !text.includes('⚠️') && !text.includes('❌')) {
+                    copyText(text, copyTafBtn);
+                } else {
+                    showToast('Nothing to copy');
+                }
+            });
+
+            copyAtisBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const text = getPlainTextFromTextbox(atisTextbox);
+                if (text && !text.includes('placeholder') && !text.includes('⚠️') && !text.includes('❌')) {
+                    copyText(text, copyAtisBtn);
+                } else {
+                    showToast('Nothing to copy');
+                }
+            });
+
+            // ── Event listeners ──
+            searchBtn.addEventListener('click', () => searchWeather());
+            refreshBtn.addEventListener('click', () => {
+                if (lastIcao) {
+                    searchWeather(lastIcao);
+                } else {
+                    searchWeather();
+                }
+            });
+            icaoInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchWeather();
+                }
+            });
+            icaoInput.addEventListener('input', () => {
+                icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+            });
+
+            // ── Initial state: no auto-search, clean placeholders ──
+            console.log('🛫 SkyOps Dispatch — Weather & NOTAM ready.');
+            console.log('   Enter an ICAO code (e.g., FAOR, EGLL, KJFK) and press Search.');
+        })();
+    </script>
 </body>
 </html>
