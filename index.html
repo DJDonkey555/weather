@@ -310,51 +310,76 @@ async function searchWeather() {
   const input = document.getElementById('icaoInput');
   const metarBox = document.getElementById('metar');
   const tafBox = document.getElementById('taf');
+  const atisBox = document.getElementById('atis');
+  const notamBox = document.getElementById('notams');
 
   const icao = input.value.trim().toUpperCase();
 
   if (!icao) {
-    metarBox.innerHTML = '<span class="error">Please enter an ICAO code.</span>';
+    metarBox.textContent = 'Please enter an ICAO code.';
     return;
   }
 
-  metarBox.innerHTML = '<span class="loading">Loading METAR...</span>';
-  tafBox.innerHTML = '<span class="loading">Loading TAF...</span>';
+  metarBox.textContent = 'Loading METAR...';
+  tafBox.textContent = 'Loading TAF...';
+  atisBox.textContent = 'Loading ATIS...';
+  notamBox.textContent = 'NOTAM integration pending...';
 
   try {
 
-    const metarResponse = await fetch(
-      `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json`
-    );
+    // ==========================
+    // VATSIM METAR (WORKING)
+    // ==========================
+    const metarRes = await fetch(`https://metar.vatsim.net/${icao}`);
+    const metarText = await metarRes.text();
 
-    const tafResponse = await fetch(
-      `https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`
-    );
+    metarBox.textContent = metarText || 'No METAR available';
 
-    const metarData = await metarResponse.json();
-    const tafData = await tafResponse.json();
+    // ==========================
+    // VATSIM LIVE DATA (ATIS)
+    // ==========================
+    const vatsimRes = await fetch('https://data.vatsim.net/v3/vatsim-data.json');
+    const vatsimData = await vatsimRes.json();
 
-    if (metarData.length > 0) {
-      metarBox.textContent = metarData[0].rawOb;
-    } else {
-      metarBox.innerHTML = '<span class="error">No METAR found.</span>';
+    let atisFound = null;
+
+    if (vatsimData && vatsimData.atis) {
+      atisFound = vatsimData.atis.find(a => a.callsign && a.callsign.includes(icao));
     }
 
-    if (tafData.length > 0) {
-      tafBox.textContent = tafData[0].rawTAF;
+    if (atisFound) {
+      atisBox.textContent = atisFound.text_atis?.join('
+') || 'ATIS available but no text';
     } else {
-      tafBox.innerHTML = '<span class="error">No TAF found.</span>';
+      atisBox.textContent = 'No active VATSIM ATIS found';
+    }
+
+    // ==========================
+    // TAF fallback (NOAA aviation API)
+    // ==========================
+    try {
+      const tafRes = await fetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`);
+      const tafData = await tafRes.json();
+
+      if (tafData && tafData.length > 0) {
+        tafBox.textContent = tafData[0].rawTAF || 'No TAF text';
+      } else {
+        tafBox.textContent = 'No TAF available';
+      }
+
+    } catch (e) {
+      tafBox.textContent = 'TAF service unavailable';
     }
 
   } catch (err) {
-
-    metarBox.innerHTML = '<span class="error">Failed to fetch METAR.</span>';
-    tafBox.innerHTML = '<span class="error">Failed to fetch TAF.</span>';
-
     console.error(err);
+    metarBox.textContent = 'Failed to load METAR';
+    tafBox.textContent = 'Failed to load TAF';
+    atisBox.textContent = 'Failed to load ATIS';
   }
 }
 
+// auto-run default
 searchWeather();
 
 </script>
