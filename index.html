@@ -3,29 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkyOps Dispatch | Aviation Weather</title>
+    <title>SkyOps Dispatch | Aviation Weather — SimBrief Style</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
 
     <style>
         :root {
-            --simbrief-bg: #0b0d12;
-            --simbrief-panel: #141820;
-            --simbrief-card: #1a1e27;
-            --simbrief-border: #242834;
-            --simbrief-text: #e1e5ee;
-            --simbrief-text-secondary: #9aa1b0;
-            --simbrief-accent: #f0ad4e;
-            --simbrief-accent-hover: #f7c06c;
-            --simbrief-input-bg: #0f1118;
-            --simbrief-input-border: #2d3240;
-            --simbrief-input-focus: #f0ad4e;
+            /* SimBrief core palette */
+            --sb-bg: #0b0d12;
+            --sb-panel: #10131a;
+            --sb-card: #161921;
+            --sb-border: #1f232e;
+            --sb-border-light: #2a2e39;
+            --sb-text: #e1e5ee;
+            --sb-text-muted: #8b909d;
+            --sb-text-dim: #5f6572;
+            --sb-accent: #f0ad4e;
+            --sb-accent-soft: rgba(240, 173, 78, 0.08);
+            --sb-accent-glow: rgba(240, 173, 78, 0.25);
+            --sb-danger: #e0556a;
+            --sb-green: #4ade80;
+            --sb-input-bg: #0c0e14;
+            --sb-input-border: #252935;
+            --sb-hover-row: rgba(255, 255, 255, 0.015);
             --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-            --font-mono: 'JetBrains Mono', 'Consolas', monospace;
+            --font-mono: 'JetBrains Mono', 'Consolas', 'SF Mono', monospace;
+            --radius-sm: 4px;
             --radius: 6px;
-            --shadow: 0 2px 12px rgba(0,0,0,0.4);
+            --radius-lg: 8px;
+            --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.02);
+            --transition-fast: 0.15s ease;
+            --transition-smooth: 0.25s ease;
         }
 
         * {
@@ -36,432 +48,692 @@
 
         body {
             font-family: var(--font-sans);
-            background: var(--simbrief-bg);
-            color: var(--simbrief-text);
+            background: var(--sb-bg);
+            color: var(--sb-text);
             min-height: 100vh;
-            padding: 30px 40px;
             line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            padding: 0;
         }
 
-        .app {
-            max-width: 1100px;
-            margin: 0 auto;
-        }
-
-        /* SimBrief style top bar */
-        .topbar {
+        /* ── SimBrief-style top navigation bar ── */
+        .nav-top {
+            background: var(--sb-panel);
+            border-bottom: 1px solid var(--sb-border);
+            padding: 0 32px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            margin-bottom: 28px;
-            flex-wrap: wrap;
-            gap: 12px;
+            height: 52px;
+            gap: 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
         }
-        .logo {
-            font-size: 24px;
+        .nav-brand {
             font-weight: 700;
-            letter-spacing: -0.5px;
+            font-size: 16px;
+            letter-spacing: -0.3px;
+            color: #fff;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .nav-brand .icon-plane {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: var(--sb-accent);
+            border-radius: 3px;
+            position: relative;
+            transform: rotate(-15deg);
+        }
+        .nav-brand .icon-plane::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 2px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 12px solid #0b0d12;
+            border-bottom: 8px solid transparent;
+            border-top: 4px solid transparent;
+        }
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--sb-text-muted);
+            letter-spacing: 0.2px;
+        }
+        .nav-links span {
+            cursor: pointer;
+            transition: color var(--transition-fast);
+            white-space: nowrap;
+            padding: 4px 0;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-links span:hover {
             color: #fff;
         }
-        .logo span {
-            color: var(--simbrief-accent);
+        .nav-links span.active {
+            color: var(--sb-accent);
+            border-bottom-color: var(--sb-accent);
         }
-        .status {
+        .nav-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--sb-text-muted);
+        }
+        .nav-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--sb-green);
+            box-shadow: 0 0 6px var(--sb-green);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                box-shadow: 0 0 4px var(--sb-green);
+            }
+            50% {
+                box-shadow: 0 0 12px var(--sb-green), 0 0 20px rgba(74, 222, 128, 0.4);
+            }
+        }
+
+        /* ── Main layout ── */
+        .app-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 28px 32px 20px;
+        }
+
+        /* ── SimBrief section block ── */
+        .sb-section {
+            margin-bottom: 24px;
+        }
+        .sb-section-title {
             font-size: 13px;
-            color: var(--simbrief-text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--sb-text-muted);
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             gap: 8px;
-            background: var(--simbrief-panel);
-            border: 1px solid var(--simbrief-border);
-            padding: 8px 16px;
-            border-radius: 4px;
         }
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #4ade80;
-            box-shadow: 0 0 8px #4ade80;
-        }
-
-        .panel {
-            background: var(--simbrief-panel);
-            border: 1px solid var(--simbrief-border);
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
-
-        .panel-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--simbrief-border);
-            background: rgba(255,255,255,0.02);
-        }
-        .panel-header h1 {
-            font-size: 20px;
-            font-weight: 600;
-            margin: 0 0 4px;
-            color: #fff;
-        }
-        .panel-header p {
-            font-size: 13px;
-            color: var(--simbrief-text-secondary);
-        }
-
-        /* Search row */
-        .search-row {
-            display: flex;
-            gap: 12px;
-            padding: 20px 24px;
-            border-bottom: 1px solid var(--simbrief-border);
-        }
-        .input-wrapper {
+        .sb-section-title::after {
+            content: '';
             flex: 1;
+            height: 1px;
+            background: var(--sb-border);
         }
-        .icao-input {
-            width: 100%;
-            height: 48px;
-            border-radius: var(--radius);
-            border: 1px solid var(--simbrief-input-border);
-            background: var(--simbrief-input-bg);
-            color: #fff;
-            padding: 0 16px;
+
+        /* ── Panel card ── */
+        .sb-panel {
+            background: var(--sb-panel);
+            border: 1px solid var(--sb-border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+        }
+        .sb-panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--sb-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(255, 255, 255, 0.008);
+        }
+        .sb-panel-header h2 {
             font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: -0.2px;
+            margin: 0;
+        }
+        .sb-panel-header .subtitle {
+            font-size: 12px;
+            color: var(--sb-text-muted);
+            font-weight: 400;
+        }
+        .sb-toggle-options {
+            font-size: 12px;
+            color: var(--sb-accent);
+            cursor: pointer;
+            font-weight: 500;
+            user-select: none;
+            transition: color var(--transition-fast);
+            white-space: nowrap;
+        }
+        .sb-toggle-options:hover {
+            color: #f7c06c;
+        }
+
+        /* ── Search row inside panel ── */
+        .sb-search-row {
+            display: flex;
+            gap: 10px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--sb-border);
+            align-items: center;
+        }
+        .sb-input {
+            flex: 1;
+            height: 42px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--sb-input-border);
+            background: var(--sb-input-bg);
+            color: #fff;
+            padding: 0 14px;
+            font-size: 14px;
             font-family: var(--font-mono);
             font-weight: 500;
             text-transform: uppercase;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.07em;
             outline: none;
-            transition: 0.2s;
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
         }
-        .icao-input::placeholder {
-            color: #5b6270;
+        .sb-input::placeholder {
+            color: #4a4f5c;
             font-family: var(--font-sans);
             text-transform: none;
             letter-spacing: normal;
             font-weight: 400;
+            font-size: 13px;
         }
-        .icao-input:focus {
-            border-color: var(--simbrief-input-focus);
-            box-shadow: 0 0 0 3px rgba(240,173,78,0.1);
+        .sb-input:focus {
+            border-color: var(--sb-accent);
+            box-shadow: 0 0 0 3px var(--sb-accent-soft);
         }
-
-        .search-btn {
-            height: 48px;
-            padding: 0 28px;
+        .sb-btn {
+            height: 42px;
+            padding: 0 22px;
             border: none;
-            border-radius: var(--radius);
-            background: var(--simbrief-accent);
-            color: #000;
+            border-radius: var(--radius-sm);
+            background: var(--sb-accent);
+            color: #1a1a1a;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
-            transition: 0.2s;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.4px;
+            transition: all var(--transition-fast);
             white-space: nowrap;
+            font-family: var(--font-sans);
         }
-        .search-btn:hover {
-            background: var(--simbrief-accent-hover);
+        .sb-btn:hover {
+            background: #f7c06c;
             transform: translateY(-1px);
+            box-shadow: 0 4px 14px var(--sb-accent-glow);
         }
-        .search-btn:disabled {
-            opacity: 0.6;
+        .sb-btn:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .sb-btn:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .sb-btn-secondary {
+            background: transparent;
+            border: 1px solid var(--sb-border-light);
+            color: var(--sb-text-muted);
+            font-weight: 500;
+        }
+        .sb-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.03);
+            color: #fff;
+            box-shadow: none;
             transform: none;
         }
 
-        /* Results grid – raw data two columns, ATIS full width */
-        .results {
+        /* ── Results grid ── */
+        .sb-results {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            padding: 24px;
+            gap: 0;
+        }
+        .sb-results .sb-card {
+            border-right: 1px solid var(--sb-border);
+            border-bottom: 1px solid var(--sb-border);
+        }
+        .sb-results .sb-card:nth-child(2n) {
+            border-right: none;
+        }
+        .sb-results .sb-card:nth-child(3) {
+            grid-column: 1 / -1;
+            border-right: none;
+            border-bottom: none;
         }
 
-        .card {
-            background: var(--simbrief-card);
-            border: 1px solid var(--simbrief-border);
-            border-radius: 5px;
-            overflow: hidden;
+        /* ── Individual data card ── */
+        .sb-card {
+            background: var(--sb-card);
             display: flex;
             flex-direction: column;
+            min-height: 180px;
         }
-        .card.metar-card {
-            /* could span if needed, but left as normal */
-        }
-        .card.atis-card {
-            grid-column: 1 / -1; /* full width below METAR/TAF */
-        }
-
-        .card-header {
-            padding: 14px 18px;
-            background: rgba(0,0,0,0.2);
-            border-bottom: 1px solid var(--simbrief-border);
+        .sb-card-header {
+            padding: 12px 18px;
             font-weight: 600;
-            font-size: 14px;
-            color: var(--simbrief-accent);
-            letter-spacing: 0.4px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+            color: var(--sb-accent);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            background: rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .card-body {
-            padding: 16px 18px;
+        .sb-card-header .indicator {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--sb-accent);
+            box-shadow: 0 0 5px var(--sb-accent-glow);
+        }
+        .sb-card-body {
+            padding: 14px 18px;
             flex: 1;
-            min-height: 140px;
-        }
-        .card-body pre {
             font-family: var(--font-mono);
-            font-size: 13px;
-            line-height: 1.6;
-            color: #d0d6e0;
+            font-size: 12.5px;
+            line-height: 1.65;
+            color: #c8ced9;
             white-space: pre-wrap;
             word-break: break-word;
-            margin: 0;
+            letter-spacing: 0.02em;
+            overflow-x: auto;
+        }
+        .sb-card-body .placeholder {
+            color: var(--sb-text-dim);
+            font-family: var(--font-sans);
+            font-style: italic;
+            font-size: 13px;
         }
 
-        .loading-shimmer {
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+        /* Loading shimmer */
+        .shimmer {
+            background: linear-gradient(100deg,
+                    transparent 25%,
+                    rgba(255, 255, 255, 0.02) 40%,
+                    rgba(255, 255, 255, 0.04) 50%,
+                    rgba(255, 255, 255, 0.02) 60%,
+                    transparent 75%);
             background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
+            animation: shimmer 1.8s ease-in-out infinite;
         }
         @keyframes shimmer {
-            0% {background-position: 200% 0;}
-            100% {background-position: -200% 0;}
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
         }
 
-        .footer {
-            margin-top: 20px;
+        /* ── Footer ── */
+        .sb-footer {
             text-align: center;
-            color: var(--simbrief-text-secondary);
-            font-size: 12px;
+            padding: 20px 32px 28px;
+            font-size: 11px;
+            color: var(--sb-text-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
         }
-        .footer span {
-            color: var(--simbrief-accent);
+        .sb-footer span.sep {
+            color: var(--sb-border-light);
+        }
+        .sb-footer .highlight {
+            color: var(--sb-accent);
+            font-weight: 500;
         }
 
-        @media (max-width: 700px) {
-            body {
-                padding: 16px;
+        /* ── Responsive ── */
+        @media (max-width: 750px) {
+            .nav-top {
+                padding: 0 16px;
+                gap: 16px;
             }
-            .results {
+            .nav-links {
+                gap: 12px;
+                font-size: 11px;
+            }
+            .nav-right {
+                font-size: 10px;
+                gap: 8px;
+            }
+            .app-container {
+                padding: 16px 12px 12px;
+            }
+            .sb-results {
                 grid-template-columns: 1fr;
-                padding: 16px;
             }
-            .card.atis-card {
+            .sb-results .sb-card {
+                border-right: none;
+            }
+            .sb-results .sb-card:nth-child(3) {
                 grid-column: auto;
             }
-            .search-row {
+            .sb-search-row {
                 flex-direction: column;
-                padding: 16px;
+                padding: 12px 14px;
             }
-            .search-btn {
+            .sb-btn {
                 width: 100%;
+                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
 
-<div class="app">
-    <div class="topbar">
-        <div class="logo">SKY<span>OPS</span> DISPATCH</div>
-        <div class="status">
-            <div class="dot"></div>
-            LIVE WEATHER NETWORK
+    <!-- ═══════════ SimBrief-style top navigation ═══════════ -->
+    <nav class="nav-top">
+        <div class="nav-brand">
+            <span class="icon-plane"></span> SKYOPS
         </div>
-    </div>
+        <div class="nav-links">
+            <span>New Flight</span>
+            <span>Edit Flight</span>
+            <span>View Flight Plan</span>
+            <span>Saved Flights</span>
+            <span>Saved Airframes</span>
+            <span class="active">Weather & NOTAM</span>
+        </div>
+        <div class="nav-right">
+            <span class="nav-dot"></span> LIVE NETWORK
+        </div>
+    </nav>
 
-    <div class="panel">
-        <div class="panel-header">
-            <h1>Airport Weather Search</h1>
-            <p>Real‑time METAR · TAF · ATIS — enter ICAO code</p>
+    <!-- ═══════════ Main Content ═══════════ -->
+    <div class="app-container">
+
+        <!-- Section: Weather & NOTAM -->
+        <div class="sb-section">
+            <div class="sb-section-title">Weather & NOTAM</div>
         </div>
 
-        <div class="search-row">
-            <div class="input-wrapper">
-                <input id="icaoInput" class="icao-input" type="text" placeholder="EGLL · KJFK · OMDB · FAOR" maxlength="4" autocomplete="off" spellcheck="false">
+        <!-- Panel: Airport Weather Search -->
+        <div class="sb-panel">
+            <div class="sb-panel-header">
+                <div>
+                    <h2>Airport Search</h2>
+                    <span class="subtitle">Search airport weather and NOTAMs</span>
+                </div>
+                <span class="sb-toggle-options" id="toggleOptions">▲ Hide Options</span>
             </div>
-            <button class="search-btn" id="searchBtn">SEARCH WEATHER</button>
-        </div>
 
-        <div class="results">
-            <!-- METAR Card -->
-            <div class="card metar-card">
-                <div class="card-header">📡 METAR</div>
-                <div class="card-body">
-                    <pre id="metarRaw">Enter an ICAO code and press search.</pre>
+            <!-- Collapsible options area -->
+            <div id="optionsArea">
+                <div class="sb-search-row">
+                    <input
+                    id="icaoInput"
+                    class="sb-input"
+                    type="text"
+                    placeholder="EGLL · KJFK · OMDB · FAOR · YSSY"
+                    maxlength="4"
+                    autocomplete="off"
+                    spellcheck="false"
+                    >
+                    <button class="sb-btn" id="searchBtn">SEARCH WEATHER</button>
+                    <button class="sb-btn sb-btn-secondary" id="refreshBtn" title="Refresh latest data">↻ REFRESH</button>
                 </div>
             </div>
 
-            <!-- TAF Card -->
-            <div class="card">
-                <div class="card-header">📋 TAF</div>
-                <div class="card-body">
-                    <pre id="tafRaw">Enter an ICAO code and press search.</pre>
+            <!-- Results grid: METAR + TAF side by side, ATIS full width below -->
+            <div class="sb-results">
+                <!-- METAR -->
+                <div class="sb-card" id="metarCard">
+                    <div class="sb-card-header">
+                        <span class="indicator"></span> METAR
+                    </div>
+                    <div class="sb-card-body">
+                        <span class="placeholder" id="metarRaw">Enter an ICAO code and press search.</span>
+                    </div>
                 </div>
-            </div>
 
-            <!-- ATIS Card (spans full width) -->
-            <div class="card atis-card">
-                <div class="card-header">🎙️ ATIS (VATSIM)</div>
-                <div class="card-body">
-                    <pre id="atisRaw">ATIS data will appear here if available on VATSIM.</pre>
+                <!-- TAF -->
+                <div class="sb-card" id="tafCard">
+                    <div class="sb-card-header">
+                        <span class="indicator"></span> TAF
+                    </div>
+                    <div class="sb-card-body">
+                        <span class="placeholder" id="tafRaw">Enter an ICAO code and press search.</span>
+                    </div>
+                </div>
+
+                <!-- ATIS (VATSIM) — full width -->
+                <div class="sb-card" id="atisCard">
+                    <div class="sb-card-header">
+                        <span class="indicator"></span> ATIS · VATSIM
+                    </div>
+                    <div class="sb-card-body">
+                        <span class="placeholder" id="atisRaw">ATIS data will appear here if available on VATSIM.</span>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <div class="sb-footer">
+            <span>Terms of Service</span>
+            <span class="sep">·</span>
+            <span>Privacy Policy</span>
+            <span class="sep">·</span>
+            <span>© SkyOps Dispatch <span class="highlight">2026</span></span>
+            <span class="sep">·</span>
+            <span>Version <span class="highlight">2.38.1</span> (773)</span>
+            <span class="sep">·</span>
+            <span>NOAA & VATSIM data</span>
+        </div>
     </div>
 
-    <div class="footer">
-        SkyOps Dispatch Weather · NOAA & VATSIM data · <span>SimBrief‑inspired</span>
-    </div>
-</div>
+    <script>
+        (function() {
+            const icaoInput = document.getElementById('icaoInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const refreshBtn = document.getElementById('refreshBtn');
+            const metarRaw = document.getElementById('metarRaw');
+            const tafRaw = document.getElementById('tafRaw');
+            const atisRaw = document.getElementById('atisRaw');
+            const toggleOptions = document.getElementById('toggleOptions');
+            const optionsArea = document.getElementById('optionsArea');
 
-<script>
-    (function() {
-        const icaoInput = document.getElementById('icaoInput');
-        const searchBtn = document.getElementById('searchBtn');
-        const metarRaw = document.getElementById('metarRaw');
-        const tafRaw = document.getElementById('tafRaw');
-        const atisRaw = document.getElementById('atisRaw');
+            // ── Toggle Options ──
+            let optionsVisible = true;
+            toggleOptions.addEventListener('click', () => {
+                optionsVisible = !optionsVisible;
+                optionsArea.style.display = optionsVisible ? 'block' : 'none';
+                toggleOptions.textContent = optionsVisible ? '▲ Hide Options' : '▼ Show Options';
+            });
 
-        // CORS proxy fallback to avoid "Failed to fetch"
-        const PROXY_LIST = [
-            'https://corsproxy.io/?',
-            'https://api.allorigins.win/raw?url='
-        ];
+            // ── CORS proxy fallback ──
+            const PROXY_LIST = [
+                'https://corsproxy.io/?',
+                'https://api.allorigins.win/raw?url='
+            ];
 
-        async function safeFetch(url, options = {}) {
-            // Try direct first
-            try {
-                const res = await fetch(url, { signal: AbortSignal.timeout(12000), ...options });
-                if (res.ok) return res;
-                throw new Error(`HTTP ${res.status}`);
-            } catch (directErr) {
-                console.warn('Direct fetch failed, trying proxy:', directErr.message);
-            }
-
-            // Fallback to proxies
-            for (const proxy of PROXY_LIST) {
+            async function safeFetch(url, options = {}) {
+                // Try direct first
                 try {
-                    const proxyUrl = proxy + encodeURIComponent(url);
-                    const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000), ...options });
+                    const res = await fetch(url, { signal: AbortSignal.timeout(12000), ...options });
                     if (res.ok) return res;
-                } catch (proxyErr) {
-                    console.warn('Proxy attempt failed:', proxy, proxyErr.message);
+                    throw new Error(`HTTP ${res.status}`);
+                } catch (directErr) {
+                    console.warn('Direct fetch failed, trying proxy:', directErr.message);
                 }
-            }
-            throw new Error('All fetch methods failed. Check your connection or try again later.');
-        }
-
-        async function searchWeather() {
-            const icao = icaoInput.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-
-            if (!icao || icao.length < 4) {
-                metarRaw.textContent = '⚠️ Please enter a valid 4‑letter ICAO code.';
-                tafRaw.textContent = 'Waiting for valid ICAO...';
-                atisRaw.textContent = 'Waiting for valid ICAO...';
-                return;
-            }
-
-            // Set loading
-            const setLoading = (el) => {
-                el.textContent = 'Loading...';
-                el.classList.add('loading-shimmer');
-            };
-            setLoading(metarRaw);
-            setLoading(tafRaw);
-            setLoading(atisRaw);
-            searchBtn.disabled = true;
-            searchBtn.textContent = '⏳ LOADING...';
-
-            try {
-                const [metarRes, tafRes, vatsimRes] = await Promise.allSettled([
-                    safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
-                    safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
-                    safeFetch('https://data.vatsim.net/v3/vatsim-data.json')
-                ]);
-
-                // ── METAR ──
-                if (metarRes.status === 'fulfilled') {
+                // Fallback proxies
+                for (const proxy of PROXY_LIST) {
                     try {
-                        const data = await metarRes.value.json();
-                        if (data && data.length > 0 && data[0].rawOb) {
-                            metarRaw.textContent = data[0].rawOb;
-                        } else {
-                            metarRaw.textContent = `⚠️ No METAR available for ${icao}.`;
-                        }
-                    } catch (e) {
-                        metarRaw.textContent = `❌ METAR parse error: ${e.message}`;
+                        const proxyUrl = proxy + encodeURIComponent(url);
+                        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(15000), ...options });
+                        if (res.ok) return res;
+                    } catch (proxyErr) {
+                        console.warn('Proxy attempt failed:', proxy, proxyErr.message);
                     }
-                } else {
-                    metarRaw.textContent = `❌ METAR fetch failed: ${metarRes.reason?.message || 'Unknown error'}`;
                 }
-                metarRaw.classList.remove('loading-shimmer');
+                throw new Error('All fetch methods failed. Check connection or try again.');
+            }
 
-                // ── TAF ──
-                if (tafRes.status === 'fulfilled') {
-                    try {
-                        const data = await tafRes.value.json();
-                        tafRaw.textContent = data?.[0]?.rawTAF || `⚠️ No TAF available for ${icao}.`;
-                    } catch (e) {
-                        tafRaw.textContent = `❌ TAF parse error: ${e.message}`;
-                    }
-                } else {
-                    tafRaw.textContent = `❌ TAF fetch failed: ${tafRes.reason?.message || 'Unknown error'}`;
+            // ── Store last ICAO for refresh ──
+            let lastIcao = '';
+
+            async function searchWeather(icaoOverride) {
+                const icao = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+                if (!icao || icao.length < 4) {
+                    metarRaw.textContent = '⚠️ Please enter a valid 4‑letter ICAO code.';
+                    metarRaw.className = 'placeholder';
+                    tafRaw.textContent = 'Waiting for valid ICAO...';
+                    tafRaw.className = 'placeholder';
+                    atisRaw.textContent = 'Waiting for valid ICAO...';
+                    atisRaw.className = 'placeholder';
+                    return;
                 }
-                tafRaw.classList.remove('loading-shimmer');
 
-                // ── ATIS (VATSIM) ──
-                if (vatsimRes.status === 'fulfilled') {
-                    try {
-                        const vatsimData = await vatsimRes.value.json();
-                        let atisFound = null;
-                        if (vatsimData && Array.isArray(vatsimData.atis)) {
-                            atisFound = vatsimData.atis.find(a =>
-                                a.callsign && a.callsign.toUpperCase().includes(icao)
-                            );
-                        }
-                        if (atisFound && atisFound.text_atis?.length > 0) {
-                            let atisText = atisFound.text_atis.join('\n');
-                            if (atisFound.atis_code) {
-                                atisText = `ATIS ${atisFound.atis_code} · ${atisFound.frequency || '—'}\nCallsign: ${atisFound.callsign}\n\n${atisText}`;
+                lastIcao = icao;
+                icaoInput.value = icao;
+
+                // Set loading state
+                const setLoading = (el) => {
+                    el.textContent = 'Loading…';
+                    el.className = 'shimmer';
+                };
+                setLoading(metarRaw);
+                setLoading(tafRaw);
+                setLoading(atisRaw);
+                searchBtn.disabled = true;
+                refreshBtn.disabled = true;
+                searchBtn.textContent = '⏳ LOADING...';
+
+                try {
+                    const [metarRes, tafRes, vatsimRes] = await Promise.allSettled([
+                        safeFetch(
+                            `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
+                        safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
+                        safeFetch('https://data.vatsim.net/v3/vatsim-data.json')
+                    ]);
+
+                    // ── METAR ──
+                    if (metarRes.status === 'fulfilled') {
+                        try {
+                            const data = await metarRes.value.json();
+                            if (data && data.length > 0 && data[0].rawOb) {
+                                metarRaw.textContent = data[0].rawOb;
+                                metarRaw.className = '';
+                            } else {
+                                metarRaw.textContent = `⚠️ No METAR available for ${icao}.`;
+                                metarRaw.className = 'placeholder';
                             }
-                            atisRaw.textContent = atisText;
-                        } else {
-                            atisRaw.textContent = `⚠️ No active VATSIM ATIS for ${icao}.`;
+                        } catch (e) {
+                            metarRaw.textContent = `❌ METAR parse error: ${e.message}`;
+                            metarRaw.className = 'placeholder';
                         }
-                    } catch (e) {
-                        atisRaw.textContent = `⚠️ VATSIM parse error: ${e.message}`;
+                    } else {
+                        metarRaw.textContent = `❌ METAR fetch failed: ${metarRes.reason?.message || 'Unknown error'}`;
+                        metarRaw.className = 'placeholder';
                     }
-                } else {
-                    atisRaw.textContent = `⚠️ VATSIM ATIS unavailable: ${vatsimRes.reason?.message || 'Network error'}.`;
+
+                    // ── TAF ──
+                    if (tafRes.status === 'fulfilled') {
+                        try {
+                            const data = await tafRes.value.json();
+                            tafRaw.textContent = data?.[0]?.rawTAF ||
+                                `⚠️ No TAF available for ${icao}.`;
+                            tafRaw.className = data?.[0]?.rawTAF ? '' : 'placeholder';
+                        } catch (e) {
+                            tafRaw.textContent = `❌ TAF parse error: ${e.message}`;
+                            tafRaw.className = 'placeholder';
+                        }
+                    } else {
+                        tafRaw.textContent =
+                            `❌ TAF fetch failed: ${tafRes.reason?.message || 'Unknown error'}`;
+                        tafRaw.className = 'placeholder';
+                    }
+
+                    // ── ATIS (VATSIM) ──
+                    if (vatsimRes.status === 'fulfilled') {
+                        try {
+                            const vatsimData = await vatsimRes.value.json();
+                            let atisFound = null;
+                            if (vatsimData && Array.isArray(vatsimData.atis)) {
+                                atisFound = vatsimData.atis.find(a =>
+                                    a.callsign && a.callsign.toUpperCase().includes(icao)
+                                );
+                            }
+                            if (atisFound && atisFound.text_atis?.length > 0) {
+                                let atisText = atisFound.text_atis.join('\n');
+                                if (atisFound.atis_code) {
+                                    atisText =
+                                        `ATIS ${atisFound.atis_code} · ${atisFound.frequency || '—'}\nCallsign: ${atisFound.callsign}\n\n${atisText}`;
+                                }
+                                atisRaw.textContent = atisText;
+                                atisRaw.className = '';
+                            } else {
+                                atisRaw.textContent = `⚠️ No active VATSIM ATIS for ${icao}.`;
+                                atisRaw.className = 'placeholder';
+                            }
+                        } catch (e) {
+                            atisRaw.textContent = `⚠️ VATSIM parse error: ${e.message}`;
+                            atisRaw.className = 'placeholder';
+                        }
+                    } else {
+                        atisRaw.textContent =
+                            `⚠️ VATSIM ATIS unavailable: ${vatsimRes.reason?.message || 'Network error'}.`;
+                        atisRaw.className = 'placeholder';
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    [metarRaw, tafRaw, atisRaw].forEach(el => {
+                        el.textContent = `❌ Unexpected error: ${err.message}`;
+                        el.className = 'placeholder';
+                    });
+                } finally {
+                    searchBtn.disabled = false;
+                    refreshBtn.disabled = false;
+                    searchBtn.textContent = 'SEARCH WEATHER';
                 }
-                atisRaw.classList.remove('loading-shimmer');
-
-            } catch (err) {
-                console.error(err);
-                [metarRaw, tafRaw, atisRaw].forEach(el => {
-                    el.textContent = `❌ Unexpected error: ${err.message}`;
-                    el.classList.remove('loading-shimmer');
-                });
-            } finally {
-                searchBtn.disabled = false;
-                searchBtn.textContent = 'SEARCH WEATHER';
             }
-        }
 
-        searchBtn.addEventListener('click', searchWeather);
-        icaoInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                searchWeather();
-            }
-        });
-        icaoInput.addEventListener('input', () => {
-            icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
-        });
+            // ── Event listeners ──
+            searchBtn.addEventListener('click', () => searchWeather());
+            refreshBtn.addEventListener('click', () => {
+                if (lastIcao) {
+                    searchWeather(lastIcao);
+                } else {
+                    searchWeather();
+                }
+            });
+            icaoInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchWeather();
+                }
+            });
+            icaoInput.addEventListener('input', () => {
+                icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+            });
 
-        // No auto-search, no recent chips
-    })();
-</script>
+            // ── Initial: no auto-search ──
+        })();
+    </script>
 </body>
 </html>
