@@ -1,476 +1,229 @@
-export default function AviationWeatherDashboard() {
-  const css = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyOps Weather</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
     :root {
-      --global-graphite: #292b30;
-      --global-skyblue: #289ed6;
-      --global-skydark: #13506c;
-      --global-msfs-blue: #00b3ff;
-      --global-msfs-hover: #4cc9ff;
-      --main-div-border-radius: 6px;
-      --main-button-border-radius: 5px;
-      --main-text-font: 'Open Sans';
-      --main-input-border-radius: 4px;
+      --bg: #292b31;
+      --panel: #33353b;
+      --panel-light: #3b3e45;
+      --blue: #289ed6;
+      --blue2: #00b3ff;
+      --text: #f5f5f5;
+      --input: #2e3036;
+      --border: #222324;
+    }
 
-      --main-background: #292b31;
-      --main-div-background: #33353b;
-      --main-div-highlight: #3d3f45;
-      --main-div-accent: rgba(255,255,255,0.1);
-      --main-dialog-background: #3a3c42;
-      --main-dialog-title: var(--global-graphite);
-
-      --main-button-background: #25272b;
-      --main-button-background-hover: #1c1d20;
-      --main-button-cta: #16649d;
-      --main-button-cta-hover: #1a76b9;
-
-      --main-text-color: #f5f5f5;
-      --main-text-color-lighter: #ddd;
-      --main-text-color-red: #d77;
-
-      --main-shadow-blur: 3px;
-      --main-shadow-color: rgba(0,0,0,0.75);
-
-      --main-input-border: #222324;
-      --main-input-border-hover: #535a61;
-      --main-input-border-focus: var(--global-skyblue);
-      --main-input-background: #2e3036;
-      --main-input-background-hover: #303238;
-      --main-input-background-focus: #303238;
-
-      --main-url-color: #91dfff;
+    * {
+      box-sizing: border-box;
     }
 
     body {
       margin: 0;
-      background: var(--main-background);
-      font-family: var(--main-text-font), sans-serif;
-      color: var(--main-text-color);
+      font-family: 'Open Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
-    .dashboard {
+    .app {
+      padding: 30px;
       min-height: 100vh;
       background:
-        radial-gradient(circle at top right, rgba(40,158,214,0.08), transparent 25%),
-        radial-gradient(circle at bottom left, rgba(0,179,255,0.06), transparent 30%),
-        var(--main-background);
-      padding: 40px;
+      radial-gradient(circle at top right, rgba(40,158,214,0.1), transparent 20%),
+      var(--bg);
     }
 
     .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .logo {
+      margin-bottom: 25px;
       font-size: 28px;
       font-weight: 700;
-      letter-spacing: 1px;
-      color: white;
     }
 
-    .logo span {
-      color: var(--global-msfs-blue);
+    .topbar span {
+      color: var(--blue2);
     }
 
     .panel {
-      background: linear-gradient(180deg, #353840 0%, #2f3137 100%);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: var(--main-div-border-radius);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      background: linear-gradient(180deg,#363940 0%,#2f3137 100%);
+      border-radius: 8px;
       overflow: hidden;
-      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
     }
 
     .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 22px;
+      padding: 20px;
       border-bottom: 1px solid rgba(255,255,255,0.05);
-      background: rgba(255,255,255,0.02);
     }
 
-    .panel-title {
-      display: flex;
-      gap: 10px;
-      align-items: center;
+    .panel-header h1 {
+      margin: 0;
       font-size: 24px;
-      font-weight: 700;
     }
 
-    .panel-subtitle {
-      color: #a5acb8;
-      font-size: 14px;
-      font-weight: 500;
+    .panel-header p {
+      margin: 5px 0 0;
+      color: #a0a7b1;
     }
 
-    .search-area {
-      padding: 24px;
+    .search {
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 16px;
+      grid-template-columns: 1fr 180px;
+      gap: 15px;
+      padding: 20px;
     }
 
-    .icao-input {
-      height: 54px;
-      border-radius: var(--main-input-border-radius);
-      border: 1px solid var(--main-input-border);
-      background: var(--main-input-background);
+    input {
+      height: 55px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: var(--input);
       color: white;
       padding: 0 18px;
-      font-size: 17px;
-      outline: none;
-      transition: all 0.2s ease;
-      letter-spacing: 1px;
+      font-size: 16px;
       text-transform: uppercase;
-      box-shadow: inset 0 1px 2px rgba(0,0,0,0.35);
+      outline: none;
     }
 
-    .icao-input:hover {
-      border-color: var(--main-input-border-hover);
-      background: var(--main-input-background-hover);
-    }
-
-    .icao-input:focus {
-      border-color: var(--main-input-border-focus);
-      background: var(--main-input-background-focus);
+    input:focus {
+      border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(40,158,214,0.15);
     }
 
-    .search-button {
-      height: 54px;
-      min-width: 170px;
+    button {
       border: none;
-      border-radius: var(--main-button-border-radius);
-      background: linear-gradient(180deg, var(--main-button-cta), #0f4d7a);
+      border-radius: 5px;
+      background: linear-gradient(180deg,#16649d,#104d78);
       color: white;
-      font-size: 15px;
       font-weight: 700;
-      letter-spacing: 0.5px;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.3);
     }
 
-    .search-button:hover {
-      background: linear-gradient(180deg, var(--main-button-cta-hover), #135d95);
-      transform: translateY(-1px);
-    }
-
-    .results-grid {
+    .grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(2,1fr);
       gap: 20px;
-      padding: 24px;
+      padding: 20px;
     }
 
-    .weather-card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-      border: 1px solid rgba(255,255,255,0.06);
+    .card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
       border-radius: 8px;
       overflow: hidden;
-      position: relative;
-    }
-
-    .weather-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, var(--global-skyblue), transparent);
-    }
-
-    .card-header {
-      padding: 16px 18px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
     .card-title {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .badge {
-      background: rgba(40,158,214,0.15);
+      padding: 15px 18px;
       color: #8fdfff;
-      border: 1px solid rgba(40,158,214,0.35);
-      padding: 6px 10px;
-      border-radius: 999px;
-      font-size: 12px;
       font-weight: 700;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
     }
 
-    .report-content {
+    .content {
       padding: 18px;
-      font-family: 'Courier New', monospace;
-      line-height: 1.7;
-      font-size: 14px;
-      color: #dbe6f3;
+      font-family: monospace;
       white-space: pre-wrap;
+      line-height: 1.7;
+      color: #dde7f2;
     }
 
-    .notam-item {
-      padding: 14px 18px;
-      border-top: 1px solid rgba(255,255,255,0.04);
+    .notam {
+      padding: 15px 18px;
+      border-top: 1px solid rgba(255,255,255,0.05);
       font-size: 14px;
       line-height: 1.6;
     }
 
-    .notam-id {
-      color: #9bdfff;
-      font-weight: 700;
-      margin-bottom: 6px;
+    .notam strong {
+      color: #8fdfff;
     }
 
-    .footer-bar {
-      margin-top: 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: #9ea4af;
-      font-size: 13px;
-    }
-
-    .status-online {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .status-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: #4ade80;
-      box-shadow: 0 0 12px #4ade80;
-    }
-
-    @media (max-width: 980px) {
-      .results-grid {
+    @media (max-width: 900px) {
+      .grid {
         grid-template-columns: 1fr;
       }
 
-      .search-area {
+      .search {
         grid-template-columns: 1fr;
       }
-
-      .dashboard {
-        padding: 20px;
-      }
     }
-  `;
+  </style>
+</head>
+<body>
 
-  const metar = `FAOR 071200Z 36008KT 9999 FEW040 21/08 Q1024 NOSIG`;
+<div class="app">
 
-  const taf = `TAF FAOR 071100Z 0712/0818 34010KT CAVOK\nTEMPO 0715/0720 6000 SHRA BKN035TCU\nFM080000 02008KT CAVOK`;
+  <div class="topbar">
+    SKY<span>OPS</span> WEATHER
+  </div>
 
-  const atis = `JOHANNESBURG INFORMATION ALPHA\nRWY 03L/03R IN USE\nTRANSITION LEVEL 080\nQNH 1024\nWIND 360/08KT`;
+  <div class="panel">
 
-  return (
-    <>
-      <style>{css}</style>
+    <div class="panel-header">
+      <h1>Airport Search</h1>
+      <p>Search METAR, TAF, NOTAM and ATIS information</p>
+    </div>
 
-      <div className="dashboard">
-        <div className="topbar">
-          <div className="logo">
-            SKY<span>OPS</span> WX
-          </div>
+    <div class="search">
+      <input type="text" placeholder="FAOR FACT EGLL KJFK">
+      <button>SEARCH WEATHER</button>
+    </div>
 
-          <div className="status-online">
-            <div className="status-dot" />
-            Live Aviation Data
-          </div>
-        </div>
+    <div class="grid">
 
-        <div className="panel">
-          <div className="panel-header">
-            <div>
-              <div className="panel-title">
-                Airport Search
-              </div>
-              <div className="panel-subtitle">
-                Search METAR, TAF, NOTAM and ATIS reports instantly
-              </div>
-            </div>
-          </div>
-
-          <div className="search-area">
-            <input
-              className="icao-input"
-              placeholder="Separate multiple ICAOs with spaces"
-              defaultValue="FAOR FACT EGLL"
-            />
-
-            <button className="search-button">
-              SEARCH WEATHER
-            </button>
-          </div>
-
-          <div className="results-grid">
-            <div className="weather-card">
-              <div className="card-header">
-                <div className="card-title">METAR</div>
-                <div className="badge">LIVE</div>
-              </div>
-
-              <div className="report-content">
-                {metar}
-              </div>
-            </div>
-
-            <div className="weather-card">
-              <div className="card-header">
-                <div className="card-title">TAF</div>
-                <div className="badge">FORECAST</div>
-              </div>
-
-              <div className="report-content">
-                {taf}
-              </div>
-            </div>
-
-            <div className="weather-card">
-              <div className="card-header">
-                <div className="card-title">ATIS</div>
-                <div className="badge">VOICE DATA</div>
-              </div>
-
-              <div className="report-content">
-                {atis}
-              </div>
-            </div>
-
-            <div className="weather-card">
-              <div className="card-header">
-                <div className="card-title">NOTAMs</div>
-                <div className="badge">3 ACTIVE</div>
-              </div>
-
-              <div className="notam-item">
-                <div className="notam-id">A1024/26</div>
-                TWY B CLOSED BTN B4 AND B6 DUE MAINTENANCE.
-              </div>
-
-              <div className="notam-item">
-                <div className="notam-id">A1028/26</div>
-                ILS RWY 03R U/S BETWEEN 1800Z-2300Z.
-              </div>
-
-              <div className="notam-item">
-                <div className="notam-id">A1031/26</div>
-                APRON FLOODLIGHTS LIMITED ON NORTH STAND.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="footer-bar">
-          <div>
-            Powered by FAA / ICAO / AviationWeather APIs
-          </div>
-
-          <div>
-            Built for simmers ✈️
-          </div>
-        </div>
+      <div class="card">
+        <div class="card-title">METAR</div>
+        <div class="content">FAOR 071200Z 36008KT 9999 FEW040 21/08 Q1024 NOSIG</div>
       </div>
-    </>
-  );
-}
 
-/*
-=========================================================
-HOW TO BUILD THE FULL VERSION
-=========================================================
+      <div class="card">
+        <div class="card-title">TAF</div>
+        <div class="content">TAF FAOR 071100Z 0712/0818 34010KT CAVOK
+TEMPO 0715/0720 6000 SHRA BKN035TCU
+FM080000 02008KT CAVOK</div>
+      </div>
 
-1. STACK
----------------------------------------------------------
-Frontend:
-- React + Vite
-- TailwindCSS
-- Framer Motion
-- Zustand or Redux
+      <div class="card">
+        <div class="card-title">ATIS</div>
+        <div class="content">JOHANNESBURG INFORMATION ALPHA
+RWY 03L/03R IN USE
+TRANSITION LEVEL 080
+QNH 1024</div>
+      </div>
 
-Backend:
-- Node.js + Express
-- Redis caching
-- PostgreSQL
+      <div class="card">
+        <div class="card-title">NOTAMS</div>
 
-APIs:
-- https://aviationweather.gov/data/api/
-- FAA NOTAM API
-- VATSIM Data API
-- IVAO ATIS feeds
+        <div class="notam">
+          <strong>A1024/26</strong><br>
+          TWY B CLOSED BTN B4 AND B6 DUE MAINTENANCE
+        </div>
 
-=========================================================
-2. FEATURES TO IMPLEMENT
-=========================================================
+        <div class="notam">
+          <strong>A1028/26</strong><br>
+          ILS RWY 03R U/S BETWEEN 1800Z-2300Z
+        </div>
 
-✔ Multi ICAO search
-✔ Live METAR decoding
-✔ Color coded flight categories
-✔ Raw + decoded TAF
-✔ NOTAM filtering
-✔ ATIS parser
-✔ Dark cockpit theme
-✔ Responsive layout
-✔ Saved favorite airports
-✔ Auto refresh every 60s
-✔ SimBrief-style panels
-✔ Keyboard shortcuts
-✔ Route weather briefings
-✔ Wind component calculator
-✔ Crosswind warnings
-✔ PDF export
-✔ Navigraph integration
-✔ VATSIM online traffic overlay
-✔ SIGMET and AIRMET support
-✔ Interactive maps
+        <div class="notam">
+          <strong>A1031/26</strong><br>
+          APRON FLOODLIGHTS LIMITED ON NORTH STAND
+        </div>
 
-=========================================================
-3. API EXAMPLES
-=========================================================
+      </div>
 
-METAR:
-GET https://aviationweather.gov/api/data/metar?ids=FAOR&format=json
+    </div>
 
-TAF:
-GET https://aviationweather.gov/api/data/taf?ids=FAOR&format=json
+  </div>
 
-NOTAM:
-GET https://external-api.faa.gov/notamapi/v1/notams
+</div>
 
-=========================================================
-4. IMPORTANT NOTE
-=========================================================
-
-You should NOT directly copy SimBrief's exact proprietary code/assets.
-Instead:
-- Build an inspired aviation UI
-- Recreate the visual style yourself
-- Use your own component structure
-- Create your own SVG icons and animations
-
-That keeps the project original and legally safer while still giving the same premium cockpit aesthetic.
-
-=========================================================
-5. BEST NEXT STEP
-=========================================================
-
-Convert this into:
-- Next.js app
-- Real API integration
-- Real-time weather polling
-- User authentication
-- Saved dispatch profiles
-- Full flight planning integration
-
-*/
+</body>
+</html>
