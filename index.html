@@ -63,6 +63,7 @@
             z-index: 0;
         }
 
+        /* ── Subtle background animation ───────────── */
         body::before {
             content: '';
             position: fixed;
@@ -900,51 +901,35 @@
             font-weight: 600;
         }
 
-        /* Manual entry styling */
-        .manual-entry-wrap {
-            margin-top: 8px;
-            display: none;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .manual-entry-wrap textarea {
-            width: 100%;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            font-family: var(--font-mono);
+        /* Premium warning style */
+        .premium-message {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.08));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            color: #f5a623;
+            font-family: var(--font-sans);
             font-size: 12px;
-            padding: 6px;
-            border-radius: var(--radius-sm);
-            resize: vertical;
-            min-height: 50px;
-        }
-        .manual-entry-wrap button {
-            align-self: flex-end;
-            background: var(--accent);
-            border: none;
-            color: #fff;
-            padding: 4px 12px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 11px;
+            text-align: center;
+            letter-spacing: 0.2px;
+            margin: 8px 0;
             font-weight: 600;
-        }
-        .manual-btn {
-            background: none;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 2px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 9px;
-            margin-left: 6px;
-            white-space: nowrap;
+            word-break: break-word;
+            line-height: 1.5;
         }
 
         @media (max-width: 600px) {
-            .manual-entry-wrap textarea {
+            .premium-message {
+                font-size: 11px;
+                padding: 10px 12px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .premium-message {
                 font-size: 10px;
+                padding: 8px 10px;
+                margin: 4px 0;
             }
         }
     </style>
@@ -1035,7 +1020,6 @@
                     <div class="card-header-left">
                         <span class="card-title"><span class="dot"></span> METAR</span>
                         <span class="card-age" id="metarAge"></span>
-                        <button class="manual-btn" id="toggleManualMetar">+ manual</button>
                     </div>
                     <div class="toggle-wrap" style="gap:12px">
                         <div class="toggle-wrap">
@@ -1057,10 +1041,6 @@
                 <div class="card-body" id="metarBody">
                     <span class="placeholder">Enter FAxx and press search.</span>
                 </div>
-                <div class="manual-entry-wrap" id="manualMetarWrap">
-                    <textarea id="manualMetarInput" placeholder="Paste raw METAR here..."></textarea>
-                    <button id="submitManualMetar">Decode</button>
-                </div>
             </div>
 
             <!-- TAF card -->
@@ -1069,7 +1049,6 @@
                     <div class="card-header-left">
                         <span class="card-title"><span class="dot"></span> TAF</span>
                         <span class="card-age" id="tafAge"></span>
-                        <button class="manual-btn" id="toggleManualTAF">+ manual</button>
                     </div>
                     <div class="toggle-wrap" style="gap:12px">
                         <div class="toggle-wrap">
@@ -1090,10 +1069,6 @@
                 </div>
                 <div class="card-body" id="tafBody">
                     <span class="placeholder">Enter FAxx and press search.</span>
-                </div>
-                <div class="manual-entry-wrap" id="manualTAFWrap">
-                    <textarea id="manualTAFInput" placeholder="Paste raw TAF here..."></textarea>
-                    <button id="submitManualTAF">Decode</button>
                 </div>
             </div>
         </div>
@@ -1128,16 +1103,6 @@
             const tafFormatToggle = document.getElementById('tafFormatToggle');
             const metarLatestToggle = document.getElementById('metarLatestToggle');
 
-            // Manual entry elements
-            const toggleManualMetar = document.getElementById('toggleManualMetar');
-            const manualMetarWrap = document.getElementById('manualMetarWrap');
-            const manualMetarInput = document.getElementById('manualMetarInput');
-            const submitManualMetar = document.getElementById('submitManualMetar');
-            const toggleManualTAF = document.getElementById('toggleManualTAF');
-            const manualTAFWrap = document.getElementById('manualTAFWrap');
-            const manualTAFInput = document.getElementById('manualTAFInput');
-            const submitManualTAF = document.getElementById('submitManualTAF');
-
             // ── State ───────────────────────────────────
             let lastIcao = '';
             let metarRawLines = [];
@@ -1168,47 +1133,26 @@
             updateClocks();
             clockInterval = setInterval(updateClocks, 1000);
 
-            // ── Proxy handling ───────────────────────────
-            const PROXY_LIST = [
-                'https://corsproxy.io/?',
-                'https://api.codetabs.com/v1/proxy?quest=',
-                'https://proxy.cors.sh/',
-                'https://cors-anywhere.herokuapp.com/',
-            ];
-            const workingProxies = [];
-
-            // Test proxies on startup
-            async function testProxies() {
-                const testURL = 'https://aviationweather.gov/api/data/metar?ids=FAOR&format=json&hours=1';
-                const promises = PROXY_LIST.map(async (proxy) => {
-                    try {
-                        const res = await fetch(proxy + encodeURIComponent(testURL), { signal: AbortSignal.timeout(5000) });
-                        if (res.ok) workingProxies.push(proxy);
-                    } catch (_) { /* ignore */ }
-                });
-                await Promise.allSettled(promises);
-                if (workingProxies.length === 0) {
-                    console.warn('No CORS proxies available; direct fetch only.');
-                }
-            }
-            testProxies();
-
             // ── Fetch helpers ──────────────────────────
+            const PROXY_LIST = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
             async function safeFetch(url, timeout = 12000) {
-                // 1. Try direct
                 try {
                     const res = await fetch(url, { signal: AbortSignal.timeout(timeout) });
                     if (res.ok) return res;
-                } catch (e) { /* fall through */ }
-
-                // 2. Try working proxies
-                for (const proxy of workingProxies) {
-                    try {
-                        const res = await fetch(proxy + encodeURIComponent(url), { signal: AbortSignal.timeout(timeout + 4000) });
-                        if (res.ok) return res;
-                    } catch (e) { continue; }
+                    throw new Error(`HTTP ${res.status}`);
+                } catch (directErr) {
+                    console.warn('Direct fetch failed:', directErr.message);
                 }
-                throw new Error('All fetch methods failed. Your network may block the weather service. Try the direct link below.');
+                for (const proxy of PROXY_LIST) {
+                    try {
+                        const proxyUrl = proxy + encodeURIComponent(url);
+                        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(timeout + 4000) });
+                        if (res.ok) return res;
+                    } catch (pxErr) {
+                        console.warn('Proxy failed:', proxy, pxErr.message);
+                    }
+                }
+                throw new Error('All fetch methods failed.');
             }
 
             // ── Time formatting ────────────────────────
@@ -1243,6 +1187,8 @@
 
             // ── Date parsing from raw METAR (fallback) ──
             function parseMetarTimeFromRaw(raw) {
+                // Format: CCCC DDHHMMZ ...   e.g. FAOR 081200Z
+                // We need to guess month/year: assume current UTC month/year.
                 const match = raw.match(/^([A-Z]{4})\s+(\d{2})(\d{2})(\d{2})Z/);
                 if (!match) return null;
                 const day = parseInt(match[2], 10);
@@ -1250,6 +1196,7 @@
                 const minute = parseInt(match[4], 10);
                 const now = new Date();
                 const candidate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
+                // If candidate is in the future, try previous month
                 if (candidate > now) {
                     const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
                     return prevMonth <= now ? prevMonth : now;
@@ -1362,7 +1309,8 @@
 
             function updateDecoded(raw) {
                 const d = decodeMetar(raw);
-                dsCat.innerHTML = `<span class="flight-cat-badge ${d.flightCatClass}">${d.flightCat}</span>`;
+                dsCat.innerHTML =
+                    `<span class="flight-cat-badge ${d.flightCatClass}">${d.flightCat}</span>`;
                 dsTemp.textContent = d.temp + (d.dew !== '—' ? ' / ' + d.dew : '');
                 dsWind.textContent = d.wind;
                 dsVis.textContent = d.vis;
@@ -1404,14 +1352,21 @@
             }
 
             function setLoadingState() {
-                dsCat.innerHTML = '<span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span>';
-                dsTemp.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
-                dsWind.innerHTML = '<span class="shimmer" style="display:inline-block;width:70px;height:14px;"></span>';
-                dsVis.innerHTML = '<span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span>';
-                dsClouds.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
-                dsQnh.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
+                dsCat.innerHTML =
+                    '<span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span>';
+                dsTemp.innerHTML =
+                '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
+                dsWind.innerHTML =
+                '<span class="shimmer" style="display:inline-block;width:70px;height:14px;"></span>';
+                dsVis.innerHTML =
+                    '<span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span>';
+                dsClouds.innerHTML =
+                    '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
+                dsQnh.innerHTML =
+                '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
                 airportInfoGrid.innerHTML = '<div class="shimmer" style="flex:1; height:40px;"></div>';
-                runwayTableWrap.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
+                runwayTableWrap.innerHTML =
+                '<div class="shimmer" style="width:100%; height:60px;"></div>';
                 metarBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
                 tafBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
                 metarAgeEl.textContent = '';
@@ -1434,7 +1389,7 @@
                 safe = safe.replace(/\b(\d{4})\b/g, '<span class="colour-vis">$1</span>');
                 safe = safe.replace(/\b(\d+SM)\b/gi, '<span class="colour-vis">$1</span>');
                 safe = safe.replace(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/gi,
-                    '<span class="colour-cloud">$&</span>');
+                '<span class="colour-cloud">$&</span>');
                 safe = safe.replace(/\b(M?\d{2})\/(M?\d{2})\b/g, '<span class="colour-temp">$&</span>');
                 safe = safe.replace(/\bQ(\d{4})\b/g, '<span class="colour-qnh">$&</span>');
                 safe = safe.replace(/\b([-+]?[A-Z]{2}(?:\s?[A-Z]{2})*)\b/g, (m) => {
@@ -1452,7 +1407,7 @@
                 safe = safe.replace(/\b(\d{4})\b/g, '<span class="colour-vis">$1</span>');
                 safe = safe.replace(/\b(\d+SM)\b/gi, '<span class="colour-vis">$1</span>');
                 safe = safe.replace(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/gi,
-                    '<span class="colour-cloud">$&</span>');
+                '<span class="colour-cloud">$&</span>');
                 safe = safe.replace(/\b(M?\d{2})\/(M?\d{2})\b/g, '<span class="colour-temp">$&</span>');
                 safe = safe.replace(/\bQ(\d{4})\b/g, '<span class="colour-qnh">$&</span>');
                 safe = safe.replace(
@@ -1469,6 +1424,7 @@
             // ── TAF formatting ─────────────────────────
             function formatTAFRaw(raw) {
                 if (!raw) return raw;
+                // Insert newline before each change group while keeping PROB30 TEMPO together
                 return raw.replace(
                     /\s(?=PROB\d{2}|(?<!PROB\d{2})TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g,
                     '\n'
@@ -1703,7 +1659,7 @@
                             `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=12`
                         ),
                         safeFetch(
-                            `https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
+                        `https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
                         safeFetch(
                             `https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
                     ]);
@@ -1722,6 +1678,7 @@
                                 const unique = [...new Set(rawObs)];
                                 if (unique.length > 0) {
                                     metarRawLines = unique;
+                                    // Use API obsTime, but verify validity; fallback to parsing from raw
                                     let obsDate = new Date(validData[0].obsTime);
                                     if (isNaN(obsDate.getTime()) || obsDate.getTime() <= 0) {
                                         obsDate = parseMetarTimeFromRaw(unique[0]);
@@ -1737,10 +1694,8 @@
                         }
                     }
                     if (!metarOk) {
-                        const reason = metarRes.status === 'rejected' ? escapeHTML(String(metarRes.reason)) : 'No data';
                         metarBody.innerHTML =
-                            `<span class="placeholder">⚠️ No METAR for ${icao}.<br>Reason: ${reason}<br><br>
-                            <a href="https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=12" target="_blank" rel="noopener">Open direct METAR link</a></span>`;
+                            `<span class="placeholder">⚠️ No METAR was located for ${icao}.</span>`;
                         resetDecodedToDash();
                     }
 
@@ -1769,10 +1724,8 @@
                         }
                     }
                     if (!tafOk) {
-                        const reason = tafRes.status === 'rejected' ? escapeHTML(String(tafRes.reason)) : 'No data';
                         tafBody.innerHTML =
-                            `<span class="placeholder">⚠️ No TAF for ${icao}.<br>Reason: ${reason}<br><br>
-                            <a href="https://aviationweather.gov/api/data/taf?ids=${icao}&format=json" target="_blank" rel="noopener">Open direct TAF link</a></span>`;
+                            `<span class="placeholder">⚠️ No TAF was located for ${icao}.</span>`;
                     }
 
                     // ── Airport data ──────────────────────
@@ -1845,35 +1798,6 @@
                     searchBtn.style.pointerEvents = 'auto';
                 }
             }
-
-            // ── Manual METAR/TAF handling ──────────────
-            toggleManualMetar.addEventListener('click', () => {
-                manualMetarWrap.style.display = manualMetarWrap.style.display === 'flex' ? 'none' : 'flex';
-            });
-            toggleManualTAF.addEventListener('click', () => {
-                manualTAFWrap.style.display = manualTAFWrap.style.display === 'flex' ? 'none' : 'flex';
-            });
-
-            submitManualMetar.addEventListener('click', () => {
-                const raw = manualMetarInput.value.trim();
-                if (raw) {
-                    metarRawLines = [raw];
-                    metarIssuedTime = parseMetarTimeFromRaw(raw) || new Date();
-                    updateMetarDisplay();
-                    updateDecoded(raw);
-                    startAgeUpdates();
-                }
-            });
-
-            submitManualTAF.addEventListener('click', () => {
-                const raw = manualTAFInput.value.trim();
-                if (raw) {
-                    tafRaw = raw;
-                    tafIssuedTime = parseTAFIssued(raw) || new Date();
-                    updateTAFDisplay();
-                    startAgeUpdates();
-                }
-            });
 
             // ── Event listeners ─────────────────────────
             metarColourToggle.addEventListener('change', updateMetarDisplay);
