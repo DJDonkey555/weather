@@ -60,12 +60,11 @@
             overflow-y: auto;
             overflow-x: hidden;
             padding: 10px 14px 14px;
-            /* Hidden but functional scrollbar */
-            scrollbar-width: none;          /* Firefox */
-            -ms-overflow-style: none;       /* IE/Edge */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
         .main-scroll::-webkit-scrollbar {
-            display: none;                  /* Chrome/Safari/Opera */
+            display: none;
             width: 0;
             height: 0;
         }
@@ -76,7 +75,7 @@
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            justify-content: space-between;   /* left UTC, center search, right local */
+            justify-content: space-between;
             padding: 0 16px;
             height: 48px;
             flex-shrink: 0;
@@ -563,28 +562,25 @@
             background-color: #fff;
         }
 
-        /* ── Colour-coded METAR/TAF ── */
-        .colour-wind { color: #60a5fa; }          /* blue */
-        .colour-vis { color: #4ade80; }           /* green */
-        .colour-cloud { color: #c084fc; }         /* purple */
-        .colour-temp { color: #fb923c; }          /* orange */
-        .colour-qnh { color: #facc15; }           /* yellow */
-        .colour-weather { color: #f87171; }       /* red */
-        .colour-change { color: #f59e0b; font-weight: 600; }  /* amber for FM/BECMG/TEMPO */
+        /* ── Colour‑coded METAR/TAF ── */
+        .colour-wind { color: #60a5fa; }
+        .colour-vis { color: #4ade80; }
+        .colour-cloud { color: #c084fc; }
+        .colour-temp { color: #fb923c; }
+        .colour-qnh { color: #facc15; }
+        .colour-weather { color: #f87171; }
+        .colour-change { color: #f59e0b; font-weight: 600; }
         .colour-default { color: #c8ced9; }
     </style>
 </head>
 <body>
 
-    <!-- ═══════════ Top bar ═══════════ -->
     <header class="top-bar">
-        <!-- UTC time on left -->
         <div class="time-utc">
             <span class="time-label">UTC</span>
             <span id="utcTime">--:--:--</span>
         </div>
 
-        <!-- Search center -->
         <div class="search-wrap" id="searchWrap">
             <input
             id="icaoInput"
@@ -599,18 +595,15 @@
             <button class="search-icon-btn" id="searchBtn" title="Search weather">&#x1F50D;</button>
         </div>
 
-        <!-- Local time on right -->
         <div class="time-local">
             <span class="time-label">Local</span>
             <span id="localTime">--:--:--</span>
         </div>
     </header>
 
-    <!-- ═══════════ Main content ═══════════ -->
     <div class="main-scroll" id="mainScroll">
         <div class="content-grid">
 
-            <!-- Decoded METAR strip -->
             <div class="card-airport decoded-strip" id="decodedStrip" style="display:none;">
                 <div class="ds-item"><span class="ds-label">Category</span><span class="ds-value" id="dsCat">—</span></div>
                 <div class="ds-item"><span class="ds-label">Temp / Dew</span><span class="ds-value" id="dsTemp">—</span></div>
@@ -620,7 +613,6 @@
                 <div class="ds-item"><span class="ds-label">QNH</span><span class="ds-value" id="dsQnh">—</span></div>
             </div>
 
-            <!-- Airport info card -->
             <div class="card card-airport" id="airportCard" style="display:none;">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Airport Information</span>
@@ -646,7 +638,6 @@
                 </div>
             </div>
 
-            <!-- Runway details card -->
             <div class="card card-runways" id="runwayCard" style="display:none;">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Runway Details</span>
@@ -701,14 +692,23 @@
                 <div class="card-header">
                     <div class="card-header-left">
                         <span class="card-title"><span class="dot"></span> TAF</span>
-                        <span class="card-age" id="tafAge"></span>
+                        <span class="card-age" id="tafAge">—</span>
                     </div>
-                    <div class="toggle-wrap">
-                        <span class="toggle-label">Colour</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="tafColourToggle">
-                            <span class="toggle-slider"></span>
-                        </label>
+                    <div class="toggle-wrap" style="gap:12px;">
+                        <div class="toggle-wrap">
+                            <span class="toggle-label">Colour</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="tafColourToggle">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-wrap">
+                            <span class="toggle-label">Format</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="tafFormatToggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body" id="tafBody">
@@ -731,7 +731,6 @@
 
     <script>
         (function() {
-            // ── DOM refs ──
             const icaoInput = document.getElementById('icaoInput');
             const searchBtn = document.getElementById('searchBtn');
             const metarBody = document.getElementById('metarBody');
@@ -760,18 +759,18 @@
             const localTimeSpan = document.getElementById('localTime');
             const metarColourToggle = document.getElementById('metarColourToggle');
             const tafColourToggle = document.getElementById('tafColourToggle');
+            const tafFormatToggle = document.getElementById('tafFormatToggle');
 
             let lastIcao = '';
-            let metarRawLines = [];          // store raw METAR strings
-            let tafRaw = '';                 // store raw TAF string
+            let metarRawLines = [];
+            let tafRaw = '';
             let metarReceiptTimes = [];
-            let tafIssuedTime = null;        // parsed from TAF
+            let tafIssuedTime = null;
             let atisFetchTime = null;
             let airportFetchTime = null;
             let ageInterval = null;
             let clockInterval = null;
 
-            // ── Clock update ──
             function updateClocks() {
                 const now = new Date();
                 utcTimeSpan.textContent = now.toISOString().slice(11, 19);
@@ -780,7 +779,6 @@
             updateClocks();
             clockInterval = setInterval(updateClocks, 1000);
 
-            // ── Proxy fallback ──
             const PROXY_LIST = [
                 'https://corsproxy.io/?',
                 'https://api.allorigins.win/raw?url=',
@@ -808,7 +806,6 @@
                 throw new Error('All fetch methods failed.');
             }
 
-            // ── Time ago ──
             function formatTimeAgo(date) {
                 if (!date) return '';
                 const now = new Date();
@@ -824,9 +821,16 @@
             }
 
             function updateAges() {
-                if (metarReceiptTimes.length > 0) metarAgeEl.textContent =
-                    `Issued: ${formatTimeAgo(metarReceiptTimes[0])}`;
-                if (tafIssuedTime) tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafIssuedTime)}`;
+                if (metarReceiptTimes.length > 0) {
+                    metarAgeEl.textContent = `Issued: ${formatTimeAgo(metarReceiptTimes[0])}`;
+                } else {
+                    metarAgeEl.textContent = '';
+                }
+                if (tafIssuedTime) {
+                    tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafIssuedTime)}`;
+                } else {
+                    tafAgeEl.textContent = 'Age unavailable';
+                }
                 if (atisFetchTime) atisAgeEl.textContent = `Fetched: ${formatTimeAgo(atisFetchTime)}`;
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
             }
@@ -837,28 +841,26 @@
                 ageInterval = setInterval(updateAges, 25000);
             }
 
-            // ── Parse TAF issuance time from raw string (e.g., "080400Z") ──
+            // Fixed TAF issuance time parser – strips leading "TAF " or "TAF AMD "
             function parseTAFIssued(raw) {
                 if (!raw) return null;
-                const match = raw.match(/^[A-Z]{4}\s+(\d{2})(\d{2})(\d{2})Z/);
+                let str = raw.trim();
+                // Remove leading TAF / TAF AMD etc.
+                str = str.replace(/^(TAF\s*)(AMD\s*)?/i, '');
+                const match = str.match(/^([A-Z]{4})\s+(\d{2})(\d{2})(\d{2})Z/);
                 if (!match) return null;
-                const day = parseInt(match[1], 10);
-                const hour = parseInt(match[2], 10);
-                const minute = parseInt(match[3], 10);
+                const day = parseInt(match[2], 10);
+                const hour = parseInt(match[3], 10);
+                const minute = parseInt(match[4], 10);
                 const now = new Date();
-                // Create a UTC date with current year/month and the parsed day/hour/minute
                 const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
-                // If the issued date is in the future, it's likely from the previous month
                 if (issued > now) {
-                    // try previous month
                     const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
-                    if (prevMonth <= now) return prevMonth;
-                    // else fall back to today (should not happen normally)
+                    return prevMonth <= now ? prevMonth : now; // fallback to now
                 }
                 return issued;
             }
 
-            // ── Decimal to DMS ──
             function toDMS(deg, isLat) {
                 const abs = Math.abs(deg);
                 const d = Math.floor(abs);
@@ -868,79 +870,41 @@
                 return `${d}°${String(m).padStart(2,'0')}'${String(s).padStart(2,'0')}"${dir}`;
             }
 
-            // ── METAR decoder ──
             function decodeMetar(raw) {
-                const res = {
-                    flightCat: '—',
-                    flightCatClass: '',
-                    temp: '—',
-                    dew: '—',
-                    wind: '—',
-                    vis: '—',
-                    clouds: '—',
-                    qnh: '—',
-                };
+                const res = { flightCat: '—', flightCatClass: '', temp: '—', dew: '—', wind: '—', vis: '—', clouds: '—', qnh: '—' };
                 if (!raw || raw.length < 10) return res;
                 const metar = raw.toUpperCase().trim();
-
                 const tdMatch = metar.match(/\b(M?\d{2})\/(M?\d{2})\b/);
-                if (tdMatch) {
-                    res.temp = tdMatch[1].replace('M', '-') + '°C';
-                    res.dew = tdMatch[2].replace('M', '-') + '°C';
-                }
-
+                if (tdMatch) { res.temp = tdMatch[1].replace('M', '-') + '°C'; res.dew = tdMatch[2].replace('M', '-') + '°C'; }
                 const windMatch = metar.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
                 if (windMatch) {
-                    const dir = windMatch[1];
-                    const spd = windMatch[2];
-                    const gust = windMatch[4];
+                    const dir = windMatch[1], spd = windMatch[2], gust = windMatch[4];
                     if (dir === '000' || (dir === 'VRB' && parseInt(spd) < 3)) res.wind = 'Calm';
                     else if (dir === 'VRB') res.wind = `VRB @ ${spd}kt`;
                     else res.wind = `${dir}° @ ${spd}kt`;
                     if (gust) res.wind += ` G${gust}kt`;
                 }
-
                 if (metar.includes('CAVOK')) res.vis = 'CAVOK (10km+)';
                 else {
                     const visMatch = metar.match(/\b(\d{4})\b/);
-                    if (visMatch) {
-                        const v = parseInt(visMatch[1]);
-                        if (v >= 9999) res.vis = '10km+';
-                        else if (v >= 1000) res.vis = (v / 1000).toFixed(1) + 'km';
-                        else res.vis = v + 'm';
-                    }
+                    if (visMatch) { const v = parseInt(visMatch[1]); if (v >= 9999) res.vis = '10km+'; else if (v >= 1000) res.vis = (v/1000).toFixed(1)+'km'; else res.vis = v+'m'; }
                     const smMatch = metar.match(/\b(\d+)SM\b/);
                     if (smMatch) res.vis = smMatch[1] + 'SM';
                 }
-
-                const clouds = [];
-                const cloudRegex = /\b(FEW|SCT|BKN|OVC)(\d{3})\b/g;
-                let cm;
-                while ((cm = cloudRegex.exec(metar)) !== null) {
-                    clouds.push(`${cm[1]} @ ${parseInt(cm[2]) * 100}ft`);
-                }
+                const clouds = [], cloudRegex = /\b(FEW|SCT|BKN|OVC)(\d{3})\b/g; let cm;
+                while ((cm = cloudRegex.exec(metar)) !== null) clouds.push(`${cm[1]} @ ${parseInt(cm[2])*100}ft`);
                 if (clouds.length) res.clouds = clouds.join(', ');
-                else if (metar.includes('CAVOK') || metar.includes('SKC') || metar.includes('CLR')) res.clouds =
-                    'Clear';
+                else if (metar.includes('CAVOK') || metar.includes('SKC') || metar.includes('CLR')) res.clouds = 'Clear';
                 else if (metar.includes('NSC')) res.clouds = 'No sig. cloud';
-
                 const qnhMatch = metar.match(/\bQ(\d{4})\b/);
                 if (qnhMatch) res.qnh = qnhMatch[1] + ' hPa';
-                else {
-                    const altMatch = metar.match(/\bA(\d{4})\b/);
-                    if (altMatch) res.qnh = (parseInt(altMatch[1]) / 100).toFixed(2) + ' inHg';
-                }
-
-                let ceil = 99999;
-                const ceilRegex = /\b(BKN|OVC)(\d{3})\b/g;
-                let cc;
-                while ((cc = ceilRegex.exec(metar)) !== null) ceil = Math.min(ceil, parseInt(cc[2]) * 100);
-                let visM = 99999;
-                const vm = metar.match(/\b(\d{4})\b/);
+                else { const altMatch = metar.match(/\bA(\d{4})\b/); if (altMatch) res.qnh = (parseInt(altMatch[1])/100).toFixed(2) + ' inHg'; }
+                let ceil = 99999; const ceilRegex = /\b(BKN|OVC)(\d{3})\b/g; let cc;
+                while ((cc = ceilRegex.exec(metar)) !== null) ceil = Math.min(ceil, parseInt(cc[2])*100);
+                let visM = 99999; const vm = metar.match(/\b(\d{4})\b/);
                 if (vm && !metar.includes('CAVOK')) visM = parseInt(vm[1]);
-                const smCat = metar.match(/\b(\d+)SM\b/);
-                if (smCat) visM = parseInt(smCat[1]) * 1609;
-                const visSM = visM / 1609;
+                const smCat = metar.match(/\b(\d+)SM\b/); if (smCat) visM = parseInt(smCat[1])*1609;
+                const visSM = visM/1609;
                 if (ceil > 3000 && visSM > 5) { res.flightCat = 'VFR'; res.flightCatClass = 'fc-vfr'; }
                 else if ((ceil >= 1000 && ceil <= 3000) || (visSM >= 3 && visSM <= 5)) { res.flightCat = 'MVFR'; res.flightCatClass = 'fc-mvfr'; }
                 else if ((ceil >= 500 && ceil < 1000) || (visSM >= 1 && visSM < 3)) { res.flightCat = 'IFR'; res.flightCatClass = 'fc-ifr'; }
@@ -959,87 +923,49 @@
                 dsQnh.textContent = d.qnh;
                 decodedStrip.style.display = 'flex';
             }
-
             function hideDecoded() {
                 decodedStrip.style.display = 'none';
-                dsCat.innerHTML = '—';
-                dsTemp.textContent = '—';
-                dsWind.textContent = '—';
-                dsVis.textContent = '—';
-                dsClouds.textContent = '—';
-                dsQnh.textContent = '—';
+                dsCat.innerHTML = '—'; dsTemp.textContent = '—'; dsWind.textContent = '—'; dsVis.textContent = '—'; dsClouds.textContent = '—'; dsQnh.textContent = '—';
             }
 
-            // ── Escape HTML ──
-            function escapeHTML(str) {
-                const div = document.createElement('div');
-                div.textContent = str;
-                return div.innerHTML;
-            }
+            function escapeHTML(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
 
-            // ── Colour-coded METAR renderer ──
             function renderColouredMETAR(raw) {
-                // escape then wrap known patterns
                 let safe = escapeHTML(raw);
-                // Wind group: 3 digits direction + speed + KT or KPH, with optional G
-                safe = safe.replace(/\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?(KT|KPH)\b/gi,
-                    '<span class="colour-wind">$&</span>');
-                // Visibility in meters (4 digits)
+                safe = safe.replace(/\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?(KT|KPH)\b/gi, '<span class="colour-wind">$&</span>');
                 safe = safe.replace(/\b(\d{4})\b/g, '<span class="colour-vis">$1</span>');
-                // Visibility in SM
                 safe = safe.replace(/\b(\d+SM)\b/gi, '<span class="colour-vis">$1</span>');
-                // Cloud groups
-                safe = safe.replace(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/gi,
-                    '<span class="colour-cloud">$&</span>');
-                // Temperature / Dew
-                safe = safe.replace(/\b(M?\d{2})\/(M?\d{2})\b/g,
-                    '<span class="colour-temp">$&</span>');
-                // QNH
-                safe = safe.replace(/\bQ(\d{4})\b/g,
-                    '<span class="colour-qnh">$&</span>');
-                // Weather phenomena (e.g., RA, +RA, -DZ, TS)
-                safe = safe.replace(/\b([-+]?[A-Z]{2}(?:\s?[A-Z]{2})*)\b(?=(?:\s|$))/g, (match) => {
-                    if (/^(FEW|SCT|BKN|OVC|CLR|SKC|CAVOK|NSC|NCD|VRB|KT|KPH|M?\d{2}\/|Q\d{4}|A\d{4})$/.test(match)) {
-                        return match;
-                    }
-                    return `<span class="colour-weather">${match}</span>`;
+                safe = safe.replace(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/gi, '<span class="colour-cloud">$&</span>');
+                safe = safe.replace(/\b(M?\d{2})\/(M?\d{2})\b/g, '<span class="colour-temp">$&</span>');
+                safe = safe.replace(/\bQ(\d{4})\b/g, '<span class="colour-qnh">$&</span>');
+                safe = safe.replace(/\b([-+]?[A-Z]{2}(?:\s?[A-Z]{2})*)\b/g, (m) => {
+                    if (/^(FEW|SCT|BKN|OVC|CLR|SKC|CAVOK|NSC|NCD|VRB|KT|KPH|M?\d{2}\/|Q\d{4}|A\d{4})$/.test(m)) return m;
+                    return `<span class="colour-weather">${m}</span>`;
                 });
                 return safe;
             }
 
             function renderColouredTAF(raw) {
                 let safe = escapeHTML(raw);
-                // Wind, visibility, clouds, weather similar to METAR
-                safe = safe.replace(/\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?(KT|KPH)\b/gi,
-                    '<span class="colour-wind">$&</span>');
+                safe = safe.replace(/\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?(KT|KPH)\b/gi, '<span class="colour-wind">$&</span>');
                 safe = safe.replace(/\b(\d{4})\b/g, '<span class="colour-vis">$1</span>');
                 safe = safe.replace(/\b(\d+SM)\b/gi, '<span class="colour-vis">$1</span>');
-                safe = safe.replace(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/gi,
-                    '<span class="colour-cloud">$&</span>');
-                safe = safe.replace(/\b(M?\d{2})\/(M?\d{2})\b/g,
-                    '<span class="colour-temp">$&</span>');
-                safe = safe.replace(/\bQ(\d{4})\b/g,
-                    '<span class="colour-qnh">$&</span>');
-                // Change groups (FM, BECMG, TEMPO, PROB...)
-                safe = safe.replace(/\b(PROB\d{2}\s+TEMPO|PROB\d{2}|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})\b/g,
-                    '<span class="colour-change">$&</span>');
-                safe = safe.replace(/\b([-+]?[A-Z]{2}(?:\s?[A-Z]{2})*)\b/g, (match) => {
-                    if (/^(FEW|SCT|BKN|OVC|CLR|SKC|CAVOK|NSC|NCD|VRB|KT|KPH|M?\d{2}\/|Q\d{4}|A\d{4}|PROB|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})$/.test(match)) {
-                        return match;
-                    }
-                    return `<span class="colour-weather">${match}</span>`;
+                safe = safe.replace(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/gi, '<span class="colour-cloud">$&</span>');
+                safe = safe.replace(/\b(M?\d{2})\/(M?\d{2})\b/g, '<span class="colour-temp">$&</span>');
+                safe = safe.replace(/\bQ(\d{4})\b/g, '<span class="colour-qnh">$&</span>');
+                safe = safe.replace(/\b(PROB\d{2}\s+TEMPO|PROB\d{2}|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})\b/g, '<span class="colour-change">$&</span>');
+                safe = safe.replace(/\b([-+]?[A-Z]{2}(?:\s?[A-Z]{2})*)\b/g, (m) => {
+                    if (/^(FEW|SCT|BKN|OVC|CLR|SKC|CAVOK|NSC|NCD|VRB|KT|KPH|M?\d{2}\/|Q\d{4}|A\d{4}|PROB|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})$/.test(m)) return m;
+                    return `<span class="colour-weather">${m}</span>`;
                 });
                 return safe;
             }
 
-            // ── TAF formatting: break before change groups ──
             function formatTAFRaw(raw) {
                 if (!raw) return raw;
-                // Insert newline before each change indicator (PROB... TEMPO, BECMG, FM, TL, AT)
                 return raw.replace(/\s(?=PROB\d{2}\s|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g, '\n');
             }
 
-            // ── Display functions ──
             function updateMetarDisplay() {
                 if (!metarBody || metarRawLines.length === 0) return;
                 const colour = metarColourToggle.checked;
@@ -1055,8 +981,9 @@
             function updateTAFDisplay() {
                 if (!tafBody || !tafRaw) return;
                 const colour = tafColourToggle.checked;
-                const formattedRaw = formatTAFRaw(tafRaw);
-                const html = colour ? renderColouredTAF(formattedRaw) : escapeHTML(formattedRaw);
+                const useFormat = tafFormatToggle.checked;
+                const textToShow = useFormat ? formatTAFRaw(tafRaw) : tafRaw;
+                const html = colour ? renderColouredTAF(textToShow) : escapeHTML(textToShow);
                 tafBody.innerHTML = `<pre>${html}</pre>`;
             }
 
@@ -1064,32 +991,21 @@
                 el.innerHTML = `<span class="placeholder">${escapeHTML(msg)}</span>`;
             }
 
-            // ── Airport display (runway lengths forced to '-') ──
             function displayAirportInfo(icao, airportObj) {
-                if (!airportObj) {
-                    airportCard.style.display = 'none';
-                    runwayCard.style.display = 'none';
-                    return;
-                }
+                if (!airportObj) { airportCard.style.display = 'none'; runwayCard.style.display = 'none'; return; }
                 airportCard.style.display = '';
                 const name = airportObj.name || 'Unknown';
                 const elevMeters = airportObj.elevation_m;
                 const elevFt = elevMeters != null ? Math.round(elevMeters * 3.28084) : null;
-                const lat = airportObj.lat;
-                const lon = airportObj.lon;
-
+                const lat = airportObj.lat, lon = airportObj.lon;
                 airportName.textContent = name;
                 airportIcaoBadge.textContent = icao;
                 airportElev.textContent = elevFt != null ? `${elevFt} ft` : '—';
-                airportCoords.textContent = (lat != null && lon != null) ?
-                    `${toDMS(lat, true)}  ${toDMS(lon, false)}` :
-                    '—';
+                airportCoords.textContent = (lat != null && lon != null) ? `${toDMS(lat, true)}  ${toDMS(lon, false)}` : '—';
                 airportFetchTime = new Date();
                 airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
-
                 const rawRunways = airportObj.runways || [];
                 airportRwyCount.textContent = rawRunways.length > 0 ? `${rawRunways.length} physical runway${rawRunways.length>1?'s':''}` : '—';
-
                 if (rawRunways.length > 0) {
                     runwayCard.style.display = '';
                     let rowsHtml = '';
@@ -1097,55 +1013,37 @@
                         const parts = (rw.id || '').split('/');
                         const directions = parts.length === 2 ? parts : [rw.id || '??', '??'];
                         const surface = rw.surface || '—';
-                        const thrLat = rw.threshold_lat;
-                        const thrLon = rw.threshold_lon;
-                        const thrElevFt = rw.threshold_elev_ft;
-                        const slopeVal = rw.slope;
-                        const slopeSign = rw.slope_sign || '';
-
+                        const thrLat = rw.threshold_lat, thrLon = rw.threshold_lon, thrElevFt = rw.threshold_elev_ft;
+                        const slopeVal = rw.slope, slopeSign = rw.slope_sign || '';
                         directions.forEach(dir => {
                             const designation = dir.trim();
-                            const coordStr = (thrLat != null && thrLon != null) ?
-                                `${toDMS(thrLat, true)} ${toDMS(thrLon, false)}` :
-                                '—';
+                            const coordStr = (thrLat != null && thrLon != null) ? `${toDMS(thrLat, true)} ${toDMS(thrLon, false)}` : '—';
                             const thrElevStr = thrElevFt != null ? `${thrElevFt} ft` : '—';
                             let slopeStr = '—';
                             if (slopeVal != null) {
                                 const signChar = (slopeSign === 'U' || slopeSign === 'u') ? 'U' : (slopeSign === 'D' || slopeSign === 'd') ? 'D' : '';
                                 slopeStr = `${slopeVal}% ${signChar}`.trim();
                             }
-                            rowsHtml += `
-                                <tr>
-                                    <td class="rw-designation">${escapeHTML(designation)}</td>
-                                    <td>${coordStr}</td>
-                                    <td>${thrElevStr}</td>
-                                    <td>-</td>   <!-- TORA -->
-                                    <td>-</td>   <!-- TODA -->
-                                    <td>-</td>   <!-- ASDA -->
-                                    <td>-</td>   <!-- LDA -->
-                                    <td>-</td>   <!-- SWY -->
-                                    <td>-</td>   <!-- CWY -->
-                                    <td>${slopeStr}</td>
-                                    <td>${escapeHTML(surface)}</td>
-                                </tr>`;
+                            rowsHtml += `<tr>
+                                <td class="rw-designation">${escapeHTML(designation)}</td>
+                                <td>${coordStr}</td><td>${thrElevStr}</td>
+                                <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                                <td>${slopeStr}</td><td>${escapeHTML(surface)}</td>
+                            </tr>`;
                         });
                     });
                     runwayTbody.innerHTML = rowsHtml;
                 } else {
                     runwayCard.style.display = '';
-                    runwayTbody.innerHTML =
-                        '<tr><td colspan="11" class="na-cell">— No runway data available —</td></tr>';
+                    runwayTbody.innerHTML = '<tr><td colspan="11" class="na-cell">— No runway data available —</td></tr>';
                 }
             }
 
             function hideAirportInfo() {
-                airportCard.style.display = 'none';
-                runwayCard.style.display = 'none';
-                airportFetchTime = null;
-                airportAgeEl.textContent = '';
+                airportCard.style.display = 'none'; runwayCard.style.display = 'none';
+                airportFetchTime = null; airportAgeEl.textContent = '';
             }
 
-            // ── Main search ──
             async function searchWeather(icaoOverride) {
                 const icao = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
                 if (!icao || icao.length < 4) {
@@ -1153,52 +1051,30 @@
                     setBodyPlaceholder(tafBody, 'Waiting for valid ICAO...');
                     setBodyPlaceholder(atisBody, 'Waiting for valid ICAO...');
                     metarAgeEl.textContent = tafAgeEl.textContent = atisAgeEl.textContent = '';
-                    hideDecoded();
-                    hideAirportInfo();
-                    metarRawLines = [];
-                    tafRaw = '';
-                    metarReceiptTimes = [];
-                    tafIssuedTime = null;
-                    atisFetchTime = null;
+                    hideDecoded(); hideAirportInfo();
+                    metarRawLines = []; tafRaw = ''; metarReceiptTimes = []; tafIssuedTime = null; atisFetchTime = null;
                     return;
                 }
-
-                // Only South African airports (FAxx)
                 if (!icao.startsWith('FA')) {
                     setBodyPlaceholder(metarBody, `🚫 This application currently supports only South African airports (ICAO codes starting with FA). Please enter a code like FAOR, FACT, etc.`);
                     setBodyPlaceholder(tafBody, `🚫 Only South African airports are supported.`);
                     setBodyPlaceholder(atisBody, `🚫 Only South African airports are supported.`);
-                    hideDecoded();
-                    hideAirportInfo();
+                    hideDecoded(); hideAirportInfo();
                     metarAgeEl.textContent = tafAgeEl.textContent = atisAgeEl.textContent = '';
-                    metarRawLines = [];
-                    tafRaw = '';
-                    metarReceiptTimes = [];
-                    tafIssuedTime = null;
-                    atisFetchTime = null;
+                    metarRawLines = []; tafRaw = ''; metarReceiptTimes = []; tafIssuedTime = null; atisFetchTime = null;
                     icaoInput.value = icao;
                     return;
                 }
-
                 lastIcao = icao;
                 icaoInput.value = icao;
 
-                // Shimmer loading
                 metarBody.innerHTML = '<div class="shimmer"></div>';
                 tafBody.innerHTML = '<div class="shimmer"></div>';
                 atisBody.innerHTML = '<div class="shimmer"></div>';
                 metarAgeEl.textContent = tafAgeEl.textContent = atisAgeEl.textContent = '';
-                hideDecoded();
-                hideAirportInfo();
-                metarRawLines = [];
-                tafRaw = '';
-                metarReceiptTimes = [];
-                tafIssuedTime = null;
-                atisFetchTime = null;
-                airportFetchTime = null;
-
-                searchBtn.style.opacity = '0.5';
-                searchBtn.style.pointerEvents = 'none';
+                hideDecoded(); hideAirportInfo();
+                metarRawLines = []; tafRaw = ''; metarReceiptTimes = []; tafIssuedTime = null; atisFetchTime = null; airportFetchTime = null;
+                searchBtn.style.opacity = '0.5'; searchBtn.style.pointerEvents = 'none';
 
                 try {
                     const [metarRes, tafRes, vatsimRes, airportRes] = await Promise.allSettled([
@@ -1208,14 +1084,14 @@
                         safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
                     ]);
 
-                    // METAR
+                    // METAR – no error messages
                     if (metarRes.status === 'fulfilled') {
                         try {
                             const data = await metarRes.value.json();
                             if (data && data.length > 0) {
                                 metarRawLines = data.filter(d => d.rawOb).map(d => d.rawOb.trim());
                                 metarRawLines = [...new Set(metarRawLines)];
-                                metarReceiptTimes = data.filter(d => d.receiptTime).map(d => new Date(d.receiptTime)).sort((a, b) => b - a);
+                                metarReceiptTimes = data.filter(d => d.receiptTime).map(d => new Date(d.receiptTime)).sort((a,b) => b-a);
                                 updateMetarDisplay();
                                 if (metarRawLines.length) updateDecoded(metarRawLines[0]);
                             } else {
@@ -1223,37 +1099,33 @@
                                 metarRawLines = [];
                             }
                         } catch (e) {
-                            setBodyPlaceholder(metarBody, `❌ Error: ${e.message}`);
+                            setBodyPlaceholder(metarBody, `⚠️ No METAR was located for ${icao}.`);
                             metarRawLines = [];
                         }
                     } else {
-                        setBodyPlaceholder(metarBody, `❌ METAR fetch failed.`);
+                        setBodyPlaceholder(metarBody, `⚠️ No METAR was located for ${icao}.`);
                         metarRawLines = [];
                     }
 
-                    // TAF
+                    // TAF – no error messages
                     if (tafRes.status === 'fulfilled') {
                         try {
                             const data = await tafRes.value.json();
                             if (data && data[0]?.rawTAF) {
                                 tafRaw = data[0].rawTAF.trim();
-                                // Parse issuance time from TAF string
                                 tafIssuedTime = parseTAFIssued(tafRaw);
                                 updateTAFDisplay();
                             } else {
                                 setBodyPlaceholder(tafBody, `⚠️ No TAF was located for ${icao}.`);
-                                tafRaw = '';
-                                tafIssuedTime = null;
+                                tafRaw = ''; tafIssuedTime = null;
                             }
                         } catch (e) {
-                            setBodyPlaceholder(tafBody, `❌ Error: ${e.message}`);
-                            tafRaw = '';
-                            tafIssuedTime = null;
+                            setBodyPlaceholder(tafBody, `⚠️ No TAF was located for ${icao}.`);
+                            tafRaw = ''; tafIssuedTime = null;
                         }
                     } else {
-                        setBodyPlaceholder(tafBody, `❌ TAF fetch failed.`);
-                        tafRaw = '';
-                        tafIssuedTime = null;
+                        setBodyPlaceholder(tafBody, `⚠️ No TAF was located for ${icao}.`);
+                        tafRaw = ''; tafIssuedTime = null;
                     }
 
                     // VATSIM ATIS
@@ -1263,25 +1135,19 @@
                             const atisList = vatsim?.atis?.filter(a => a.callsign?.toUpperCase().includes(icao));
                             const atis = atisList?.find(a => a.atis_code) || atisList?.[0];
                             if (atis && atis.text_atis?.length) {
-                                const lines = [
-                                    `ATIS ${atis.atis_code || '—'} · ${atis.frequency || '—'}`,
-                                    `Callsign: ${atis.callsign}`,
-                                    '',
-                                    ...atis.text_atis,
-                                ];
+                                const lines = [`ATIS ${atis.atis_code || '—'} · ${atis.frequency || '—'}`, `Callsign: ${atis.callsign}`, '', ...atis.text_atis];
                                 atisBody.innerHTML = `<pre>${escapeHTML(lines.join('\n'))}</pre>`;
                                 atisFetchTime = new Date();
                             } else {
                                 setBodyPlaceholder(atisBody, `⚠️ No active VATSIM ATIS for ${icao}.`);
                             }
                         } catch (e) {
-                            setBodyPlaceholder(atisBody, `⚠️ Error: ${e.message}`);
+                            setBodyPlaceholder(atisBody, `⚠️ Error loading ATIS.`);
                         }
                     } else {
                         setBodyPlaceholder(atisBody, `⚠️ VATSIM ATIS unavailable.`);
                     }
 
-                    // Airport info
                     if (airportRes.status === 'fulfilled') {
                         try {
                             const aptData = await airportRes.value.json();
@@ -1289,70 +1155,45 @@
                                 const apt = aptData[0];
                                 displayAirportInfo(icao, {
                                     name: apt.name || apt.facilityName || null,
-                                    elevation_m: apt.elev,
-                                    lat: apt.lat,
-                                    lon: apt.lon,
+                                    elevation_m: apt.elev, lat: apt.lat, lon: apt.lon,
                                     runways: (apt.runways || []).map(rw => ({
                                         id: rw.id || rw.name || null,
-                                        length_ft: rw.length_ft,
-                                        width_ft: rw.width_ft,
-                                        surface: rw.surface,
+                                        length_ft: rw.length_ft, width_ft: rw.width_ft, surface: rw.surface,
                                         heading_deg: rw.heading_deg,
-                                        tora: rw.tora,
-                                        toda: rw.toda,
-                                        asda: rw.asda,
-                                        lda: rw.lda,
-                                        swy: rw.swy,
-                                        cwy: rw.cwy,
-                                        slope: rw.slope,
-                                        slope_sign: rw.slope_sign,
-                                        threshold_lat: rw.threshold_lat,
-                                        threshold_lon: rw.threshold_lon,
+                                        tora: rw.tora, toda: rw.toda, asda: rw.asda, lda: rw.lda,
+                                        swy: rw.swy, cwy: rw.cwy, slope: rw.slope, slope_sign: rw.slope_sign,
+                                        threshold_lat: rw.threshold_lat, threshold_lon: rw.threshold_lon,
                                         threshold_elev_ft: rw.threshold_elev_ft,
                                     })),
                                 });
-                            } else {
-                                hideAirportInfo();
-                                console.warn('Airport API returned empty for', icao);
-                            }
-                        } catch (e) {
-                            hideAirportInfo();
-                            console.warn('Airport parse error:', e.message);
-                        }
-                    } else {
-                        hideAirportInfo();
-                    }
+                            } else { hideAirportInfo(); }
+                        } catch (e) { hideAirportInfo(); }
+                    } else { hideAirportInfo(); }
 
                     startAgeUpdates();
                 } catch (err) {
                     console.error(err);
-                    [metarBody, tafBody, atisBody].forEach(el => setBodyPlaceholder(el,
-                        `❌ Unexpected error: ${err.message}`));
-                    hideDecoded();
-                    hideAirportInfo();
+                    setBodyPlaceholder(metarBody, `⚠️ No METAR was located for ${icao}.`);
+                    setBodyPlaceholder(tafBody, `⚠️ No TAF was located for ${icao}.`);
+                    setBodyPlaceholder(atisBody, `⚠️ VATSIM ATIS unavailable.`);
+                    hideDecoded(); hideAirportInfo();
                 } finally {
-                    searchBtn.style.opacity = '1';
-                    searchBtn.style.pointerEvents = 'auto';
+                    searchBtn.style.opacity = '1'; searchBtn.style.pointerEvents = 'auto';
                 }
             }
 
-            // ── Toggle listeners ──
             metarColourToggle.addEventListener('change', updateMetarDisplay);
             tafColourToggle.addEventListener('change', updateTAFDisplay);
+            tafFormatToggle.addEventListener('change', updateTAFDisplay);
 
-            // ── Event listeners ──
             searchBtn.addEventListener('click', () => searchWeather());
             icaoInput.addEventListener('keydown', e => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    searchWeather();
-                }
+                if (e.key === 'Enter') { e.preventDefault(); searchWeather(); }
             });
             icaoInput.addEventListener('input', () => {
                 icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
             });
 
-            // ── Initial focus ──
             icaoInput.focus();
         })();
     </script>
