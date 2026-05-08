@@ -692,7 +692,7 @@
                 <div class="card-header">
                     <div class="card-header-left">
                         <span class="card-title"><span class="dot"></span> TAF</span>
-                        <span class="card-age" id="tafAge">—</span>
+                        <span class="card-age" id="tafAge"></span>   <!-- No default text -->
                     </div>
                     <div class="toggle-wrap" style="gap:12px;">
                         <div class="toggle-wrap">
@@ -821,15 +821,17 @@
             }
 
             function updateAges() {
+                // METAR age – only show when data exists
                 if (metarReceiptTimes.length > 0) {
                     metarAgeEl.textContent = `Issued: ${formatTimeAgo(metarReceiptTimes[0])}`;
                 } else {
                     metarAgeEl.textContent = '';
                 }
+                // TAF age – only show when TAF is loaded and time parsed
                 if (tafIssuedTime) {
                     tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafIssuedTime)}`;
                 } else {
-                    tafAgeEl.textContent = 'Age unavailable';
+                    tafAgeEl.textContent = '';   // blank until TAF appears
                 }
                 if (atisFetchTime) atisAgeEl.textContent = `Fetched: ${formatTimeAgo(atisFetchTime)}`;
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
@@ -841,11 +843,9 @@
                 ageInterval = setInterval(updateAges, 25000);
             }
 
-            // Fixed TAF issuance time parser – strips leading "TAF " or "TAF AMD "
             function parseTAFIssued(raw) {
                 if (!raw) return null;
                 let str = raw.trim();
-                // Remove leading TAF / TAF AMD etc.
                 str = str.replace(/^(TAF\s*)(AMD\s*)?/i, '');
                 const match = str.match(/^([A-Z]{4})\s+(\d{2})(\d{2})(\d{2})Z/);
                 if (!match) return null;
@@ -856,7 +856,7 @@
                 const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
                 if (issued > now) {
                     const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
-                    return prevMonth <= now ? prevMonth : now; // fallback to now
+                    return prevMonth <= now ? prevMonth : now;
                 }
                 return issued;
             }
@@ -1084,7 +1084,7 @@
                         safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
                     ]);
 
-                    // METAR – no error messages
+                    // METAR
                     if (metarRes.status === 'fulfilled') {
                         try {
                             const data = await metarRes.value.json();
@@ -1107,7 +1107,7 @@
                         metarRawLines = [];
                     }
 
-                    // TAF – no error messages
+                    // TAF
                     if (tafRes.status === 'fulfilled') {
                         try {
                             const data = await tafRes.value.json();
