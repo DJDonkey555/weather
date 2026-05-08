@@ -194,7 +194,7 @@
         .card-taf {
             grid-column: 2;
         }
-        .card-crosswind {
+        .card-density {
             grid-column: 1 / -1;
         }
 
@@ -206,7 +206,7 @@
             .card-taf,
             .card-runways,
             .card-airport,
-            .card-crosswind {
+            .card-density {
                 grid-column: 1 / -1;
             }
         }
@@ -340,8 +340,9 @@
         }
         .airport-icao-badge {
             display: inline-block;
-            background: var(--accent);
-            color: #fff;
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
             font-weight: 700;
             font-size: 10px;
             padding: 2px 7px;
@@ -568,6 +569,19 @@
         .colour-weather { color: #f87171; }
         .colour-change { color: #f59e0b; font-weight: 600; }
         .colour-default { color: #c8ced9; }
+
+        /* Density altitude specific */
+        .da-value {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+        .da-warn {
+            color: var(--red-bright);
+        }
+        .da-ok {
+            color: var(--green);
+        }
     </style>
 </head>
 <body>
@@ -716,14 +730,14 @@
                 </div>
             </div>
 
-            <!-- Wind Components card (replaces VATSIM ATIS) -->
-            <div class="card card-crosswind" id="crosswindCard">
+            <!-- Density Altitude card (replaces ATIS/wind) -->
+            <div class="card card-density" id="densityCard">
                 <div class="card-header">
-                    <span class="card-title"><span class="dot"></span> Wind Components</span>
-                    <span class="card-age" id="crosswindAge"></span>
+                    <span class="card-title"><span class="dot"></span> Density Altitude</span>
+                    <span class="card-age" id="densityAge"></span>
                 </div>
-                <div class="card-body" id="crosswindBody">
-                    <span class="placeholder">Wind components will be calculated based on METAR and runway headings.</span>
+                <div class="card-body" id="densityBody" style="text-align:center;">
+                    <span class="placeholder">Density altitude will be computed from METAR & airport elevation.</span>
                 </div>
             </div>
         </div>
@@ -740,10 +754,10 @@
             const searchBtn = document.getElementById('searchBtn');
             const metarBody = document.getElementById('metarBody');
             const tafBody = document.getElementById('tafBody');
-            const crosswindBody = document.getElementById('crosswindBody');
+            const densityBody = document.getElementById('densityBody');
             const metarAgeEl = document.getElementById('metarAge');
             const tafAgeEl = document.getElementById('tafAge');
-            const crosswindAgeEl = document.getElementById('crosswindAge');
+            const densityAgeEl = document.getElementById('densityAge');
             const airportAgeEl = document.getElementById('airportAge');
             const decodedStrip = document.getElementById('decodedStrip');
             const dsCat = document.getElementById('dsCat');
@@ -765,6 +779,7 @@
             const metarColourToggle = document.getElementById('metarColourToggle');
             const tafColourToggle = document.getElementById('tafColourToggle');
             const tafFormatToggle = document.getElementById('tafFormatToggle');
+            const airportInfoGrid = document.getElementById('airportInfoGrid');
 
             let lastIcao = '';
             let metarRawLines = [];
@@ -784,14 +799,11 @@
                 void el.offsetWidth;
                 el.style.opacity = '1';
             }
-
             function fadeOutElement(el) {
                 if (!el) return;
                 el.style.opacity = '0';
                 setTimeout(() => {
-                    if (el.style.opacity === '0') {
-                        el.style.display = 'none';
-                    }
+                    if (el.style.opacity === '0') el.style.display = 'none';
                 }, 310);
             }
 
@@ -845,18 +857,12 @@
             }
 
             function updateAges() {
-                if (metarIssuedTime) {
-                    metarAgeEl.textContent = `Issued: ${formatTimeAgo(metarIssuedTime)}`;
-                } else {
-                    metarAgeEl.textContent = '';
-                }
-                if (tafIssuedTime) {
-                    tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafIssuedTime)}`;
-                } else {
-                    tafAgeEl.textContent = '';
-                }
+                if (metarIssuedTime) metarAgeEl.textContent = `Issued: ${formatTimeAgo(metarIssuedTime)}`;
+                else metarAgeEl.textContent = '';
+                if (tafIssuedTime) tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafIssuedTime)}`;
+                else tafAgeEl.textContent = '';
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
-                crosswindAgeEl.textContent = metarIssuedTime ? `Based on METAR issued ${formatTimeAgo(metarIssuedTime)}` : '';
+                densityAgeEl.textContent = metarIssuedTime ? `Based on METAR issued ${formatTimeAgo(metarIssuedTime)}` : '';
             }
 
             function startAgeUpdates() {
@@ -961,11 +967,9 @@
                 dsVis.textContent = d.vis;
                 dsClouds.textContent = d.clouds;
                 dsQnh.textContent = d.qnh;
-                // strip is already visible
             }
 
             function hideDecoded() {
-                // we no longer hide the strip, just reset values
                 dsCat.innerHTML = '—'; dsTemp.textContent = '—'; dsWind.textContent = '—'; dsVis.textContent = '—'; dsClouds.textContent = '—'; dsQnh.textContent = '—';
             }
 
@@ -1039,15 +1043,32 @@
                     if (isNaN(num)) return;
                     let rec = (num + 18) % 36;
                     if (rec === 0) rec = 36;
-                    const pair = [num, rec].sort((a,b) => a-b).join('/');
-                    seen.add(pair);
+                    seen.add([num, rec].sort((a,b)=>a-b).join('/'));
                 });
                 return seen.size;
             }
 
+            // ── Shimmer helpers for airport & runway ─────
+            function setAirportShimmer() {
+                airportInfoGrid.innerHTML = `
+                    <div style="display:flex; flex-wrap:wrap; gap:10px 20px; padding:8px 10px; width:100%;">
+                        <div style="flex:1 1 200px;"><div class="shimmer" style="height:22px; width:80%;"></div><div class="shimmer" style="height:16px; width:60px; margin-top:6px;"></div></div>
+                        <div class="shimmer" style="width:60px; height:40px;"></div>
+                        <div class="shimmer" style="width:60px; height:40px;"></div>
+                        <div class="shimmer" style="width:120px; height:40px;"></div>
+                    </div>`;
+            }
+            function setRunwayShimmer() {
+                runwayTbody.innerHTML = '<tr><td colspan="11"><div class="shimmer" style="height:20px;"></div></td></tr>';
+            }
+            function setDecodedShimmer() {
+                const items = document.querySelectorAll('.decoded-strip .ds-value');
+                items.forEach(el => el.innerHTML = '<div class="shimmer" style="height:14px; width:100%;"></div>');
+            }
+
+            // ── Display airport info (also used for reset) ──
             function displayAirportInfo(icao, airportObj) {
                 if (!airportObj) {
-                    // reset to placeholder
                     airportName.textContent = 'Search for an airport';
                     airportIcaoBadge.textContent = '----';
                     airportElev.textContent = '—';
@@ -1137,111 +1158,66 @@
                 airportAgeEl.textContent = '';
             }
 
-            // ── Wind Components Calculator ────────────
-            function getRunwayHeadings(runways, isLocal) {
-                const results = [];
-                if (isLocal) {
-                    runways.forEach(rw => {
-                        const des = rw.designation;
-                        if (des) {
-                            const match = des.match(/^(\d{1,2})/);
-                            if (match) {
-                                let num = parseInt(match[1]);
-                                let heading = (num * 10) % 360;
-                                if (heading === 0) heading = 360;
-                                results.push({ designation: des, heading });
-                            }
-                        }
-                    });
-                } else {
-                    runways.forEach(rw => {
-                        const id = rw.id;
-                        if (id) {
-                            const parts = id.split('/');
-                            parts.forEach(part => {
-                                const match = part.trim().match(/^(\d{1,2})/);
-                                if (match) {
-                                    let num = parseInt(match[1]);
-                                    let heading = (num * 10) % 360;
-                                    if (heading === 0) heading = 360;
-                                    results.push({ designation: part.trim(), heading });
-                                }
-                            });
-                        }
-                    });
+            // ── Density Altitude Calculator ────────────
+            function computeDensityAltitude(metarRaw, airportObj) {
+                if (!metarRaw || !airportObj) return null;
+                // extract temp
+                let tempC = null;
+                const tdMatch = metarRaw.match(/\b(M?\d{2})\/(M?\d{2})\b/);
+                if (tdMatch) {
+                    let tStr = tdMatch[1];
+                    if (tStr.startsWith('M')) tempC = -parseInt(tStr.slice(1));
+                    else tempC = parseInt(tStr);
                 }
-                return results;
+                // extract QNH
+                let qnh = null;
+                const qnhMatch = metarRaw.match(/\bQ(\d{4})\b/);
+                if (qnhMatch) qnh = parseInt(qnhMatch[1]);
+                // elevation
+                let elevFt = null;
+                if (airportObj.elevation_ft != null) {
+                    elevFt = airportObj.elevation_ft;
+                } else if (airportObj.elevation_m != null) {
+                    elevFt = Math.round(airportObj.elevation_m * 3.28084);
+                }
+                if (tempC == null || qnh == null || elevFt == null) return null;
+
+                // Pressure altitude
+                const pa = elevFt + (1013 - qnh) * 30;
+                // ISA temperature at that elevation (standard lapse 2°C/1000ft, sea level 15°C)
+                const isaTemp = 15 - (elevFt / 1000) * 2;
+                // Density altitude
+                const da = pa + 120 * (tempC - isaTemp);
+                return { pa: Math.round(pa), da: Math.round(da), elevFt, tempC, qnh };
             }
 
-            function updateCrosswind(metarRaw, airportObj) {
+            function updateDensityAltitude(metarRaw, airportObj) {
                 if (!metarRaw || !airportObj) {
-                    crosswindBody.innerHTML = '<span class="placeholder">Wind data and airport information required.</span>';
-                    crosswindAgeEl.textContent = '';
+                    setBodyPlaceholder(densityBody, 'Density altitude requires METAR & airport elevation.');
+                    densityAgeEl.textContent = '';
                     return;
                 }
-                const windMatch = metarRaw.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
-                if (!windMatch) {
-                    crosswindBody.innerHTML = '<span class="placeholder">Wind info not found in METAR.</span>';
-                    crosswindAgeEl.textContent = '';
+                const result = computeDensityAltitude(metarRaw, airportObj);
+                if (!result) {
+                    setBodyPlaceholder(densityBody, 'Could not compute density altitude – missing temperature, QNH or elevation.');
+                    densityAgeEl.textContent = '';
                     return;
                 }
-                const dirStr = windMatch[1];
-                const spdStr = windMatch[2];
-                const gust = windMatch[4];
-                let windSpd = parseInt(spdStr);
-                let gustSpd = gust ? parseInt(gust) : null;
-                if (dirStr === '000' || (dirStr === 'VRB' && windSpd < 3)) {
-                    crosswindBody.innerHTML = '<span class="placeholder">Wind calm – no crosswind calculation needed.</span>';
-                    crosswindAgeEl.textContent = '';
-                    return;
-                }
-                if (dirStr === 'VRB') {
-                    crosswindBody.innerHTML = '<span class="placeholder">Variable wind – cannot compute directional components.</span>';
-                    crosswindAgeEl.textContent = '';
-                    return;
-                }
-                const windDir = parseInt(dirStr);
-                const runways = airportObj.runways || [];
-                const isLocal = airportObj._local || false;
-                const rwyDirections = getRunwayHeadings(runways, isLocal);
-                if (rwyDirections.length === 0) {
-                    crosswindBody.innerHTML = '<span class="placeholder">No runway heading data available.</span>';
-                    crosswindAgeEl.textContent = '';
-                    return;
-                }
-                const components = rwyDirections.map(rw => {
-                    let angleDiff = Math.abs(windDir - rw.heading) % 360;
-                    if (angleDiff > 180) angleDiff = 360 - angleDiff;
-                    const crosswind = Math.round(windSpd * Math.sin(angleDiff * Math.PI / 180) * 10) / 10;
-                    const headwindRaw = Math.round(windSpd * Math.cos(angleDiff * Math.PI / 180) * 10) / 10;
-                    const isTailwind = headwindRaw < 0;
-                    const headwind = Math.abs(headwindRaw);
-                    let gustCrosswind = null, gustHeadwind = null;
-                    if (gustSpd) {
-                        gustCrosswind = Math.round(gustSpd * Math.sin(angleDiff * Math.PI / 180) * 10) / 10;
-                        const gustHeadRaw = Math.round(gustSpd * Math.cos(angleDiff * Math.PI / 180) * 10) / 10;
-                        gustHeadwind = Math.abs(gustHeadRaw);
-                    }
-                    return { designation: rw.designation, heading: rw.heading, angleDiff, crosswind, headwind, isTailwind, gustCrosswind, gustHeadwind };
-                });
-                // Sort by crosswind desc
-                components.sort((a,b) => b.crosswind - a.crosswind);
-                let html = '<table style="width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:11px;">';
-                html += '<thead><tr><th>Runway</th><th>Hdg</th><th>Head/Tail (kt)</th><th>Cross (kt)</th><th>Gust Cross (kt)</th></tr></thead><tbody>';
-                components.forEach(c => {
-                    const tailLabel = c.isTailwind ? 'Tail' : 'Head';
-                    const crossColor = c.crosswind > 20 ? 'var(--red-bright)' : (c.crosswind > 12 ? 'var(--amber)' : 'var(--green)');
-                    const gustCrossStr = c.gustCrosswind !== null ? c.gustCrosswind.toFixed(1) : '—';
-                    html += `<tr>
-                        <td style="font-weight:700;">${c.designation}</td>
-                        <td>${c.heading}°</td>
-                        <td>${tailLabel} ${c.headwind.toFixed(1)}</td>
-                        <td style="color:${crossColor};font-weight:600;">${c.crosswind.toFixed(1)}</td>
-                        <td>${gustCrossStr}</td>
-                    </tr>`;
-                });
-                html += '</tbody></table>';
-                crosswindBody.innerHTML = html;
+                const daClass = result.da > 3000 ? 'da-warn' : 'da-ok';
+                densityBody.innerHTML = `
+                    <div style="display:flex; justify-content:space-around; align-items:center; flex-wrap:wrap; gap:20px;">
+                        <div>
+                            <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Pressure Altitude</div>
+                            <div class="da-value">${result.pa} ft</div>
+                        </div>
+                        <div>
+                            <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">Density Altitude</div>
+                            <div class="da-value ${daClass}">${result.da} ft</div>
+                            <div style="font-size:9px; color:var(--text-muted);">(${result.tempC}°C, Q${result.qnh}, elev ${result.elevFt} ft)</div>
+                        </div>
+                    </div>
+                `;
+                densityAgeEl.textContent = metarIssuedTime ? `Based on METAR issued ${formatTimeAgo(metarIssuedTime)}` : '';
             }
 
             // ── Search ────────────────────────────────
@@ -1250,8 +1226,8 @@
                 if (!icao || icao.length < 4) {
                     setBodyPlaceholder(metarBody, '⚠️ Please enter a valid 4‑letter ICAO code.');
                     setBodyPlaceholder(tafBody, 'Waiting for valid ICAO...');
-                    setBodyPlaceholder(crosswindBody, 'Waiting for valid ICAO...');
-                    metarAgeEl.textContent = tafAgeEl.textContent = crosswindAgeEl.textContent = airportAgeEl.textContent = '';
+                    setBodyPlaceholder(densityBody, 'Waiting for valid ICAO...');
+                    metarAgeEl.textContent = tafAgeEl.textContent = densityAgeEl.textContent = airportAgeEl.textContent = '';
                     hideDecoded();
                     hideAirportInfo();
                     metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null;
@@ -1260,10 +1236,10 @@
                 if (!icao.startsWith('FA')) {
                     setBodyPlaceholder(metarBody, `🚫 This application currently supports only South African airports (ICAO codes starting with FA). Please enter a code like FAOR, FACT, etc.`);
                     setBodyPlaceholder(tafBody, `🚫 Only South African airports are supported.`);
-                    setBodyPlaceholder(crosswindBody, `🚫 Only South African airports are supported.`);
+                    setBodyPlaceholder(densityBody, `🚫 Only South African airports are supported.`);
                     hideDecoded();
                     hideAirportInfo();
-                    metarAgeEl.textContent = tafAgeEl.textContent = crosswindAgeEl.textContent = airportAgeEl.textContent = '';
+                    metarAgeEl.textContent = tafAgeEl.textContent = densityAgeEl.textContent = airportAgeEl.textContent = '';
                     metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null;
                     icaoInput.value = icao;
                     return;
@@ -1271,11 +1247,15 @@
                 lastIcao = icao;
                 icaoInput.value = icao;
 
-                metarBody.innerHTML = '<div class="shimmer"></div>';
-                tafBody.innerHTML = '<div class="shimmer"></div>';
-                crosswindBody.innerHTML = '<div class="shimmer"></div>';
-                metarAgeEl.textContent = tafAgeEl.textContent = crosswindAgeEl.textContent = airportAgeEl.textContent = '';
-                hideDecoded();
+                // Show shimmer everywhere
+                metarBody.innerHTML = '<div class="shimmer" style="height:40px;"></div>';
+                tafBody.innerHTML = '<div class="shimmer" style="height:40px;"></div>';
+                densityBody.innerHTML = '<div class="shimmer" style="height:60px;"></div>';
+                setAirportShimmer();
+                setRunwayShimmer();
+                setDecodedShimmer();
+                metarAgeEl.textContent = tafAgeEl.textContent = densityAgeEl.textContent = airportAgeEl.textContent = '';
+                hideDecoded(); // reset strip to dashes
                 hideAirportInfo();
                 metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null;
                 searchBtn.style.opacity = '0.5'; searchBtn.style.pointerEvents = 'none';
@@ -1294,27 +1274,21 @@
                                 metarRawLines = data.filter(d => d.rawOb).map(d => d.rawOb.trim());
                                 metarRawLines = [...new Set(metarRawLines)];
                                 metarReceiptTimes = data.filter(d => d.receiptTime).map(d => new Date(d.receiptTime)).sort((a,b) => b-a);
-                                if (metarRawLines.length > 0) {
-                                    metarIssuedTime = parseMetarIssued(metarRawLines[0]);
-                                } else {
-                                    metarIssuedTime = null;
-                                }
+                                if (metarRawLines.length > 0) metarIssuedTime = parseMetarIssued(metarRawLines[0]);
+                                else metarIssuedTime = null;
                                 updateMetarDisplay();
                                 if (metarRawLines.length) updateDecoded(metarRawLines[0]);
                             } else {
                                 setBodyPlaceholder(metarBody, `⚠️ No METAR was located for ${icao}.`);
-                                metarRawLines = [];
-                                metarIssuedTime = null;
+                                metarRawLines = []; metarIssuedTime = null;
                             }
                         } catch (e) {
                             setBodyPlaceholder(metarBody, `⚠️ No METAR was located for ${icao}.`);
-                            metarRawLines = [];
-                            metarIssuedTime = null;
+                            metarRawLines = []; metarIssuedTime = null;
                         }
                     } else {
                         setBodyPlaceholder(metarBody, `⚠️ No METAR was located for ${icao}.`);
-                        metarRawLines = [];
-                        metarIssuedTime = null;
+                        metarRawLines = []; metarIssuedTime = null;
                     }
 
                     // TAF
@@ -1338,7 +1312,7 @@
                         tafRaw = ''; tafIssuedTime = null;
                     }
 
-                    // Airport data – always fetch, then overlay local data
+                    // Airport data
                     let mergedObj = null;
                     try {
                         const airportRes = await safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`);
@@ -1360,7 +1334,6 @@
                                     threshold_elev_ft: rw.threshold_elev_ft,
                                 })),
                             };
-
                             if (typeof AIRPORT_DATABASE !== 'undefined' && AIRPORT_DATABASE[icao]) {
                                 const local = AIRPORT_DATABASE[icao];
                                 if (local.elevation_ft != null) {
@@ -1376,11 +1349,11 @@
                         displayAirportInfo(icao, null);
                     }
 
-                    // Wind Components (use first METAR line & merged airport obj)
+                    // Density altitude
                     if (metarRawLines.length > 0 && mergedObj) {
-                        updateCrosswind(metarRawLines[0], mergedObj);
+                        updateDensityAltitude(metarRawLines[0], mergedObj);
                     } else {
-                        crosswindBody.innerHTML = '<span class="placeholder">Insufficient data to compute wind components.</span>';
+                        setBodyPlaceholder(densityBody, 'Insufficient data to compute density altitude.');
                     }
 
                     startAgeUpdates();
@@ -1388,7 +1361,7 @@
                     console.error(err);
                     setBodyPlaceholder(metarBody, `⚠️ No METAR was located for ${icao}.`);
                     setBodyPlaceholder(tafBody, `⚠️ No TAF was located for ${icao}.`);
-                    setBodyPlaceholder(crosswindBody, `⚠️ Wind component calculation unavailable.`);
+                    setBodyPlaceholder(densityBody, `⚠️ Density altitude unavailable.`);
                     hideDecoded();
                     hideAirportInfo();
                 } finally {
