@@ -194,7 +194,7 @@
         .card-taf {
             grid-column: 2;
         }
-        .card-crosswind {
+        .card-density {
             grid-column: 1 / -1;
         }
 
@@ -206,7 +206,7 @@
             .card-taf,
             .card-runways,
             .card-airport,
-            .card-crosswind {
+            .card-density {
                 grid-column: 1 / -1;
             }
         }
@@ -230,6 +230,11 @@
             gap: 8px;
             min-height: 30px;
             flex-wrap: wrap;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--accent);
         }
         .card-header-left {
             display: flex;
@@ -237,11 +242,6 @@
             gap: 8px;
         }
         .card-header .card-title {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.6px;
-            color: var(--accent);
             display: flex;
             align-items: center;
             gap: 5px;
@@ -336,7 +336,6 @@
             color: var(--accent);
             font-weight: 700;
             font-size: 10px;
-            padding: 0;
             margin-top: 3px;
             font-family: var(--font-mono);
             letter-spacing: 0.5px;
@@ -562,12 +561,41 @@
         .colour-change { color: #f59e0b; font-weight: 600; }
         .colour-default { color: #c8ced9; }
 
-        .wind-canvas {
-            width: 100%;
-            max-width: 500px;
-            aspect-ratio: 1 / 1;
-            display: block;
-            margin: 0 auto;
+        /* Density altitude styles */
+        .density-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            padding: 8px 10px;
+        }
+        .density-item {
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 10px 12px;
+            text-align: center;
+        }
+        .density-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .density-value {
+            font-family: var(--font-mono);
+            font-size: 20px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .density-value.da-high { color: var(--amber); }
+        .density-value.da-very-high { color: var(--red); }
+        .density-note {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -602,7 +630,7 @@
     <div class="main-scroll" id="mainScroll">
         <div class="content-grid">
 
-            <!-- Decoded METAR strip – initially idle -->
+            <!-- Decoded METAR strip -->
             <div class="card-airport decoded-strip" id="decodedStrip" style="display:flex; opacity:1;">
                 <div class="ds-item"><span class="ds-label">Category</span><span class="ds-value" id="dsCat">—</span></div>
                 <div class="ds-item"><span class="ds-label">Temp / Dew</span><span class="ds-value" id="dsTemp">—</span></div>
@@ -612,7 +640,7 @@
                 <div class="ds-item"><span class="ds-label">QNH</span><span class="ds-value" id="dsQnh">—</span></div>
             </div>
 
-            <!-- Airport info card – idle placeholder -->
+            <!-- Airport info card -->
             <div class="card card-airport" id="airportCard">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Airport Information</span>
@@ -629,7 +657,7 @@
                 </div>
             </div>
 
-            <!-- Runway details card – idle placeholder -->
+            <!-- Runway details card -->
             <div class="card card-runways" id="runwayCard">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Runway Details</span>
@@ -643,7 +671,7 @@
                 </div>
             </div>
 
-            <!-- METAR card – idle placeholder -->
+            <!-- METAR card -->
             <div class="card card-metar" id="metarCard">
                 <div class="card-header">
                     <div class="card-header-left">
@@ -663,7 +691,7 @@
                 </div>
             </div>
 
-            <!-- TAF card – idle placeholder -->
+            <!-- TAF card -->
             <div class="card card-taf" id="tafCard">
                 <div class="card-header">
                     <div class="card-header-left">
@@ -692,24 +720,21 @@
                 </div>
             </div>
 
-            <!-- Wind Components card – idle placeholder -->
-            <div class="card card-crosswind" id="crosswindCard">
+            <!-- Density Altitude card (replaces Wind Components) -->
+            <div class="card card-density" id="densityCard">
                 <div class="card-header">
-                    <span class="card-title"><span class="dot"></span> Wind Components</span>
-                    <span class="card-age" id="crosswindAge"></span>
+                    <span class="card-title"><span class="dot"></span> Density Altitude</span>
+                    <span class="card-age" id="densityAge"></span>
                 </div>
-                <div class="card-body" id="crosswindBody" style="display:flex; justify-content:center; align-items:center;">
-                    <canvas id="windCanvas" class="wind-canvas" width="500" height="500" style="display:none;"></canvas>
-                    <span class="placeholder" id="crosswindPlaceholder">Wind components will be calculated based on METAR and runway headings.</span>
+                <div class="card-body" id="densityBody">
+                    <span class="placeholder">Density altitude will be calculated from METAR and airport elevation.</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════ -->
-    <!-- Load local runway/elevation data          -->
+    <!-- Load local runway/elevation data -->
     <script src="airport-data.js"></script>
-    <!-- ═══════════════════════════════════════════ -->
 
     <script>
         (function() {
@@ -717,12 +742,10 @@
             const searchBtn = document.getElementById('searchBtn');
             const metarBody = document.getElementById('metarBody');
             const tafBody = document.getElementById('tafBody');
-            const crosswindBody = document.getElementById('crosswindBody');
-            const crosswindPlaceholder = document.getElementById('crosswindPlaceholder');
-            const windCanvas = document.getElementById('windCanvas');
+            const densityBody = document.getElementById('densityBody');
             const metarAgeEl = document.getElementById('metarAge');
             const tafAgeEl = document.getElementById('tafAge');
-            const crosswindAgeEl = document.getElementById('crosswindAge');
+            const densityAgeEl = document.getElementById('densityAge');
             const airportAgeEl = document.getElementById('airportAge');
             const decodedStrip = document.getElementById('decodedStrip');
             const dsCat = document.getElementById('dsCat');
@@ -735,7 +758,6 @@
             const runwayCard = document.getElementById('runwayCard');
             const airportInfoGrid = document.getElementById('airportInfoGrid');
             const runwayTableWrap = document.getElementById('runwayTableWrap');
-            const runwayTbody = document.getElementById('runwayTbody');
             const utcTimeSpan = document.getElementById('utcTime');
             const localTimeSpan = document.getElementById('localTime');
             const metarColourToggle = document.getElementById('metarColourToggle');
@@ -813,7 +835,7 @@
                     tafAgeEl.textContent = '';
                 }
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
-                crosswindAgeEl.textContent = metarIssuedTime ? `Based on METAR issued ${formatTimeAgo(metarIssuedTime)}` : '';
+                densityAgeEl.textContent = metarIssuedTime ? `Based on METAR issued ${formatTimeAgo(metarIssuedTime)}` : '';
             }
 
             function startAgeUpdates() {
@@ -921,14 +943,12 @@
             }
 
             function setIdleState() {
-                // Decoded strip
                 dsCat.textContent = '—';
                 dsTemp.textContent = '—';
                 dsWind.textContent = '—';
                 dsVis.textContent = '—';
                 dsClouds.textContent = '—';
                 dsQnh.textContent = '—';
-                // Airport info
                 airportInfoGrid.innerHTML = `
                     <div class="airport-name-block">
                         <div class="airport-name">Search for an airport</div>
@@ -937,56 +957,36 @@
                     <div class="airport-stat"><span class="stat-label">Elevation</span><span class="stat-value">—</span></div>
                     <div class="airport-stat"><span class="stat-label">Runways</span><span class="stat-value">—</span></div>
                     <div class="airport-stat"><span class="stat-label">Coordinates</span><span class="airport-coords">—</span></div>`;
-                // Runway table
                 runwayTableWrap.innerHTML = `
                     <table class="runway-table">
                         <thead><tr><th>Runway</th><th>Threshold Coordinates</th><th>THR Elev (ft)</th><th>TORA (m)</th><th>TODA (m)</th><th>ASDA (m)</th><th>LDA (m)</th><th>SWY (m)</th><th>CWY (m)</th><th>Slope</th><th>Surface</th></tr></thead>
                         <tbody><tr><td colspan="11" class="na-cell">Search for an airport to see runway details.</td></tr></tbody>
                     </table>`;
-                // METAR / TAF
                 metarBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
                 tafBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
-                // Crosswind
-                windCanvas.style.display = 'none';
-                crosswindPlaceholder.style.display = 'block';
-                crosswindPlaceholder.textContent = 'Wind components will be calculated based on METAR and runway headings.';
-                crosswindAgeEl.textContent = '';
-                // Age labels
+                densityBody.innerHTML = '<span class="placeholder">Density altitude will be calculated from METAR and airport elevation.</span>';
+                densityAgeEl.textContent = '';
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
-                crosswindAgeEl.textContent = '';
             }
 
             function setLoadingState() {
-                // Decoded strip shimmer
                 dsCat.innerHTML = '<span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span>';
                 dsTemp.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
                 dsWind.innerHTML = '<span class="shimmer" style="display:inline-block;width:70px;height:14px;"></span>';
                 dsVis.innerHTML = '<span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span>';
                 dsClouds.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
                 dsQnh.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
-
-                // Airport info shimmer
                 airportInfoGrid.innerHTML = '<div class="shimmer" style="flex:1; height:40px;"></div>';
-
-                // Runway table shimmer
                 runwayTableWrap.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-
-                // METAR / TAF body shimmer
                 metarBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
                 tafBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-
-                // Crosswind body shimmer (cover placeholder)
-                windCanvas.style.display = 'none';
-                crosswindPlaceholder.style.display = 'none';
-                crosswindBody.innerHTML = '<div class="shimmer" style="width:100%; height:120px;"></div>';
-
-                // Clear ages
+                densityBody.innerHTML = '<div class="shimmer" style="width:100%; height:80px;"></div>';
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
-                crosswindAgeEl.textContent = '';
+                densityAgeEl.textContent = '';
             }
 
             function escapeHTML(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
@@ -1048,15 +1048,35 @@
                 tafBody.innerHTML = `<pre>${html}</pre>`;
             }
 
+            // Count physical runway pairs (works with both API {id: "18/36"} and local {designation: "18"} formats)
             function getPhysicalRunwayCount(runways) {
                 const seen = new Set();
                 runways.forEach(rw => {
-                    let num = parseInt(rw.designation, 10);
-                    if (isNaN(num)) return;
-                    let rec = (num + 18) % 36;
-                    if (rec === 0) rec = 36;
-                    const pair = [num, rec].sort((a,b) => a-b).join('/');
-                    seen.add(pair);
+                    let parts = [];
+                    if (rw.designation) {
+                        // local format, single direction per entry; need to reconstruct pair by assuming opposite is +/-18
+                        let num = parseInt(rw.designation, 10);
+                        if (!isNaN(num)) {
+                            let rec = (num + 18) % 36;
+                            if (rec === 0) rec = 36;
+                            const pair = [num, rec].sort((a,b)=>a-b).join('/');
+                            seen.add(pair);
+                        }
+                    } else if (rw.id) {
+                        // API format, id like "18/36"
+                        const split = rw.id.split('/');
+                        const nums = split.map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+                        if (nums.length === 2) {
+                            const pair = nums.sort((a,b)=>a-b).join('/');
+                            seen.add(pair);
+                        } else if (nums.length === 1) {
+                            let num = nums[0];
+                            let rec = (num + 18) % 36;
+                            if (rec === 0) rec = 36;
+                            const pair = [num, rec].sort((a,b)=>a-b).join('/');
+                            seen.add(pair);
+                        }
+                    }
                 });
                 return seen.size;
             }
@@ -1155,173 +1175,90 @@
                 return rowsHtml;
             }
 
-            function getRunwayHeadings(runways, isLocal) {
-                const results = [];
-                if (isLocal) {
-                    runways.forEach(rw => {
-                        const des = rw.designation;
-                        if (des) {
-                            const match = des.match(/^(\d{1,2})/);
-                            if (match) {
-                                let num = parseInt(match[1]);
-                                let heading = (num * 10) % 360;
-                                if (heading === 0) heading = 360;
-                                results.push({ designation: des, heading });
-                            }
-                        }
-                    });
+            // ── Density Altitude Calculation ─────────────────
+            function updateDensityAltitude(metarRaw, airportObj) {
+                if (!metarRaw || !airportObj) {
+                    densityBody.innerHTML = '<span class="placeholder">Need METAR and airport elevation to calculate density altitude.</span>';
+                    return;
+                }
+                // extract temperature in Celsius
+                const tdMatch = metarRaw.match(/\b(M?\d{2})\/(M?\d{2})\b/);
+                let tempC = null;
+                if (tdMatch) {
+                    let t = tdMatch[1];
+                    if (t.startsWith('M')) tempC = -parseInt(t.substring(1));
+                    else tempC = parseInt(t);
+                }
+                // extract QNH
+                let qnhInHg = null;
+                const qMatch = metarRaw.match(/\bQ(\d{3,4})\b/);
+                if (qMatch) {
+                    const qnhHPa = parseInt(qMatch[1]);
+                    qnhInHg = qnhHPa * 0.02953; // hPa to inHg
                 } else {
-                    runways.forEach(rw => {
-                        const id = rw.id;
-                        if (id) {
-                            const parts = id.split('/');
-                            parts.forEach(part => {
-                                const match = part.trim().match(/^(\d{1,2})/);
-                                if (match) {
-                                    let num = parseInt(match[1]);
-                                    let heading = (num * 10) % 360;
-                                    if (heading === 0) heading = 360;
-                                    results.push({ designation: part.trim(), heading });
-                                }
-                            });
-                        }
-                    });
+                    const aMatch = metarRaw.match(/\bA(\d{4})\b/);
+                    if (aMatch) qnhInHg = parseInt(aMatch[1]) / 100;
                 }
-                return results;
-            }
+                // elevation
+                let elevFt = null;
+                if (airportObj.elevation_ft != null) elevFt = airportObj.elevation_ft;
+                else if (airportObj.elevation_m != null) elevFt = Math.round(airportObj.elevation_m * 3.28084);
 
-            function drawWindCompass(canvas, windDir, windSpdKt, runways, isLocal) {
-                if (!canvas) return;
-                const ctx = canvas.getContext('2d');
-                const w = canvas.width = canvas.clientWidth;
-                const h = canvas.height = canvas.clientWidth;
-                const cx = w / 2, cy = h / 2;
-                const radius = Math.min(w, h) * 0.4;
-                ctx.clearRect(0, 0, w, h);
-
-                ctx.beginPath();
-                ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-                ctx.strokeStyle = '#2e3038';
-                ctx.lineWidth = 1;
-                ctx.stroke();
-
-                for (let deg = 0; deg < 360; deg += 10) {
-                    const rad = deg * Math.PI / 180;
-                    const inner = radius - 6;
-                    const outer = radius;
-                    ctx.beginPath();
-                    ctx.moveTo(cx + inner * Math.sin(rad), cy - inner * Math.cos(rad));
-                    ctx.lineTo(cx + outer * Math.sin(rad), cy - outer * Math.cos(rad));
-                    ctx.strokeStyle = '#4a4f5a';
-                    ctx.lineWidth = 0.5;
-                    ctx.stroke();
-                }
-                for (let deg = 0; deg < 360; deg += 90) {
-                    const rad = deg * Math.PI / 180;
-                    ctx.font = '8px "JetBrains Mono"';
-                    ctx.fillStyle = '#7a808d';
-                    ctx.fillText(deg + '°', cx + (radius+10) * Math.sin(rad) - 8, cy - (radius+10) * Math.cos(rad) + 4);
-                }
-
-                const rwyHeadings = getRunwayHeadings(runways, isLocal);
-                rwyHeadings.forEach(rw => {
-                    const rad = (rw.heading - 90) * Math.PI / 180;
-                    const x = cx + radius * Math.cos(rad);
-                    const y = cy + radius * Math.sin(rad);
-                    ctx.beginPath();
-                    ctx.moveTo(cx, cy);
-                    ctx.lineTo(x, y);
-                    ctx.strokeStyle = '#5b606d';
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
-                    ctx.font = '9px "JetBrains Mono"';
-                    ctx.fillStyle = '#a8adb8';
-                    ctx.fillText(rw.designation, x + 3, y - 3);
-                });
-
-                if (windSpdKt > 0) {
-                    const windRad = (windDir - 90) * Math.PI / 180;
-                    const arrowLen = Math.min(windSpdKt / 50 * radius, radius * 0.8);
-                    const x = cx + arrowLen * Math.cos(windRad);
-                    const y = cy + arrowLen * Math.sin(windRad);
-                    ctx.beginPath();
-                    ctx.moveTo(cx, cy);
-                    ctx.lineTo(x, y);
-                    ctx.strokeStyle = '#289ed6';
-                    ctx.lineWidth = 2;
-                    ctx.stroke();
-                    const headLen = 8;
-                    const angle = Math.atan2(y - cy, x - cx);
-                    ctx.beginPath();
-                    ctx.moveTo(x, y);
-                    ctx.lineTo(x - headLen * Math.cos(angle - Math.PI/6), y - headLen * Math.sin(angle - Math.PI/6));
-                    ctx.lineTo(x - headLen * Math.cos(angle + Math.PI/6), y - headLen * Math.sin(angle + Math.PI/6));
-                    ctx.closePath();
-                    ctx.fillStyle = '#289ed6';
-                    ctx.fill();
-                }
-
-                rwyHeadings.forEach(rw => {
-                    const angleDiff = Math.abs(windDir - rw.heading) % 360;
-                    const diffRad = angleDiff * Math.PI / 180;
-                    const crosswind = Math.round(windSpdKt * Math.sin(diffRad) * 10) / 10;
-                    const windRad = (windDir - 90) * Math.PI / 180;
-                    const rwyRad = (rw.heading - 90) * Math.PI / 180;
-                    const crossSign = Math.sin(windRad - rwyRad);
-                    const barLength = Math.min(crosswind * 1.2, 30);
-                    const endX = cx + (radius - 10) * Math.cos(rwyRad);
-                    const endY = cy + (radius - 10) * Math.sin(rwyRad);
-                    const perpRad = rwyRad + Math.PI/2;
-                    const barStartX = endX - barLength * Math.cos(perpRad) * (crossSign >= 0 ? 1 : -1);
-                    const barStartY = endY - barLength * Math.sin(perpRad) * (crossSign >= 0 ? 1 : -1);
-                    const barEndX = endX + barLength * Math.cos(perpRad) * (crossSign >= 0 ? 1 : -1);
-                    const barEndY = endY + barLength * Math.sin(perpRad) * (crossSign >= 0 ? 1 : -1);
-                    ctx.beginPath();
-                    ctx.moveTo(barStartX, barStartY);
-                    ctx.lineTo(barEndX, barEndY);
-                    ctx.strokeStyle = crosswind > 20 ? '#f87171' : (crosswind > 12 ? '#f59e0b' : '#4ade80');
-                    ctx.lineWidth = 3;
-                    ctx.stroke();
-                    ctx.beginPath();
-                    ctx.arc(endX, endY, 2, 0, 2*Math.PI);
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fill();
-                });
-            }
-
-            function updateCrosswind(metarRaw, airportObj) {
-                if (!metarRaw || !airportObj || !airportObj.runways || airportObj.runways.length === 0) {
-                    windCanvas.style.display = 'none';
-                    crosswindPlaceholder.style.display = 'block';
-                    crosswindPlaceholder.textContent = 'Wind data or airport information required.';
-                    crosswindAgeEl.textContent = '';
+                if (tempC === null || qnhInHg === null || elevFt === null) {
+                    densityBody.innerHTML = '<span class="placeholder">Missing temperature, QNH or elevation – cannot calculate density altitude.</span>';
                     return;
                 }
-                const windMatch = metarRaw.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
-                if (!windMatch || windMatch[1] === '000' || (windMatch[1] === 'VRB' && parseInt(windMatch[2]) < 3)) {
-                    windCanvas.style.display = 'none';
-                    crosswindPlaceholder.style.display = 'block';
-                    crosswindPlaceholder.textContent = 'Wind calm or variable – crosswind calculation not needed.';
-                    crosswindAgeEl.textContent = '';
-                    return;
-                }
-                if (windMatch[1] === 'VRB') {
-                    windCanvas.style.display = 'none';
-                    crosswindPlaceholder.style.display = 'block';
-                    crosswindPlaceholder.textContent = 'Variable wind – cannot compute directional components.';
-                    crosswindAgeEl.textContent = '';
-                    return;
-                }
-                const windDir = parseInt(windMatch[1]);
-                const windSpd = parseInt(windMatch[2]);
-                const runways = airportObj.runways;
-                const isLocal = airportObj._local || false;
 
-                windCanvas.style.display = 'block';
-                crosswindPlaceholder.style.display = 'none';
-                drawWindCompass(windCanvas, windDir, windSpd, runways, isLocal);
+                // Pressure altitude (PA) = elevation + (29.92 - QNH) * 1000
+                const pa = elevFt + (29.92 - qnhInHg) * 1000;
+                // Standard temperature at PA (ISA) = 15 - 2°C per 1000 ft
+                const isaTemp = 15 - 2 * (pa / 1000);
+                // Density altitude = PA + 120 * (actual temp - ISA temp)
+                const da = pa + 120 * (tempC - isaTemp);
+
+                // Relative density (sigma) using ideal gas law approximation
+                const T0 = 288.15; // K
+                const T = tempC + 273.15;
+                const p0 = 1013.25; // hPa
+                const p = qnhInHg * 33.8639; // inHg -> hPa
+                const sigma = (p / p0) * (T0 / T) * 100;
+
+                let daClass = '';
+                let warning = '';
+                if (da > 8000) {
+                    daClass = 'da-very-high';
+                    warning = '⚠️ Extremely high density altitude – severe performance penalty.';
+                } else if (da > 5000) {
+                    daClass = 'da-high';
+                    warning = '⚠️ High density altitude – expect reduced climb and longer takeoff roll.';
+                } else if (da < -1000) {
+                    daClass = 'da-high';
+                    warning = '❄️ Very low density altitude – performance boost, but watch for icing risks.';
+                }
+
+                const paRounded = Math.round(pa);
+                const daRounded = Math.round(da);
+
+                densityBody.innerHTML = `
+                    <div class="density-grid">
+                        <div class="density-item">
+                            <div class="density-label">Pressure Altitude</div>
+                            <div class="density-value">${paRounded} ft</div>
+                        </div>
+                        <div class="density-item">
+                            <div class="density-label">Density Altitude</div>
+                            <div class="density-value ${daClass}">${daRounded} ft</div>
+                        </div>
+                        <div class="density-item">
+                            <div class="density-label">Relative Density</div>
+                            <div class="density-value">${sigma.toFixed(1)}%</div>
+                        </div>
+                    </div>
+                    <div class="density-note">ISA Temp at PA: ${isaTemp.toFixed(1)}°C | OAT: ${tempC}°C | QNH: ${qnhInHg.toFixed(2)} inHg<br>${warning}</div>
+                `;
             }
 
+            // ── Main search flow ─────────────────────────
             async function searchWeather(icaoOverride) {
                 const icao = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
                 if (!icao || icao.length < 4) {
@@ -1333,7 +1270,7 @@
                     setLoadingState();
                     metarBody.innerHTML = '<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>';
                     tafBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
-                    crosswindBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
+                    densityBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
                     metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
                     icaoInput.value = icao;
                     return;
@@ -1400,16 +1337,17 @@
                                 mergedObj = {
                                     name: apt.name || apt.facilityName || null,
                                     elevation_m: apt.elev,
+                                    elevation_ft: apt.elev_ft,
                                     lat: apt.lat,
                                     lon: apt.lon,
                                     runways: (apt.runways || []).map(rw => ({
                                         id: rw.id || rw.name || null,
-                                        length_ft: rw.length_ft, width_ft: rw.width_ft, surface: rw.surface,
-                                        heading_deg: rw.heading_deg,
-                                        tora: rw.tora, toda: rw.toda, asda: rw.asda, lda: rw.lda,
-                                        swy: rw.swy, cwy: rw.cwy, slope: rw.slope, slope_sign: rw.slope_sign,
+                                        surface: rw.surface,
                                         threshold_lat: rw.threshold_lat, threshold_lon: rw.threshold_lon,
                                         threshold_elev_ft: rw.threshold_elev_ft,
+                                        slope: rw.slope, slope_sign: rw.slope_sign,
+                                        // Additional fields kept for compatibility
+                                        length_ft: rw.length_ft, width_ft: rw.width_ft
                                     })),
                                 };
                                 if (typeof AIRPORT_DATABASE !== 'undefined' && AIRPORT_DATABASE[icao]) {
@@ -1426,7 +1364,7 @@
                     }
                     airportFetchTime = mergedObj ? new Date() : null;
 
-                    // Populate all UI simultaneously
+                    // Populate UI
                     airportInfoGrid.innerHTML = buildAirportInfoHTML(icao, mergedObj);
                     runwayTableWrap.innerHTML = `<table class="runway-table">
                         <thead><tr>
@@ -1437,12 +1375,11 @@
                         <tbody>${buildRunwayTableHTML(mergedObj)}</tbody>
                     </table>`;
 
+                    // Density altitude
                     if (metarOk && mergedObj) {
-                        updateCrosswind(metarRawLines[0], mergedObj);
+                        updateDensityAltitude(metarRawLines[0], mergedObj);
                     } else {
-                        windCanvas.style.display = 'none';
-                        crosswindPlaceholder.style.display = 'block';
-                        crosswindPlaceholder.textContent = 'Insufficient data to compute wind components.';
+                        densityBody.innerHTML = '<span class="placeholder">Density altitude will be calculated from METAR and airport elevation.</span>';
                     }
 
                     startAgeUpdates();
@@ -1451,7 +1388,7 @@
                     setIdleState();
                     metarBody.innerHTML = `<span class="placeholder">⚠️ No METAR was located for ${icao}.</span>`;
                     tafBody.innerHTML = `<span class="placeholder">⚠️ No TAF was located for ${icao}.</span>`;
-                    crosswindPlaceholder.textContent = '⚠️ Wind component calculation unavailable.';
+                    densityBody.innerHTML = '<span class="placeholder">⚠️ Density altitude unavailable.</span>';
                 } finally {
                     searchBtn.style.opacity = '1'; searchBtn.style.pointerEvents = 'auto';
                 }
@@ -1469,7 +1406,6 @@
                 icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
             });
 
-            // Set idle state on load (already in HTML, but ensure consistent)
             setIdleState();
             icaoInput.focus();
         })();
