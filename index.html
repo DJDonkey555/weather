@@ -1131,7 +1131,7 @@
 
             // ── Time formatting ────────────────────────
             function formatTimeAgo(date) {
-                if (!date) return '';
+                if (!date || isNaN(date.getTime())) return '';
                 const now = new Date();
                 const diffMs = now - date;
                 if (diffMs < 0) return 'just now';
@@ -1159,7 +1159,26 @@
                 ageInterval = setInterval(updateAges, 25000);
             }
 
-            // ── Parsing helpers ────────────────────────
+            // ── Date parsing from raw METAR (fallback) ──
+            function parseMetarTimeFromRaw(raw) {
+                // Format: CCCC DDHHMMZ ...   e.g. FAOR 081200Z
+                // We need to guess month/year: assume current UTC month/year.
+                const match = raw.match(/^([A-Z]{4})\s+(\d{2})(\d{2})(\d{2})Z/);
+                if (!match) return null;
+                const day = parseInt(match[2], 10);
+                const hour = parseInt(match[3], 10);
+                const minute = parseInt(match[4], 10);
+                const now = new Date();
+                const candidate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
+                // If candidate is in the future, try previous month
+                if (candidate > now) {
+                    const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
+                    return prevMonth <= now ? prevMonth : now;
+                }
+                return candidate;
+            }
+
+            // ── TAF issued parsing (fallback) ──────────
             function parseTAFIssued(raw) {
                 if (!raw) return null;
                 let str = raw.trim().replace(/^(TAF\s*)(AMD\s*)?/i, '');
@@ -1625,19 +1644,20 @@
                         try {
                             const data = await metarRes.value.json();
                             if (data && Array.isArray(data) && data.length > 0) {
-                                // Filter to entries that have both rawOb and obsTime
-                                const validData = data.filter(d => d.rawOb && d.obsTime);
-                                // Sort by obsTime descending (most recent first)
+                                const validData = data.filter(d => d.rawOb && d.obsTime != null);
                                 validData.sort((a, b) => new Date(b.obsTime) - new Date(a.obsTime));
-                                // Normalize raw strings: trim + strip "METAR " prefix for dedup
                                 const rawObs = validData.map(d =>
                                     d.rawOb.trim().replace(/^METAR\s+/i, '')
                                 );
                                 const unique = [...new Set(rawObs)];
                                 if (unique.length > 0) {
                                     metarRawLines = unique;
-                                    // *** FIX: Use the API's precise observation time ***
-                                    metarIssuedTime = new Date(validData[0].obsTime);
+                                    // Use API obsTime, but verify validity; fallback to parsing from raw
+                                    let obsDate = new Date(validData[0].obsTime);
+                                    if (isNaN(obsDate.getTime()) || obsDate.getTime() <= 0) {
+                                        obsDate = parseMetarTimeFromRaw(unique[0]);
+                                    }
+                                    metarIssuedTime = obsDate;
                                     metarOk = true;
                                     updateMetarDisplay();
                                     updateDecoded(unique[0]);
@@ -1660,9 +1680,13 @@
                             const data = await tafRes.value.json();
                             if (data && data[0]?.rawTAF) {
                                 tafRaw = data[0].rawTAF.trim();
-                                // Use API issueTime if available, otherwise parse from raw
                                 if (data[0].issueTime) {
-                                    tafIssuedTime = new Date(data[0].issueTime);
+                                    const tDate = new Date(data[0].issueTime);
+                                    if (!isNaN(tDate.getTime()) && tDate.getTime() > 0) {
+                                        tafIssuedTime = tDate;
+                                    } else {
+                                        tafIssuedTime = parseTAFIssued(tafRaw);
+                                    }
                                 } else {
                                     tafIssuedTime = parseTAFIssued(tafRaw);
                                 }
@@ -1703,7 +1727,6 @@
                                         width_ft: rw.width_ft,
                                     })),
                                 };
-                                // Merge with local database if available
                                 if (
                                     typeof AIRPORT_DATABASE !== 'undefined' &&
                                     AIRPORT_DATABASE[icao]
@@ -1769,7 +1792,6 @@
 
             // ── Initialize ──────────────────────────────
             setIdleState();
-            // Ensure Latest toggle is OFF by default (show all METARs)
             metarLatestToggle.checked = false;
             icaoInput.focus();
         })();
