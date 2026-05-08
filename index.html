@@ -199,8 +199,6 @@
         .card-taf {
             grid-column: 2;
         }
-        /* Remove the diagram card entirely */
-        /* .card-diagram removed */
 
         @media (max-width: 850px) {
             .content-grid {
@@ -212,7 +210,6 @@
             .card-airport {
                 grid-column: 1 / -1;
             }
-            /* .card-diagram removed */
         }
 
         .card {
@@ -599,8 +596,6 @@
             color: #f59e0b;
             font-weight: 600;
         }
-
-        /* Removed .diagram-canvas */
     </style>
 </head>
 <body>
@@ -739,8 +734,6 @@
                     <span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>
                 </div>
             </div>
-
-            <!-- Runway Layout Diagram card completely removed -->
         </div>
     </div>
 
@@ -754,7 +747,6 @@
             const searchBtn = document.getElementById('searchBtn');
             const metarBody = document.getElementById('metarBody');
             const tafBody = document.getElementById('tafBody');
-            // Removed: const diagramCanvas, const diagramAgeEl
             const metarAgeEl = document.getElementById('metarAge');
             const tafAgeEl = document.getElementById('tafAge');
             const airportAgeEl = document.getElementById('airportAge');
@@ -783,7 +775,6 @@
             let ageInterval = null;
             let clockInterval = null;
             let currentAirportObj = null;
-            // Removed: let currentWind
 
             // ── Clocks ──────────────────────────────────
             function updateClocks() {
@@ -840,7 +831,6 @@
                 else tafAgeEl.textContent = '';
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
                 else airportAgeEl.textContent = '';
-                // Diagram age removed
             }
 
             function startAgeUpdates() {
@@ -892,8 +882,6 @@
                 const dir = isLat ? (deg >= 0 ? 'N' : 'S') : (deg >= 0 ? 'E' : 'W');
                 return `${d}°${String(m).padStart(2, '0')}'${String(s).padStart(2, '0')}"${dir}`;
             }
-
-            // Removed functions: parseWindFromMETAR, runwayHeading, getRunwayEndCoords, drawDiagram, updateDiagram
 
             // ── Decoded strip ──────────────────────────
             function decodeMetar(raw) {
@@ -979,14 +967,18 @@
                 dsQnh.textContent = d.qnh;
             }
 
-            // ── IDLE / LOADING states ─────────────────
-            function setIdleState() {
+            function resetDecodedToDash() {
                 dsCat.textContent = '—';
                 dsTemp.textContent = '—';
                 dsWind.textContent = '—';
                 dsVis.textContent = '—';
                 dsClouds.textContent = '—';
                 dsQnh.textContent = '—';
+            }
+
+            // ── IDLE / LOADING states ─────────────────
+            function setIdleState() {
+                resetDecodedToDash();
                 airportInfoGrid.innerHTML = `
                     <div class="airport-name-block">
                         <div class="airport-name">Search for an airport</div>
@@ -1002,7 +994,6 @@
                     </table>`;
                 metarBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
                 tafBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
-                // No diagram canvas clearing needed
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
@@ -1064,12 +1055,13 @@
                 return safe;
             }
 
-            // ── TAF formatting (fixed) ────────────────
+            // ── TAF formatting (fixed PROB30 TEMPO) ────────────────
             function formatTAFRaw(raw) {
                 if (!raw) return raw;
-                // Insert newline before every change group: PROB30 TEMPO, PROB30, TEMPO, BECMG, FM, TL, AT
+                // Insert newline before every change group, but treat PROB30 TEMPO as a single indicator.
+                // We use a negative lookbehind to avoid breaking PROB30 TEMPO apart.
                 return raw.replace(
-                    /\s(?=PROB\d{2}\s+TEMPO|PROB\d{2}|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g,
+                    /\s(?=PROB\d{2}\s+TEMPO|(?<!PROB\d{2})TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6}|PROB\d{2})/g,
                     '\n'
                 );
             }
@@ -1094,8 +1086,6 @@
                 const html = colour ? renderColouredTAF(textToShow) : escapeHTML(textToShow);
                 tafBody.innerHTML = `<pre>${html}</pre>`;
             }
-
-            // Removed all diagram related functions
 
             // ── Physical runway count ──────────────────
             function runwayPairKey(designation) {
@@ -1263,6 +1253,7 @@
                         '<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>';
                     tafBody.innerHTML =
                         '<span class="placeholder">🚫 Only South African airports are supported.</span>';
+                    resetDecodedToDash();
                     metarRawLines = [];
                     tafRaw = '';
                     metarIssuedTime = null;
@@ -1286,9 +1277,10 @@
                 searchBtn.style.pointerEvents = 'none';
 
                 try {
+                    // FETCH METAR HISTORY (last 24 hours)
                     const [metarRes, tafRes, airportRes] = await Promise.allSettled([
                         safeFetch(
-                            `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`
+                            `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=24`
                         ),
                         safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
                         safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
@@ -1299,23 +1291,32 @@
                     if (metarRes.status === 'fulfilled') {
                         try {
                             const data = await metarRes.value.json();
-                            if (data && data.length > 0) {
-                                metarRawLines = data
-                                    .filter((d) => d.rawOb)
-                                    .map((d) => d.rawOb.trim());
-                                metarRawLines = [...new Set(metarRawLines)];
-                                if (metarRawLines.length > 0) {
-                                    metarIssuedTime = parseMetarIssued(metarRawLines[0]);
-                                    // Wind parsing removed (no diagram)
+                            if (data && Array.isArray(data) && data.length > 0) {
+                                // Extract and deduplicate raw observations
+                                const rawObs = data
+                                    .filter(d => d.rawOb)
+                                    .map(d => d.rawOb.trim());
+                                const unique = [...new Set(rawObs)];
+                                if (unique.length > 0) {
+                                    // Sort by issue time descending (most recent first)
+                                    unique.sort((a, b) => {
+                                        const ta = parseMetarIssued(a);
+                                        const tb = parseMetarIssued(b);
+                                        if (ta && tb) return tb - ta;
+                                        return 0;
+                                    });
+                                    metarRawLines = unique;
+                                    metarIssuedTime = parseMetarIssued(unique[0]);
                                     metarOk = true;
                                     updateMetarDisplay();
-                                    updateDecoded(metarRawLines[0]);
+                                    updateDecoded(unique[0]);
                                 }
                             }
                         } catch (e) {}
                     }
                     if (!metarOk) {
                         metarBody.innerHTML = `<span class="placeholder">⚠️ No METAR was located for ${icao}.</span>`;
+                        resetDecodedToDash();
                     }
 
                     // TAF
@@ -1388,7 +1389,6 @@
                         <tbody>${buildRunwayTableHTML(mergedObj)}</tbody>
                     </table>`;
 
-                    // Diagram drawing removed
                     startAgeUpdates();
                 } catch (err) {
                     console.error(err);
@@ -1419,8 +1419,6 @@
                     .replace(/[^A-Z0-9]/g, '')
                     .slice(0, 4);
             });
-
-            // Removed window resize event listener for diagram
 
             // Initialize
             setIdleState();
