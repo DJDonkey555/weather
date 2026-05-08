@@ -116,19 +116,30 @@
             border-color: var(--accent);
             box-shadow: 0 0 0 2px var(--accent-glow);
         }
+        .icao-prefix {
+            font-family: var(--font-mono);
+            font-weight: 500;
+            font-size: 14px;
+            color: #fff;
+            padding-left: 12px;
+            padding-right: 2px;
+            user-select: none;
+            letter-spacing: 0.07em;
+        }
         .icao-input {
-            width: 100%;
+            flex: 1;
             height: 32px;
             border: none;
             background: transparent;
             color: #fff;
-            padding: 0 38px 0 12px;
+            padding: 0 38px 0 0;
             font-size: 14px;
             font-family: var(--font-mono);
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.07em;
             outline: none;
+            width: 60px;
         }
         .icao-input::placeholder {
             color: #4a4f5a;
@@ -596,6 +607,21 @@
             color: #f59e0b;
             font-weight: 600;
         }
+
+        /* Premium warning style */
+        .premium-message {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.08));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            color: #f5a623;
+            font-family: var(--font-sans);
+            font-size: 12px;
+            text-align: center;
+            letter-spacing: 0.2px;
+            margin: 8px 0;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -605,15 +631,16 @@
             <span id="utcTime">--:--:--</span>
         </div>
         <div class="search-wrap" id="searchWrap">
+            <span class="icao-prefix">FA</span>
             <input
                 id="icaoInput"
                 class="icao-input"
                 type="text"
-                placeholder="Enter ICAO code..."
-                maxlength="4"
+                placeholder="xx"
+                maxlength="2"
                 autocomplete="off"
                 spellcheck="false"
-                aria-label="ICAO airport code"
+                aria-label="ICAO airport code (suffix)"
             />
             <button class="search-icon-btn" id="searchBtn" title="Search weather">&#x1F50D;</button>
         </div>
@@ -693,16 +720,25 @@
                         <span class="card-title"><span class="dot"></span> METAR</span>
                         <span class="card-age" id="metarAge"></span>
                     </div>
-                    <div class="toggle-wrap">
-                        <span class="toggle-label">Colour</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="metarColourToggle" checked />
-                            <span class="toggle-slider"></span>
-                        </label>
+                    <div class="toggle-wrap" style="gap: 12px">
+                        <div class="toggle-wrap">
+                            <span class="toggle-label">Latest</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="metarLatestToggle" />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-wrap">
+                            <span class="toggle-label">Colour</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="metarColourToggle" checked />
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body" id="metarBody">
-                    <span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>
+                    <span class="placeholder">Enter FAxx and press search.</span>
                 </div>
             </div>
 
@@ -731,7 +767,7 @@
                     </div>
                 </div>
                 <div class="card-body" id="tafBody">
-                    <span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>
+                    <span class="placeholder">Enter FAxx and press search.</span>
                 </div>
             </div>
         </div>
@@ -764,6 +800,7 @@
             const metarColourToggle = document.getElementById('metarColourToggle');
             const tafColourToggle = document.getElementById('tafColourToggle');
             const tafFormatToggle = document.getElementById('tafFormatToggle');
+            const metarLatestToggle = document.getElementById('metarLatestToggle');
 
             // State
             let lastIcao = '';
@@ -775,6 +812,9 @@
             let ageInterval = null;
             let clockInterval = null;
             let currentAirportObj = null;
+
+            // Allowed free airports
+            const ALLOWED_AIRPORTS = ['FAOR', 'FACT', 'FAGG'];
 
             // ── Clocks ──────────────────────────────────
             function updateClocks() {
@@ -992,8 +1032,8 @@
                         <thead><tr><th>Runway</th><th>Threshold Coordinates</th><th>THR Elev (ft)</th><th>TORA (m)</th><th>TODA (m)</th><th>ASDA (m)</th><th>LDA (m)</th><th>SWY (m)</th><th>CWY (m)</th><th>Slope</th><th>Surface</th></tr></thead>
                         <tbody><tr><td colspan="11" class="na-cell">Search for an airport to see runway details.</td></tr></tbody>
                     </table>`;
-                metarBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
-                tafBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
+                metarBody.innerHTML = '<span class="placeholder">Enter FAxx and press search.</span>';
+                tafBody.innerHTML = '<span class="placeholder">Enter FAxx and press search.</span>';
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
@@ -1055,13 +1095,16 @@
                 return safe;
             }
 
-            // ── TAF formatting (fixed PROB30 TEMPO) ────────────────
+            // ── TAF formatting (fixed PROB30 TEMPO) ───
             function formatTAFRaw(raw) {
                 if (!raw) return raw;
-                // Insert newline before every change group, but treat PROB30 TEMPO as a single indicator.
-                // We use a negative lookbehind to avoid breaking PROB30 TEMPO apart.
+                // Insert newline before each change group but keep PROB30 TEMPO together.
+                // The regex matches a space that is followed by:
+                //   - PROB30 (to split before the whole PROB30 TEMPO group)
+                //   - TEMPO (only if NOT preceded by PROB30)
+                //   - other change indicators
                 return raw.replace(
-                    /\s(?=PROB\d{2}\s+TEMPO|(?<!PROB\d{2})TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6}|PROB\d{2})/g,
+                    /\s(?=PROB\d{2}|(?<!PROB\d{2})TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g,
                     '\n'
                 );
             }
@@ -1069,10 +1112,13 @@
             function updateMetarDisplay() {
                 if (!metarBody || metarRawLines.length === 0) return;
                 const colour = metarColourToggle.checked;
+                const showLatestOnly = metarLatestToggle.checked;
+                const linesToShow = showLatestOnly ? [metarRawLines[0]] : metarRawLines;
+
                 let html = '';
-                metarRawLines.forEach((raw, idx) => {
+                linesToShow.forEach((raw, idx) => {
                     const formatted = colour ? renderColouredMETAR(raw) : escapeHTML(raw);
-                    const entryClass = idx === 0 ? 'latest-entry' : '';
+                    const entryClass = (idx === 0 && !showLatestOnly) ? 'latest-entry' : '';
                     html += `<pre class="${entryClass}">${formatted}</pre>`;
                 });
                 metarBody.innerHTML = html;
@@ -1231,13 +1277,22 @@
                 return rowsHtml;
             }
 
+            // ── Premium access restriction ──────────────
+            function showPremiumMessage() {
+                const msg = '<div class="premium-message">🔒 Premium Access Required – This airport is not available on the free tier.<br>Upgrade to access all South African airports.</div>';
+                metarBody.innerHTML = `<span class="placeholder">${msg}</span>`;
+                tafBody.innerHTML = `<span class="placeholder">${msg}</span>`;
+                airportInfoGrid.innerHTML = `<div class="airport-name-block">${msg}</div>`;
+                runwayTableWrap.innerHTML = `<table class="runway-table"><tbody><tr><td colspan="11" class="na-cell">— Restricted —</td></tr></tbody></table>`;
+                resetDecodedToDash();
+            }
+
             // ── Main search flow ────────────────────────
             async function searchWeather(icaoOverride) {
-                const icao = (icaoOverride || icaoInput.value)
-                    .trim()
-                    .toUpperCase()
-                    .replace(/[^A-Z0-9]/g, '');
-                if (!icao || icao.length < 4) {
+                // Build full ICAO from prefix + user input
+                const suffix = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+                const icao = 'FA' + suffix;
+                if (suffix.length === 0) {
                     setIdleState();
                     metarRawLines = [];
                     tafRaw = '';
@@ -1247,25 +1302,19 @@
                     currentAirportObj = null;
                     return;
                 }
-                if (!icao.startsWith('FA')) {
+                if (!ALLOWED_AIRPORTS.includes(icao)) {
                     setLoadingState();
-                    metarBody.innerHTML =
-                        '<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>';
-                    tafBody.innerHTML =
-                        '<span class="placeholder">🚫 Only South African airports are supported.</span>';
-                    resetDecodedToDash();
+                    showPremiumMessage();
                     metarRawLines = [];
                     tafRaw = '';
                     metarIssuedTime = null;
                     tafIssuedTime = null;
                     airportFetchTime = null;
                     currentAirportObj = null;
-                    icaoInput.value = icao;
                     return;
                 }
 
                 lastIcao = icao;
-                icaoInput.value = icao;
                 setLoadingState();
                 metarRawLines = [];
                 tafRaw = '';
@@ -1277,10 +1326,9 @@
                 searchBtn.style.pointerEvents = 'none';
 
                 try {
-                    // FETCH METAR HISTORY (last 24 hours)
                     const [metarRes, tafRes, airportRes] = await Promise.allSettled([
                         safeFetch(
-                            `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=24`
+                            `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=12`
                         ),
                         safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
                         safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
@@ -1292,13 +1340,11 @@
                         try {
                             const data = await metarRes.value.json();
                             if (data && Array.isArray(data) && data.length > 0) {
-                                // Extract and deduplicate raw observations
                                 const rawObs = data
                                     .filter(d => d.rawOb)
                                     .map(d => d.rawOb.trim());
                                 const unique = [...new Set(rawObs)];
                                 if (unique.length > 0) {
-                                    // Sort by issue time descending (most recent first)
                                     unique.sort((a, b) => {
                                         const ta = parseMetarIssued(a);
                                         const tb = parseMetarIssued(b);
@@ -1403,6 +1449,7 @@
 
             // ── Event listeners ─────────────────────────
             metarColourToggle.addEventListener('change', updateMetarDisplay);
+            metarLatestToggle.addEventListener('change', updateMetarDisplay);
             tafColourToggle.addEventListener('change', updateTAFDisplay);
             tafFormatToggle.addEventListener('change', updateTAFDisplay);
 
@@ -1413,11 +1460,9 @@
                     searchWeather();
                 }
             });
+            // Only allow two characters max, enforce uppercase
             icaoInput.addEventListener('input', () => {
-                icaoInput.value = icaoInput.value
-                    .toUpperCase()
-                    .replace(/[^A-Z0-9]/g, '')
-                    .slice(0, 4);
+                icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 2);
             });
 
             // Initialize
