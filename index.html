@@ -48,8 +48,6 @@
             color: var(--text);
             height: 100vh;
             overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
             display: flex;
             flex-direction: column;
         }
@@ -75,7 +73,6 @@
             padding: 0 16px;
             height: 48px;
             flex-shrink: 0;
-            z-index: 50;
             gap: 16px;
         }
         .time-utc,
@@ -165,18 +162,9 @@
                 padding: 8px 12px;
                 gap: 8px;
             }
-            .time-utc {
-                order: 1;
-            }
-            .time-local {
-                order: 2;
-                margin-left: auto;
-            }
-            .search-wrap {
-                max-width: 100%;
-                order: 3;
-                flex-basis: 100%;
-            }
+            .time-utc { order: 1; }
+            .time-local { order: 2; margin-left: auto; }
+            .search-wrap { max-width: 100%; order: 3; flex-basis: 100%; }
         }
 
         .content-grid {
@@ -186,22 +174,13 @@
             max-width: 1200px;
             margin: 0 auto;
         }
-
-        .card-full {
-            grid-column: 1 / -1;
-        }
+        .card-full { grid-column: 1 / -1; }
 
         @media (max-width: 850px) {
             .content-grid {
                 grid-template-columns: 1fr;
             }
-            .card-full,
-            .card-metar,
-            .card-taf,
-            .card-airport,
-            .card-quick,
-            .card-pilot,
-            .card-nearby {
+            .card-metar, .card-taf, .card-full {
                 grid-column: 1 / -1;
             }
         }
@@ -236,7 +215,7 @@
             align-items: center;
             gap: 8px;
         }
-        .card-header .card-title {
+        .card-title {
             display: flex;
             align-items: center;
             gap: 5px;
@@ -247,9 +226,8 @@
             border-radius: 50%;
             background: var(--accent);
             box-shadow: 0 0 4px var(--accent-glow);
-            flex-shrink: 0;
         }
-        .card-header .card-age {
+        .card-age {
             font-size: 9px;
             color: var(--text-muted);
             font-weight: 400;
@@ -270,61 +248,45 @@
             scrollbar-color: var(--scrollbar-thumb) transparent;
         }
         .card-body::-webkit-scrollbar {
-            width: 3px;
-            height: 3px;
+            width: 3px; height: 3px;
         }
-        .card-body::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .card-body::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
-            border-radius: 3px;
-        }
-        .card-body .placeholder {
+        .card-body::-webkit-scrollbar-track { background: transparent; }
+        .card-body::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+
+        .placeholder {
             color: #5b606d;
             font-family: var(--font-sans);
             font-style: italic;
             font-size: 12px;
         }
         .card-body pre {
-            margin: 0;
-            padding: 0;
-            font-family: inherit;
-            font-size: inherit;
-            color: inherit;
-            white-space: pre-wrap;
-            word-break: break-word;
+            margin: 0; padding: 0; font-family: inherit; font-size: inherit;
+            color: inherit; white-space: pre-wrap; word-break: break-word;
         }
         .card-body pre + pre {
-            margin-top: 7px;
-            padding-top: 7px;
-            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            margin-top: 7px; padding-top: 7px; border-top: 1px solid rgba(255,255,255,0.03);
         }
         .card-body .latest-entry {
             border-left: 2px solid var(--accent);
             padding-left: 6px;
-            background: rgba(40, 158, 214, 0.06);
+            background: rgba(40,158,214,0.06);
             margin-bottom: 4px;
             border-radius: 0 3px 3px 0;
         }
 
-        .airport-info-grid {
+        .airport-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px 20px;
-            align-items: center;
+            gap: 12px 20px;
             padding: 8px 10px;
+            font-family: var(--font-sans);
         }
         .airport-name-block {
             flex: 1 1 200px;
             min-width: 180px;
         }
         .airport-name {
-            font-size: 15px;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: -0.2px;
-            line-height: 1.1;
+            font-size: 15px; font-weight: 700; color: #fff;
         }
         .airport-icao-badge {
             display: inline-block;
@@ -333,32 +295,34 @@
             font-size: 10px;
             margin-top: 3px;
             font-family: var(--font-mono);
-            letter-spacing: 0.5px;
         }
-        .airport-stat {
+        .stat-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .stat {
             display: flex;
             flex-direction: column;
             gap: 1px;
-            flex-shrink: 0;
         }
-        .airport-stat .stat-label {
+        .stat-label {
             font-size: 8px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             color: var(--text-muted);
             font-weight: 600;
         }
-        .airport-stat .stat-value {
+        .stat-value {
             font-family: var(--font-mono);
             font-size: 12px;
             font-weight: 600;
             color: #e0e4ec;
         }
-        .airport-coords {
+        .stat-coords {
             font-family: var(--font-mono);
             font-size: 10px;
             color: var(--text-secondary);
-            letter-spacing: 0.3px;
         }
 
         .runway-table-wrap {
@@ -369,16 +333,10 @@
             scrollbar-color: var(--scrollbar-thumb) transparent;
         }
         .runway-table-wrap::-webkit-scrollbar {
-            width: 3px;
-            height: 3px;
+            width: 3px; height: 3px;
         }
-        .runway-table-wrap::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .runway-table-wrap::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
-            border-radius: 3px;
-        }
+        .runway-table-wrap::-webkit-scrollbar-track { background: transparent; }
+        .runway-table-wrap::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
         .runway-table {
             width: 100%;
             border-collapse: collapse;
@@ -386,12 +344,11 @@
             font-size: 10px;
             min-width: 900px;
         }
-        .runway-table th,
-        .runway-table td {
+        .runway-table th, .runway-table td {
             padding: 5px 6px;
             text-align: center;
             white-space: nowrap;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.025);
+            border-bottom: 1px solid rgba(255,255,255,0.025);
         }
         .runway-table th {
             font-family: var(--font-sans);
@@ -400,91 +357,55 @@
             text-transform: uppercase;
             letter-spacing: 0.4px;
             color: var(--text-muted);
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0,0,0,0.2);
             position: sticky;
             top: 0;
             z-index: 1;
         }
-        .runway-table tbody tr {
-            transition: background var(--transition);
-        }
-        .runway-table tbody tr:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
+        .runway-table tbody tr:hover { background: rgba(255,255,255,0.02); }
         .runway-table .rw-designation {
-            font-weight: 700;
-            color: #fff;
-            font-size: 11px;
-            letter-spacing: 0.3px;
+            font-weight: 700; color: #fff; font-size: 11px;
         }
-        .runway-table .na-cell {
-            color: #4a4f5a;
-            font-style: italic;
-        }
+        .na-cell { color: #4a4f5a; font-style: italic; }
 
         .shimmer {
-            background: linear-gradient(
-                100deg,
-                transparent 25%,
-                rgba(255, 255, 255, 0.012) 40%,
-                rgba(255, 255, 255, 0.025) 50%,
-                rgba(255, 255, 255, 0.012) 60%,
-                transparent 75%
-            );
+            background: linear-gradient(100deg, transparent 25%, rgba(255,255,255,0.012) 40%, rgba(255,255,255,0.025) 50%, rgba(255,255,255,0.012) 60%, transparent 75%);
             background-size: 200% 100%;
             animation: shimmer 1.6s ease-in-out infinite;
             border-radius: var(--radius-sm);
             min-height: 30px;
         }
         @keyframes shimmer {
-            0% {
-                background-position: 200% 0;
-            }
-            100% {
-                background-position: -200% 0;
-            }
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
         .decoded-strip {
             display: flex;
             flex-wrap: wrap;
-            gap: 0;
             border: 1px solid var(--border);
             border-radius: var(--radius-sm);
             overflow: hidden;
             background: var(--surface-raised);
             margin-bottom: 2px;
-            flex-shrink: 0;
         }
-        .decoded-strip .ds-item {
+        .ds-item {
             flex: 1 1 70px;
             padding: 5px 8px;
             text-align: center;
-            border-right: 1px solid rgba(255, 255, 255, 0.03);
+            border-right: 1px solid rgba(255,255,255,0.03);
             display: flex;
             flex-direction: column;
             gap: 1px;
-            transition: background var(--transition);
         }
-        .decoded-strip .ds-item:last-child {
-            border-right: none;
-        }
-        .decoded-strip .ds-item:hover {
-            background: rgba(255, 255, 255, 0.015);
-        }
+        .ds-item:last-child { border-right: none; }
+        .ds-item:hover { background: rgba(255,255,255,0.015); }
         .ds-label {
-            font-size: 7.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: #777;
-            font-family: var(--font-sans);
+            font-size: 7.5px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; color: #777; font-family: var(--font-sans);
         }
         .ds-value {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            font-weight: 600;
-            color: #e0e4ec;
+            font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: #e0e4ec;
         }
         .flight-cat-badge {
             display: inline-block;
@@ -495,133 +416,47 @@
             letter-spacing: 0.4px;
             text-transform: uppercase;
             font-family: var(--font-sans);
-            line-height: 1.4;
         }
-        .fc-vfr {
-            background: rgba(74, 222, 128, 0.12);
-            color: #4ade80;
-        }
-        .fc-mvfr {
-            background: rgba(245, 158, 11, 0.12);
-            color: #f59e0b;
-        }
-        .fc-ifr {
-            background: rgba(239, 68, 68, 0.12);
-            color: #ef4444;
-        }
-        .fc-lifr {
-            background: rgba(239, 68, 68, 0.18);
-            color: #f87171;
-        }
+        .fc-vfr { background: rgba(74,222,128,0.12); color: #4ade80; }
+        .fc-mvfr { background: rgba(245,158,11,0.12); color: #f59e0b; }
+        .fc-ifr { background: rgba(239,68,68,0.12); color: #ef4444; }
+        .fc-lifr { background: rgba(239,68,68,0.18); color: #f87171; }
 
         .toggle-wrap {
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            display: flex; align-items: center; gap: 6px;
         }
         .toggle-label {
-            font-size: 9px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            letter-spacing: 0.4px;
+            font-size: 9px; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.4px;
         }
         .toggle-switch {
-            position: relative;
-            width: 32px;
-            height: 16px;
-            flex-shrink: 0;
+            position: relative; width: 32px; height: 16px; flex-shrink: 0;
         }
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
         .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #3a3d46;
-            transition: 0.2s;
-            border-radius: 16px;
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #3a3d46; transition: 0.2s; border-radius: 16px;
         }
         .toggle-slider::before {
-            content: '';
-            position: absolute;
-            height: 12px;
-            width: 12px;
-            left: 2px;
-            bottom: 2px;
-            background-color: #ccc;
-            transition: 0.2s;
-            border-radius: 50%;
+            content: ''; position: absolute; height: 12px; width: 12px; left: 2px; bottom: 2px;
+            background-color: #ccc; transition: 0.2s; border-radius: 50%;
         }
-        .toggle-switch input:checked + .toggle-slider {
-            background-color: var(--accent);
-        }
+        .toggle-switch input:checked + .toggle-slider { background-color: var(--accent); }
         .toggle-switch input:checked + .toggle-slider::before {
-            transform: translateX(16px);
-            background-color: #fff;
+            transform: translateX(16px); background-color: #fff;
         }
 
-        .colour-wind {
-            color: #60a5fa;
-        }
-        .colour-vis {
-            color: #4ade80;
-        }
-        .colour-cloud {
-            color: #c084fc;
-        }
-        .colour-temp {
-            color: #fb923c;
-        }
-        .colour-qnh {
-            color: #facc15;
-        }
-        .colour-weather {
-            color: #f87171;
-        }
-        .colour-change {
-            color: #f59e0b;
-            font-weight: 600;
-        }
+        .colour-wind { color: #60a5fa; }
+        .colour-vis { color: #4ade80; }
+        .colour-cloud { color: #c084fc; }
+        .colour-temp { color: #fb923c; }
+        .colour-qnh { color: #facc15; }
+        .colour-weather { color: #f87171; }
+        .colour-change { color: #f59e0b; font-weight: 600; }
 
-        .nearby-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 6px;
-        }
-        .nearby-card {
-            background: var(--surface-raised);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 6px 8px;
-            min-width: 140px;
-            flex: 1 1 auto;
-        }
-        .nearby-icao {
-            font-weight: 700;
-            font-size: 11px;
-            color: #fff;
-        }
-        .nearby-cat {
-            margin-left: 6px;
-        }
-        .nearby-raw {
-            font-size: 9px;
-            color: #a8adb8;
-            white-space: pre-wrap;
-            word-break: break-word;
-            margin-top: 2px;
-        }
         .brief-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+            list-style: none; padding: 0; margin: 0;
+            font-family: var(--font-sans);
+            font-size: 10px;
         }
         .brief-list li {
             padding: 4px 0;
@@ -629,10 +464,6 @@
             display: flex;
             align-items: center;
             gap: 6px;
-        }
-        .brief-icon {
-            width: 16px;
-            text-align: center;
         }
     </style>
 </head>
@@ -642,7 +473,7 @@
             <span class="time-label">UTC</span>
             <span id="utcTime">--:--:--</span>
         </div>
-        <div class="search-wrap" id="searchWrap">
+        <div class="search-wrap">
             <input
                 id="icaoInput"
                 class="icao-input"
@@ -651,7 +482,6 @@
                 maxlength="4"
                 autocomplete="off"
                 spellcheck="false"
-                aria-label="ICAO airport code"
             />
             <button class="search-icon-btn" id="searchBtn" title="Search weather">&#x1F50D;</button>
         </div>
@@ -664,7 +494,7 @@
     <div class="main-scroll" id="mainScroll">
         <div class="content-grid">
             <!-- Decoded METAR strip -->
-            <div class="card-full decoded-strip" id="decodedStrip" style="display: flex; opacity: 1">
+            <div class="card-full decoded-strip" id="decodedStrip">
                 <div class="ds-item"><span class="ds-label">Category</span><span class="ds-value" id="dsCat">—</span></div>
                 <div class="ds-item"><span class="ds-label">Temp / Dew</span><span class="ds-value" id="dsTemp">—</span></div>
                 <div class="ds-item"><span class="ds-label">Wind</span><span class="ds-value" id="dsWind">—</span></div>
@@ -673,69 +503,33 @@
                 <div class="ds-item"><span class="ds-label">QNH</span><span class="ds-value" id="dsQnh">—</span></div>
             </div>
 
-            <!-- Airport info and Quick Briefing side by side -->
-            <div class="card card-airport" id="airportCard" style="grid-column: 1;">
+            <!-- Combined Airport Info + Quick Briefing -->
+            <div class="card card-full" id="airportQuickCard">
                 <div class="card-header">
-                    <span class="card-title"><span class="dot"></span> Airport Information</span>
-                    <span class="card-age" id="airportAge"></span>
+                    <span class="card-title"><span class="dot"></span> Airport & Quick Briefing</span>
+                    <span class="card-age" id="airportQuickAge"></span>
                 </div>
-                <div class="airport-info-grid" id="airportInfoGrid">
-                    <div class="airport-name-block">
-                        <div class="airport-name">Search for an airport</div>
-                        <span class="airport-icao-badge">----</span>
-                    </div>
-                    <div class="airport-stat"><span class="stat-label">Elevation</span><span class="stat-value">—</span></div>
-                    <div class="airport-stat"><span class="stat-label">Runways</span><span class="stat-value">—</span></div>
-                    <div class="airport-stat"><span class="stat-label">Coordinates</span><span class="airport-coords">—</span></div>
+                <div class="airport-grid" id="airportQuickContent">
+                    <!-- filled dynamically -->
                 </div>
             </div>
 
-            <div class="card card-quick" id="quickCard" style="grid-column: 2;">
-                <div class="card-header">
-                    <span class="card-title"><span class="dot"></span> Quick Briefing</span>
-                    <span class="card-age" id="quickAge"></span>
-                </div>
-                <div class="card-body" id="quickBody" style="font-family: var(--font-sans); font-size: 10px; line-height: 1.5;">
-                    <span class="placeholder">Awaiting data...</span>
-                </div>
-            </div>
-
-            <!-- Runway details (full width) -->
+            <!-- Runway Details -->
             <div class="card card-full" id="runwayCard">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Runway Details</span>
-                    <span class="card-age" style="font-size: 9px; color: var(--amber)"
-                        >* Data may not be current – verify with official AIP</span
-                    >
+                    <span class="card-age" style="font-size:9px;color:var(--amber)">* Verify with official AIP</span>
                 </div>
                 <div class="runway-table-wrap" id="runwayTableWrap">
                     <table class="runway-table">
-                        <thead>
-                            <tr>
-                                <th>Runway</th>
-                                <th>Threshold Coordinates</th>
-                                <th>THR Elev (ft)</th>
-                                <th>TORA (m)</th>
-                                <th>TODA (m)</th>
-                                <th>ASDA (m)</th>
-                                <th>LDA (m)</th>
-                                <th>SWY (m)</th>
-                                <th>CWY (m)</th>
-                                <th>Slope</th>
-                                <th>Surface</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="11" class="na-cell">Search for an airport to see runway details.</td>
-                            </tr>
-                        </tbody>
+                        <thead><tr><th>Runway</th><th>Threshold Coordinates</th><th>THR Elev (ft)</th><th>TORA (m)</th><th>TODA (m)</th><th>ASDA (m)</th><th>LDA (m)</th><th>SWY (m)</th><th>CWY (m)</th><th>Slope</th><th>Surface</th></tr></thead>
+                        <tbody><tr><td colspan="11" class="na-cell">Search for an airport</td></tr></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- METAR and TAF side by side -->
-            <div class="card card-metar" id="metarCard" style="grid-column: 1;">
+            <!-- METAR & TAF side by side -->
+            <div class="card card-metar" id="metarCard">
                 <div class="card-header">
                     <div class="card-header-left">
                         <span class="card-title"><span class="dot"></span> METAR</span>
@@ -754,13 +548,13 @@
                 </div>
             </div>
 
-            <div class="card card-taf" id="tafCard" style="grid-column: 2;">
+            <div class="card card-taf" id="tafCard">
                 <div class="card-header">
                     <div class="card-header-left">
                         <span class="card-title"><span class="dot"></span> TAF</span>
                         <span class="card-age" id="tafAge"></span>
                     </div>
-                    <div class="toggle-wrap" style="gap: 12px">
+                    <div class="toggle-wrap" style="gap:12px">
                         <div class="toggle-wrap">
                             <span class="toggle-label">Colour</span>
                             <label class="toggle-switch">
@@ -782,62 +576,47 @@
                 </div>
             </div>
 
-            <!-- Pilot Briefing (left) and Nearby METARs (right) -->
-            <div class="card card-pilot" id="pilotCard" style="grid-column: 1;">
+            <!-- Pilot Risk Briefing -->
+            <div class="card card-full" id="pilotCard">
                 <div class="card-header">
-                    <span class="card-title"><span class="dot"></span> Pilot Briefing</span>
+                    <span class="card-title"><span class="dot"></span> Pilot Risk Briefing</span>
                     <span class="card-age" id="pilotAge"></span>
                 </div>
-                <div class="card-body" id="pilotBody">
-                    <span class="placeholder">Complete briefing will appear after a valid METAR/TAF is loaded.</span>
-                </div>
-            </div>
-
-            <div class="card card-nearby" id="nearbyCard" style="grid-column: 2;">
-                <div class="card-header">
-                    <span class="card-title"><span class="dot"></span> Nearby METARs</span>
-                    <span class="card-age" id="nearbyAge"></span>
-                </div>
-                <div class="card-body" id="nearbyBody" style="overflow-y: auto; max-height: 300px;">
-                    <span class="placeholder">Search for an airport to see nearby conditions.</span>
+                <div class="card-body" id="pilotBody" style="font-family: var(--font-sans);">
+                    <span class="placeholder">Complete risk briefing will appear after a valid METAR/TAF is loaded.</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Local runway/elevation data -->
+    <!-- Optional local data (keeps working even if file missing) -->
     <script src="airport-data.js"></script>
 
     <script>
-        (function () {
-            // DOM elements
+        (function() {
+            // DOM
             const icaoInput = document.getElementById('icaoInput');
             const searchBtn = document.getElementById('searchBtn');
             const metarBody = document.getElementById('metarBody');
             const tafBody = document.getElementById('tafBody');
             const metarAgeEl = document.getElementById('metarAge');
             const tafAgeEl = document.getElementById('tafAge');
-            const airportAgeEl = document.getElementById('airportAge');
-            const quickAgeEl = document.getElementById('quickAge');
+            const airportQuickAge = document.getElementById('airportQuickAge');
             const pilotAgeEl = document.getElementById('pilotAge');
-            const nearbyAgeEl = document.getElementById('nearbyAge');
-            const decodedStrip = document.getElementById('decodedStrip');
+            const airportQuickContent = document.getElementById('airportQuickContent');
+            const runwayTableWrap = document.getElementById('runwayTableWrap');
+            const pilotBody = document.getElementById('pilotBody');
+            const utcTimeSpan = document.getElementById('utcTime');
+            const localTimeSpan = document.getElementById('localTime');
+            const metarColourToggle = document.getElementById('metarColourToggle');
+            const tafColourToggle = document.getElementById('tafColourToggle');
+            const tafFormatToggle = document.getElementById('tafFormatToggle');
             const dsCat = document.getElementById('dsCat');
             const dsTemp = document.getElementById('dsTemp');
             const dsWind = document.getElementById('dsWind');
             const dsVis = document.getElementById('dsVis');
             const dsClouds = document.getElementById('dsClouds');
             const dsQnh = document.getElementById('dsQnh');
-            const airportInfoGrid = document.getElementById('airportInfoGrid');
-            const runwayTableWrap = document.getElementById('runwayTableWrap');
-            const quickBody = document.getElementById('quickBody');
-            const pilotBody = document.getElementById('pilotBody');
-            const nearbyBody = document.getElementById('nearbyBody');
-            const utcTimeSpan = document.getElementById('utcTime');
-            const localTimeSpan = document.getElementById('localTime');
-            const metarColourToggle = document.getElementById('metarColourToggle');
-            const tafColourToggle = document.getElementById('tafColourToggle');
-            const tafFormatToggle = document.getElementById('tafFormatToggle');
 
             // State
             let metarRawLines = [];
@@ -846,157 +625,139 @@
             let tafIssuedTime = null;
             let airportFetchTime = null;
             let ageInterval = null;
-            let clockInterval = null;
             let currentAirportObj = null;
             let currentWind = { dirDeg: null, speedKt: 0 };
-            let currentDecoded = {}; // decoded metar
+            let currentDecoded = {};
 
-            // ── Clocks ──────────────────────────────────
+            // Clocks
             function updateClocks() {
                 const now = new Date();
-                utcTimeSpan.textContent = now.toISOString().slice(11, 19);
-                localTimeSpan.textContent = now.toTimeString().slice(0, 8);
+                utcTimeSpan.textContent = now.toISOString().slice(11,19);
+                localTimeSpan.textContent = now.toTimeString().slice(0,8);
             }
             updateClocks();
-            clockInterval = setInterval(updateClocks, 1000);
+            setInterval(updateClocks, 1000);
 
-            // ── Fetch helpers ──────────────────────────
-            const PROXY_LIST = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
-            async function safeFetch(url, timeout = 12000) {
+            // Fetch (direct, no proxy – aviationweather.gov supports CORS)
+            async function fetchWithTimeout(url, timeout = 10000) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeout);
                 try {
-                    const res = await fetch(url, { signal: AbortSignal.timeout(timeout) });
-                    if (res.ok) return res;
-                    throw new Error(`HTTP ${res.status}`);
-                } catch (directErr) {
-                    console.warn('Direct fetch failed:', directErr.message);
+                    const res = await fetch(url, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    return res;
+                } catch (err) {
+                    clearTimeout(timeoutId);
+                    throw err;
                 }
-                for (const proxy of PROXY_LIST) {
-                    try {
-                        const proxyUrl = proxy + encodeURIComponent(url);
-                        const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(timeout + 4000) });
-                        if (res.ok) return res;
-                    } catch (pxErr) {
-                        console.warn('Proxy failed:', proxy, pxErr.message);
-                    }
-                }
-                throw new Error('All fetch methods failed.');
             }
 
-            // ── Time formatting ────────────────────────
+            // Time helpers
             function formatTimeAgo(date) {
                 if (!date) return '';
-                const now = new Date();
-                const diffMs = now - date;
-                if (diffMs < 0) return 'just now';
-                const diffSec = Math.floor(diffMs / 1000);
-                if (diffSec < 60) return `${diffSec}s ago`;
-                const diffMin = Math.floor(diffSec / 60);
-                if (diffMin < 60) return `${diffMin}m ago`;
-                const diffHr = Math.floor(diffMin / 60);
-                if (diffHr < 24) return `${diffHr}h ${diffMin % 60}m ago`;
-                return `${Math.floor(diffHr / 24)}d ago`;
+                const diff = (new Date() - date) / 1000;
+                if (diff < 60) return `${Math.floor(diff)}s ago`;
+                if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+                if (diff < 86400) return `${Math.floor(diff/3600)}h ${Math.floor((diff%3600)/60)}m ago`;
+                return `${Math.floor(diff/86400)}d ago`;
             }
-
             function updateAges() {
                 if (metarIssuedTime) metarAgeEl.textContent = `Issued: ${formatTimeAgo(metarIssuedTime)}`;
                 else metarAgeEl.textContent = '';
                 if (tafIssuedTime) tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafIssuedTime)}`;
                 else tafAgeEl.textContent = '';
                 if (airportFetchTime) {
-                    airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
-                    quickAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
+                    airportQuickAge.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
                     pilotAgeEl.textContent = `Generated: ${formatTimeAgo(new Date())}`;
-                    nearbyAgeEl.textContent = `Fetched: ${formatTimeAgo(new Date())}`;
                 } else {
-                    airportAgeEl.textContent = '';
-                    quickAgeEl.textContent = '';
+                    airportQuickAge.textContent = '';
                     pilotAgeEl.textContent = '';
-                    nearbyAgeEl.textContent = '';
                 }
             }
-
             function startAgeUpdates() {
                 if (ageInterval) clearInterval(ageInterval);
                 updateAges();
                 ageInterval = setInterval(updateAges, 25000);
             }
 
+            // Parsing
+            function parseMetarIssued(raw) {
+                const match = raw.match(/^[A-Z]{4}\s+(\d{2})(\d{2})(\d{2})Z/);
+                if (!match) return null;
+                const now = new Date();
+                const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), +match[1], +match[2], +match[3]));
+                return issued > now ? new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth()-1, +match[1], +match[2], +match[3])) : issued;
+            }
+            function parseTAFIssued(raw) {
+                const match = raw.trim().replace(/^TAF\s*(AMD\s*)?/i, '').match(/^([A-Z]{4})\s+(\d{2})(\d{2})(\d{2})Z/);
+                if (!match) return null;
+                const now = new Date();
+                const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), +match[2], +match[3], +match[4]));
+                return issued > now ? new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth()-1, +match[2], +match[3], +match[4])) : issued;
+            }
+
             function toDMS(deg, isLat) {
                 const abs = Math.abs(deg);
                 const d = Math.floor(abs);
                 const m = Math.floor((abs - d) * 60);
-                const s = Math.round((abs - d - m / 60) * 3600);
+                const s = Math.round((abs - d - m/60) * 3600);
                 const dir = isLat ? (deg >= 0 ? 'N' : 'S') : (deg >= 0 ? 'E' : 'W');
                 return `${d}°${String(m).padStart(2,'0')}'${String(s).padStart(2,'0')}"${dir}`;
             }
 
-            function parseWindFromMETAR(rawMetar) {
-                if (!rawMetar) return { dirDeg: null, speedKt: 0 };
-                const metar = rawMetar.toUpperCase();
-                const windMatch = metar.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
-                if (!windMatch) return { dirDeg: null, speedKt: 0 };
-                const dir = windMatch[1] === 'VRB' ? null : parseInt(windMatch[1]);
-                const speed = parseInt(windMatch[2]);
-                return { dirDeg: dir, speedKt: speed };
+            function parseWindFromMETAR(raw) {
+                const match = raw.toUpperCase().match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
+                if (!match) return { dirDeg: null, speedKt: 0 };
+                return {
+                    dirDeg: match[1] === 'VRB' ? null : parseInt(match[1]),
+                    speedKt: parseInt(match[2])
+                };
             }
 
             function decodeMetar(raw) {
-                const res = { flightCat: '—', flightCatClass: '', temp: '—', dew: '—', wind: '—', vis: '—', clouds: '—', qnh: '—', tempC: null, qnhHpa: null, visM: null };
+                const res = { flightCat:'—', flightCatClass:'', temp:'—', dew:'—', wind:'—', vis:'—', clouds:'—', qnh:'—', tempC:null, qnhHpa:null, visM:null };
                 if (!raw) return res;
                 const metar = raw.toUpperCase().trim();
-                const tdMatch = metar.match(/\b(M?\d{2})\/(M?\d{2})\b/);
-                if (tdMatch) {
-                    res.temp = tdMatch[1].replace('M','-') + '°C';
-                    res.dew = tdMatch[2].replace('M','-') + '°C';
-                    res.tempC = parseInt(tdMatch[1].replace('M','-'));
+                const td = metar.match(/\b(M?\d{2})\/(M?\d{2})\b/);
+                if (td) {
+                    res.temp = td[1].replace('M','-')+'°C';
+                    res.dew = td[2].replace('M','-')+'°C';
+                    res.tempC = parseInt(td[1].replace('M','-'));
                 }
-                const windMatch = metar.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
-                if (windMatch) {
-                    const dir = windMatch[1], spd = windMatch[2], gust = windMatch[4];
-                    if (dir === '000' || (dir === 'VRB' && parseInt(spd)<3)) res.wind = 'Calm';
-                    else if (dir === 'VRB') res.wind = `VRB @ ${spd}kt`;
-                    else res.wind = `${dir}° @ ${spd}kt`;
-                    if (gust) res.wind += ` G${gust}kt`;
+                const wind = metar.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
+                if (wind) {
+                    res.wind = wind[1] === '000' || (wind[1]==='VRB' && +wind[2]<3) ? 'Calm' :
+                        wind[1]==='VRB' ? `VRB @ ${wind[2]}kt` : `${wind[1]}° @ ${wind[2]}kt`;
+                    if (wind[4]) res.wind += ` G${wind[4]}kt`;
                 }
                 if (metar.includes('CAVOK')) res.vis = 'CAVOK (10km+)';
                 else {
-                    const visMatch = metar.match(/\b(\d{4})\b/);
-                    if (visMatch) {
-                        const v = parseInt(visMatch[1]);
-                        res.visM = v;
-                        if (v >= 9999) res.vis = '10km+';
-                        else if (v >= 1000) res.vis = (v/1000).toFixed(1)+'km';
-                        else res.vis = v+'m';
-                    }
-                    const smMatch = metar.match(/\b(\d+)SM\b/);
-                    if (smMatch) { res.vis = smMatch[1]+'SM'; res.visM = parseInt(smMatch[1])*1609; }
+                    const vm = metar.match(/\b(\d{4})\b/);
+                    if (vm) { res.visM = +vm[1]; res.vis = vm[1] >= 9999 ? '10km+' : vm[1] >= 1000 ? (+vm[1]/1000).toFixed(1)+'km' : vm[1]+'m'; }
+                    const sm = metar.match(/\b(\d+)SM\b/);
+                    if (sm) { res.vis = sm[1]+'SM'; res.visM = +sm[1]*1609; }
                 }
                 const clouds = [];
-                const cloudRegex = /\b(FEW|SCT|BKN|OVC)(\d{3})\b/g;
-                let cm;
-                while ((cm = cloudRegex.exec(metar)) !== null) clouds.push(`${cm[1]} @ ${parseInt(cm[2])*100}ft`);
-                if (clouds.length) res.clouds = clouds.join(', ');
-                else if (metar.includes('CAVOK') || metar.includes('SKC') || metar.includes('CLR')) res.clouds = 'Clear';
-                else if (metar.includes('NSC')) res.clouds = 'No sig. cloud';
-                const qnhMatch = metar.match(/\bQ(\d{4})\b/);
-                if (qnhMatch) { res.qnh = qnhMatch[1] + ' hPa'; res.qnhHpa = parseInt(qnhMatch[1]); }
-                else {
-                    const altMatch = metar.match(/\bA(\d{4})\b/);
-                    if (altMatch) { res.qnh = (parseInt(altMatch[1])/100).toFixed(2)+' inHg'; res.qnhHpa = Math.round(parseInt(altMatch[1])*0.3386); }
+                const cld = metar.match(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/g);
+                if (cld) cld.forEach(c => clouds.push(`${c.slice(0,3)} @ ${+c.slice(3)*100}ft`));
+                res.clouds = clouds.length ? clouds.join(', ') : (metar.includes('CAVOK')||metar.includes('SKC')||metar.includes('CLR')?'Clear':metar.includes('NSC')?'No sig. cloud':'');
+                const qnh = metar.match(/\bQ(\d{4})\b/);
+                res.qnh = qnh ? `${qnh[1]} hPa` : '';
+                res.qnhHpa = qnh ? +qnh[1] : null;
+                if (!qnh) {
+                    const alt = metar.match(/\bA(\d{4})\b/);
+                    if (alt) { res.qnh = (+alt[1]/100).toFixed(2)+' inHg'; res.qnhHpa = Math.round(+alt[1]*0.3386); }
                 }
                 let ceil = 99999;
-                const ceilRegex = /\b(BKN|OVC)(\d{3})\b/g;
-                let cc;
-                while ((cc = ceilRegex.exec(metar)) !== null) ceil = Math.min(ceil, parseInt(cc[2])*100);
+                const bknOvc = metar.match(/\b(BKN|OVC)(\d{3})\b/g);
+                if (bknOvc) bknOvc.forEach(c => ceil = Math.min(ceil, +c.slice(3)*100));
                 let visM = res.visM || 99999;
-                const smCat = metar.match(/\b(\d+)SM\b/);
-                if (smCat) visM = parseInt(smCat[1])*1609;
                 const visSM = visM/1609;
                 if (ceil > 3000 && visSM > 5) { res.flightCat = 'VFR'; res.flightCatClass = 'fc-vfr'; }
                 else if ((ceil>=1000 && ceil<=3000) || (visSM>=3 && visSM<=5)) { res.flightCat = 'MVFR'; res.flightCatClass = 'fc-mvfr'; }
                 else if ((ceil>=500 && ceil<1000) || (visSM>=1 && visSM<3)) { res.flightCat = 'IFR'; res.flightCatClass = 'fc-ifr'; }
-                else if (ceil<500 || visSM<1) { res.flightCat = 'LIFR'; res.flightCatClass = 'fc-lifr'; }
-                else { res.flightCat = 'VFR'; res.flightCatClass = 'fc-vfr'; }
+                else { res.flightCat = 'LIFR'; res.flightCatClass = 'fc-lifr'; }
                 return res;
             }
 
@@ -1004,41 +765,11 @@
                 const d = decodeMetar(raw);
                 currentDecoded = d;
                 dsCat.innerHTML = `<span class="flight-cat-badge ${d.flightCatClass}">${d.flightCat}</span>`;
-                dsTemp.textContent = d.temp + (d.dew !== '—' ? ' / ' + d.dew : '');
+                dsTemp.textContent = d.temp + (d.dew !== '—' ? ' / '+d.dew : '');
                 dsWind.textContent = d.wind;
                 dsVis.textContent = d.vis;
                 dsClouds.textContent = d.clouds;
                 dsQnh.textContent = d.qnh;
-            }
-
-            function setIdleState() {
-                dsCat.textContent = '—'; dsTemp.textContent = '—'; dsWind.textContent = '—'; dsVis.textContent = '—'; dsClouds.textContent = '—'; dsQnh.textContent = '—';
-                airportInfoGrid.innerHTML = `<div class="airport-name-block"><div class="airport-name">Search for an airport</div><span class="airport-icao-badge">----</span></div><div class="airport-stat"><span class="stat-label">Elevation</span><span class="stat-value">—</span></div><div class="airport-stat"><span class="stat-label">Runways</span><span class="stat-value">—</span></div><div class="airport-stat"><span class="stat-label">Coordinates</span><span class="airport-coords">—</span></div>`;
-                runwayTableWrap.innerHTML = `<table class="runway-table"><thead><tr><th>Runway</th><th>Threshold Coordinates</th><th>THR Elev (ft)</th><th>TORA (m)</th><th>TODA (m)</th><th>ASDA (m)</th><th>LDA (m)</th><th>SWY (m)</th><th>CWY (m)</th><th>Slope</th><th>Surface</th></tr></thead><tbody><tr><td colspan="11" class="na-cell">Search for an airport to see runway details.</td></tr></tbody></table>`;
-                metarBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
-                tafBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
-                quickBody.innerHTML = '<span class="placeholder">Awaiting data...</span>';
-                pilotBody.innerHTML = '<span class="placeholder">Complete briefing will appear after a valid METAR/TAF is loaded.</span>';
-                nearbyBody.innerHTML = '<span class="placeholder">Search for an airport to see nearby conditions.</span>';
-                metarAgeEl.textContent = ''; tafAgeEl.textContent = ''; airportAgeEl.textContent = ''; quickAgeEl.textContent = ''; pilotAgeEl.textContent = ''; nearbyAgeEl.textContent = '';
-                currentAirportObj = null;
-                currentWind = { dirDeg: null, speedKt: 0 };
-            }
-
-            function setLoadingState() {
-                dsCat.innerHTML = '<span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span>';
-                dsTemp.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
-                dsWind.innerHTML = '<span class="shimmer" style="display:inline-block;width:70px;height:14px;"></span>';
-                dsVis.innerHTML = '<span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span>';
-                dsClouds.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
-                dsQnh.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
-                airportInfoGrid.innerHTML = '<div class="shimmer" style="flex:1; height:40px;"></div>';
-                runwayTableWrap.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                metarBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                tafBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                quickBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                pilotBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                nearbyBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
             }
 
             function escapeHTML(str) {
@@ -1048,259 +779,213 @@
             }
 
             function renderColouredMETAR(raw) {
-                let safe = escapeHTML(raw);
-                safe = safe.replace(/\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?(KT|KPH)\b/gi, '<span class="colour-wind">$&</span>');
-                safe = safe.replace(/\b(\d{4})\b/g, '<span class="colour-vis">$1</span>');
-                safe = safe.replace(/\b(\d+SM)\b/gi, '<span class="colour-vis">$1</span>');
-                safe = safe.replace(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/gi, '<span class="colour-cloud">$&</span>');
-                safe = safe.replace(/\b(M?\d{2})\/(M?\d{2})\b/g, '<span class="colour-temp">$&</span>');
-                safe = safe.replace(/\bQ(\d{4})\b/g, '<span class="colour-qnh">$&</span>');
-                safe = safe.replace(/\b([-+]?[A-Z]{2}(?:\s?[A-Z]{2})*)\b/g, (m) => {
+                let s = escapeHTML(raw);
+                s = s.replace(/\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?(KT|KPH)\b/gi, '<span class="colour-wind">$&</span>');
+                s = s.replace(/\b(\d{4})\b/g, '<span class="colour-vis">$1</span>');
+                s = s.replace(/\b(\d+SM)\b/gi, '<span class="colour-vis">$1</span>');
+                s = s.replace(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/gi, '<span class="colour-cloud">$&</span>');
+                s = s.replace(/\b(M?\d{2})\/(M?\d{2})\b/g, '<span class="colour-temp">$&</span>');
+                s = s.replace(/\bQ(\d{4})\b/g, '<span class="colour-qnh">$&</span>');
+                s = s.replace(/\b([-+]?[A-Z]{2}(?:\s?[A-Z]{2})*)\b/g, m => {
                     if (/^(FEW|SCT|BKN|OVC|CLR|SKC|CAVOK|NSC|NCD|VRB|KT|KPH|M?\d{2}\/|Q\d{4}|A\d{4})$/.test(m)) return m;
                     return `<span class="colour-weather">${m}</span>`;
                 });
-                return safe;
+                return s;
             }
 
             function renderColouredTAF(raw) {
-                let safe = escapeHTML(raw);
-                safe = safe.replace(/\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?(KT|KPH)\b/gi, '<span class="colour-wind">$&</span>');
-                safe = safe.replace(/\b(\d{4})\b/g, '<span class="colour-vis">$1</span>');
-                safe = safe.replace(/\b(\d+SM)\b/gi, '<span class="colour-vis">$1</span>');
-                safe = safe.replace(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/gi, '<span class="colour-cloud">$&</span>');
-                safe = safe.replace(/\b(M?\d{2})\/(M?\d{2})\b/g, '<span class="colour-temp">$&</span>');
-                safe = safe.replace(/\bQ(\d{4})\b/g, '<span class="colour-qnh">$&</span>');
-                safe = safe.replace(/\b(PROB\d{2}\s+TEMPO|PROB\d{2}(?!\s+TEMPO)|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})\b/g, '<span class="colour-change">$&</span>');
-                safe = safe.replace(/\b([-+]?[A-Z]{2}(?:\s?[A-Z]{2})*)\b/g, (m) => {
+                let s = escapeHTML(raw);
+                s = s.replace(/\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?(KT|KPH)\b/gi, '<span class="colour-wind">$&</span>');
+                s = s.replace(/\b(\d{4})\b/g, '<span class="colour-vis">$1</span>');
+                s = s.replace(/\b(\d+SM)\b/gi, '<span class="colour-vis">$1</span>');
+                s = s.replace(/\b(FEW|SCT|BKN|OVC)(\d{3})\b/gi, '<span class="colour-cloud">$&</span>');
+                s = s.replace(/\b(M?\d{2})\/(M?\d{2})\b/g, '<span class="colour-temp">$&</span>');
+                s = s.replace(/\bQ(\d{4})\b/g, '<span class="colour-qnh">$&</span>');
+                s = s.replace(/\b(PROB\d{2}\s+TEMPO|PROB\d{2}(?!\s+TEMPO)|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})\b/g, '<span class="colour-change">$&</span>');
+                s = s.replace(/\b([-+]?[A-Z]{2}(?:\s?[A-Z]{2})*)\b/g, m => {
                     if (/^(FEW|SCT|BKN|OVC|CLR|SKC|CAVOK|NSC|NCD|VRB|KT|KPH|M?\d{2}\/|Q\d{4}|A\d{4})$/.test(m)) return m;
                     return `<span class="colour-weather">${m}</span>`;
                 });
-                return safe;
+                return s;
             }
 
             function formatTAFRaw(raw) {
                 if (!raw) return raw;
-                const groups = raw.match(/\b(?:PROB\d{2}\s+TEMPO|PROB\d{2}(?!\s+TEMPO)|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})\b/g);
-                if (!groups || groups.length === 0) return raw;
+                const groups = raw.match(/\b(PROB\d{2}\s+TEMPO|PROB\d{2}(?!\s+TEMPO)|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})\b/g);
+                if (!groups) return raw;
                 let result = raw;
-                for (const g of groups) {
+                groups.forEach(g => {
                     const escaped = g.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                     result = result.replace(new RegExp(`\\s(?=${escaped})`, 'g'), '\n');
-                }
+                });
                 return result;
             }
 
             function updateMetarDisplay() {
                 if (!metarBody || metarRawLines.length === 0) return;
                 const colour = metarColourToggle.checked;
-                let html = '';
-                metarRawLines.forEach((raw, idx) => {
+                metarBody.innerHTML = metarRawLines.map((raw, i) => {
                     const formatted = colour ? renderColouredMETAR(raw) : escapeHTML(raw);
-                    const entryClass = idx === 0 ? 'latest-entry' : '';
-                    html += `<pre class="${entryClass}">${formatted}</pre>`;
-                });
-                metarBody.innerHTML = html;
+                    return `<pre class="${i===0 ? 'latest-entry' : ''}">${formatted}</pre>`;
+                }).join('');
             }
 
             function updateTAFDisplay() {
                 if (!tafBody || !tafRaw) return;
                 const colour = tafColourToggle.checked;
-                const useFormat = tafFormatToggle.checked;
-                const textToShow = useFormat ? formatTAFRaw(tafRaw) : tafRaw;
-                const html = colour ? renderColouredTAF(textToShow) : escapeHTML(textToShow);
-                tafBody.innerHTML = `<pre>${html}</pre>`;
+                const formatted = tafFormatToggle.checked ? formatTAFRaw(tafRaw) : tafRaw;
+                tafBody.innerHTML = `<pre>${colour ? renderColouredTAF(formatted) : escapeHTML(formatted)}</pre>`;
             }
 
-            // ── Sunrise / Sunset Calculation (NOAA) ──
-            function calcSunriseSet(lat, lon, dateUTC) {
-                const zenith = 90.8333; // official
-                const day = dateUTC.getUTCDate();
-                const month = dateUTC.getUTCMonth() + 1;
-                const year = dateUTC.getUTCFullYear();
-                const N1 = Math.floor(275 * month / 9);
-                const N2 = Math.floor((month + 9) / 12);
-                const N3 = (1 + Math.floor((year - 4 * Math.floor(year / 4) + 2) / 3));
-                const N = N1 - (N2 * N3) + day - 30;
-                const lngHour = lon / 15;
-                let tRise = N + ((6 - lngHour) / 24);
-                let tSet = N + ((18 - lngHour) / 24);
-                const calcHA = (t, latR) => {
-                    const M = (0.9856 * t) - 3.289;
-                    const L = M + (1.916 * Math.sin(M * Math.PI/180)) + (0.020 * Math.sin(2 * M * Math.PI/180)) + 282.634;
+            // Sunrise/sunset
+            function calcSunriseSet(lat, lon, date) {
+                const zenith = 90.8333;
+                const day = date.getUTCDate(), month = date.getUTCMonth()+1, year = date.getUTCFullYear();
+                const N1 = Math.floor(275*month/9), N2 = Math.floor((month+9)/12);
+                const N3 = 1 + Math.floor((year - 4*Math.floor(year/4) + 2)/3);
+                const N = N1 - N2*N3 + day - 30;
+                const lngHour = lon/15;
+                let tRise = N + (6 - lngHour)/24, tSet = N + (18 - lngHour)/24;
+                const calc = (t) => {
+                    const M = 0.9856*t - 3.289, L = M + 1.916*Math.sin(M*Math.PI/180) + 0.02*Math.sin(2*M*Math.PI/180) + 282.634;
                     let Lnorm = L % 360;
-                    let RA = Math.atan(0.91764 * Math.tan(Lnorm * Math.PI/180)) * 180/Math.PI;
-                    const Lquad = (Math.floor(Lnorm/90)) * 90;
-                    const RAquad = (Math.floor(RA/90)) * 90;
-                    RA = RA + (Lquad - RAquad);
-                    RA = RA / 15;
-                    const sinDec = 0.39782 * Math.sin(Lnorm * Math.PI/180);
+                    let RA = Math.atan(0.91764*Math.tan(Lnorm*Math.PI/180))*180/Math.PI;
+                    RA += (Math.floor(Lnorm/90)*90 - Math.floor(RA/90)*90);
+                    RA /= 15;
+                    const sinDec = 0.39782*Math.sin(Lnorm*Math.PI/180);
                     const cosDec = Math.cos(Math.asin(sinDec));
-                    const cosH = (Math.cos(zenith * Math.PI/180) - (sinDec * Math.sin(latR))) / (cosDec * Math.cos(latR));
-                    if (cosH > 1) return { status: 'none' };
-                    if (cosH < -1) return { status: 'full' };
-                    const H = Math.acos(cosH) * 180/Math.PI / 15;
-                    const rise = t + (H - RA) / 24;
-                    const set = t + (24 - H - RA) / 24;
-                    return { rise, set };
+                    const cosH = (Math.cos(zenith*Math.PI/180) - sinDec*Math.sin(lat*Math.PI/180)) / (cosDec * Math.cos(lat*Math.PI/180));
+                    if (cosH > 1) return 'none';
+                    if (cosH < -1) return 'full';
+                    const H = Math.acos(cosH)*180/Math.PI/15;
+                    return { rise: t + (H-RA)/24, set: t + (24-H-RA)/24 };
                 };
-                const latR = lat * Math.PI/180;
-                const riseData = calcHA(tRise, latR);
-                const setData = calcHA(tSet, latR);
-                const toTime = (fracDay) => {
-                    const totalSec = Math.round(fracDay * 86400);
-                    const h = Math.floor(totalSec / 3600) % 24;
-                    const m = Math.floor((totalSec % 3600) / 60);
+                const rise = calc(tRise), set = calc(tSet);
+                const toTime = (f) => {
+                    const sec = Math.round(f * 86400);
+                    const h = Math.floor(sec/3600)%24, m = Math.floor((sec%3600)/60);
                     return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
                 };
-                if (riseData.status === 'full') return { sunrise: 'No sunrise', sunset: 'No sunset' };
-                if (riseData.rise === undefined || setData.set === undefined) return { sunrise: '—', sunset: '—' };
-                return { sunrise: toTime(riseData.rise), sunset: toTime(setData.set) };
+                if (rise==='full' || set==='full') return { sunrise:'No sunrise', sunset:'No sunset' };
+                if (typeof rise !== 'object') return { sunrise:'—', sunset:'—' };
+                return { sunrise: toTime(rise.rise), sunset: toTime(set.set) };
             }
 
-            function getLocalOffsetHours(lon) { return Math.round(lon / 15); }
-
-            // ── Density Altitude ──────────────────────
             function computeDensityAlt(elevFt, qnhHpa, tempC) {
                 if (elevFt == null || qnhHpa == null || tempC == null) return '—';
-                const pressAlt = elevFt + (1013 - qnhHpa) * 30;
-                const isaTemp = 15 - (pressAlt / 1000) * 2;
-                const da = pressAlt + 120 * (tempC - isaTemp);
-                return Math.round(da) + ' ft';
+                const pa = elevFt + (1013 - qnhHpa) * 30;
+                return Math.round(pa + 120 * (tempC - (15 - pa/1000*2))) + ' ft';
             }
 
-            // ── Crosswind computation ─────────────────
-            function computeCrosswind(rwyHeading, windDirDeg, windSpeedKt) {
-                if (windDirDeg == null || windSpeedKt === 0) return 0;
-                const angleDiff = Math.abs(rwyHeading - windDirDeg) % 360;
-                const angle = angleDiff > 180 ? 360 - angleDiff : angleDiff;
-                return Math.round(windSpeedKt * Math.sin(angle * Math.PI / 180));
+            // Crosswind
+            function crosswind(rwyHdg, windDir, windSpd) {
+                if (!windDir || !windSpd) return 0;
+                const diff = Math.abs(rwyHdg - windDir) % 360;
+                const angle = diff > 180 ? 360 - diff : diff;
+                return Math.round(windSpd * Math.sin(angle * Math.PI/180));
             }
 
-            // ── Pilot Briefing Builder ───────────────
             function buildPilotBriefing(decoded, rawMetar, rawTAF, runways) {
-                const points = [];
-                if (!decoded || !rawMetar) return ['No METAR data available.'];
+                const risks = [];
+                if (decoded.flightCat === 'LIFR' || decoded.flightCat === 'IFR') risks.push('⚠️ Low visibility (IFR/LIFR)');
+                else if (decoded.visM && decoded.visM < 5000) risks.push(`⚠️ Visibility < 5km (${decoded.vis})`);
 
-                // Visibility risk
-                if (decoded.flightCat === 'LIFR' || decoded.flightCat === 'IFR') {
-                    points.push('⚠️ Low visibility conditions (IFR/LIFR)');
-                } else if (decoded.visM && decoded.visM < 5000) {
-                    points.push(`⚠️ Visibility below 5 km (${decoded.vis})`);
-                }
+                if (rawMetar.match(/\bG\d{2,3}KT\b/)) risks.push('🌬️ Gusty winds reported');
 
-                // Crosswind check
                 if (runways && currentWind.dirDeg != null && currentWind.speedKt > 0) {
-                    let maxCross = 0;
-                    let riskyRwy = '';
+                    let max = 0, rwy = '';
                     runways.forEach(rw => {
                         const des = rw.designation || rw.id || '';
-                        const match = des.match(/(\d{2})/);
-                        if (match) {
-                            const hdg = parseInt(match[1]) * 10;
-                            const cross = computeCrosswind(hdg, currentWind.dirDeg, currentWind.speedKt);
-                            if (cross > maxCross) { maxCross = cross; riskyRwy = des; }
+                        const m = des.match(/(\d{2})/);
+                        if (m) {
+                            const c = crosswind(+m[1]*10, currentWind.dirDeg, currentWind.speedKt);
+                            if (c > max) { max = c; rwy = des; }
                         }
                     });
-                    if (maxCross > 15) {
-                        points.push(`⚠️ Crosswind risk on RWY ${riskyRwy} (${maxCross} kt cross)`);
-                    }
+                    if (max > 15) risks.push(`⚠️ Crosswind risk RWY ${rwy} (${max}kt cross)`);
                 }
 
-                // Gusty conditions
-                if (rawMetar.match(/\bG(\d{2,3})KT\b/)) {
-                    points.push('🌬️ Gusty winds reported');
-                }
-
-                // TAF future analysis (simplified)
                 if (rawTAF) {
-                    const lowVisPeriod = rawTAF.match(/TEMPO\s+(\d{4}\/\d{4})\s+(\d{4})\b/);
-                    if (lowVisPeriod && parseInt(lowVisPeriod[2]) < 5000) {
-                        points.push(`🔮 Low visibility expected during ${lowVisPeriod[1]}`);
-                    }
+                    const lowVis = rawTAF.match(/TEMPO\s+(\d{4}\/\d{4})\s+(\d{4})\b/);
+                    if (lowVis && +lowVis[2] < 5000) risks.push(`🔮 Low vis expected ${lowVis[1]}`);
                 }
-
-                if (points.length === 0) points.push('✅ No significant hazards detected.');
-                return points;
+                return risks.length ? risks : ['✅ No significant hazards detected.'];
             }
 
-            // ── Nearby METARs ──────────────────────────
-            async function fetchNearbyMETARs(icao, lat, lon) {
-                if (!lat || !lon || typeof AIRPORT_DATABASE === 'undefined') return [];
-                const candidates = Object.entries(AIRPORT_DATABASE)
-                    .filter(([id, d]) => id !== icao && d.lat != null && d.lon != null)
-                    .map(([id, d]) => {
-                        const dlat = d.lat - lat;
-                        const dlon = d.lon - lon;
-                        const dist = Math.sqrt(dlat*dlat + dlon*dlon) * 60; // approx nm
-                        return { id, dist };
-                    })
-                    .sort((a,b) => a.dist - b.dist)
-                    .slice(0, 6);
-                if (candidates.length === 0) return [];
-                const ids = candidates.map(c => c.id).join(',');
-                try {
-                    const resp = await safeFetch(`https://aviationweather.gov/api/data/metar?ids=${ids}&format=json&taf=false`);
-                    const data = await resp.json();
-                    const metars = {};
-                    data.forEach(d => { if (d.rawOb) metars[d.icaoId] = d.rawOb; });
-                    return candidates.map(c => ({ ...c, metar: metars[c.id] || null }));
-                } catch (e) {
-                    return [];
-                }
+            // Combined Airport + Quick Briefing render
+            function renderAirportQuick(icao, obj) {
+                if (!obj) return '<div class="placeholder">Search for an airport.</div>';
+                const name = obj.name || 'Unknown';
+                const elev = obj.elevation_ft != null ? `${obj.elevation_ft} ft` : '—';
+                const rwCount = obj.runways ? obj.runways.length : 0;
+                const coords = (obj.lat != null && obj.lon != null) ? `${toDMS(obj.lat,true)} ${toDMS(obj.lon,false)}` : '—';
+                const da = computeDensityAlt(obj.elevation_ft, currentDecoded.qnhHpa, currentDecoded.tempC);
+                const sun = (obj.lat && obj.lon) ? calcSunriseSet(obj.lat, obj.lon, new Date()) : null;
+                const mag = obj.mag_var || '—';
+                const freqs = obj.frequencies || [];
+                let freqStr = freqs.length ? freqs.map(f=>`${f.type}: ${f.frequency_mhz} MHz`).join(', ') : 'None';
+
+                return `
+                <div class="airport-name-block">
+                    <div class="airport-name">${escapeHTML(name)}</div>
+                    <span class="airport-icao-badge">${icao}</span>
+                </div>
+                <div class="stat-group">
+                    <div class="stat"><span class="stat-label">Elevation</span><span class="stat-value">${elev}</span></div>
+                    <div class="stat"><span class="stat-label">Runways</span><span class="stat-value">${rwCount}</span></div>
+                    <div class="stat"><span class="stat-label">Coordinates</span><span class="stat-coords">${coords}</span></div>
+                    <div class="stat"><span class="stat-label">Density Alt</span><span class="stat-value">${da}</span></div>
+                    <div class="stat"><span class="stat-label">Sunrise (UTC)</span><span class="stat-value">${sun ? sun.sunrise : '—'}</span></div>
+                    <div class="stat"><span class="stat-label">Sunset (UTC)</span><span class="stat-value">${sun ? sun.sunset : '—'}</span></div>
+                    <div class="stat"><span class="stat-label">Mag Var</span><span class="stat-value">${mag}</span></div>
+                    <div class="stat"><span class="stat-label">Frequencies</span><span class="stat-value" style="font-size:10px;">${freqStr}</span></div>
+                </div>`;
             }
 
-            function renderNearbyHTML(nearbyData) {
-                if (!nearbyData || nearbyData.length === 0) return '<span class="placeholder">No nearby stations available.</span>';
-                let html = '<div class="nearby-grid">';
-                nearbyData.forEach(stn => {
-                    const metar = stn.metar;
-                    const decoded = metar ? decodeMetar(metar) : null;
-                    const catHtml = decoded ? `<span class="flight-cat-badge ${decoded.flightCatClass}">${decoded.flightCat}</span>` : '';
-                    const rawShort = metar ? escapeHTML(metar).substring(0, 80) : '—';
-                    html += `<div class="nearby-card">
-                        <span class="nearby-icao">${stn.id} (${stn.dist.toFixed(0)} nm)</span>${catHtml}
-                        <div class="nearby-raw">${rawShort}</div>
-                    </div>`;
-                });
-                html += '</div>';
-                return html;
+            function buildRunwayTableHTML(obj) {
+                if (!obj?.runways?.length) return '<tr><td colspan="11" class="na-cell">No data</td></tr>';
+                return obj.runways.map(rw => {
+                    const des = rw.designation || rw.id || '??';
+                    return `<tr>
+                        <td class="rw-designation">${des}</td>
+                        <td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td>
+                    </tr>`;
+                }).join('');
             }
 
-            // ── Main search flow ────────────────────────
+            // Main search
             async function searchWeather(icaoOverride) {
                 const icao = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-                if (!icao || icao.length < 4) {
-                    setIdleState();
-                    metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null; currentAirportObj = null;
-                    return;
-                }
-                if (!icao.startsWith('FA')) {
-                    setLoadingState();
-                    metarBody.innerHTML = '<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>';
-                    tafBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
-                    quickBody.innerHTML = pilotBody.innerHTML = nearbyBody.innerHTML = '';
+                if (!icao || icao.length < 4 || !icao.startsWith('FA')) {
+                    // reset state
+                    metarRawLines = []; tafRaw = ''; currentAirportObj = null;
+                    metarBody.innerHTML = '<span class="placeholder">Only SA airports (FAxx) supported.</span>';
+                    tafBody.innerHTML = '<span class="placeholder">Only SA airports (FAxx) supported.</span>';
+                    airportQuickContent.innerHTML = renderAirportQuick(icao, null);
+                    runwayTableWrap.innerHTML = `<table class="runway-table"><tbody><tr><td colspan="11" class="na-cell">—</td></tr></tbody></table>`;
+                    pilotBody.innerHTML = '<span class="placeholder">—</span>';
+                    currentDecoded = {};
+                    updateDecoded(null);
                     return;
                 }
                 icaoInput.value = icao;
                 setLoadingState();
-                metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null; currentAirportObj = null;
-                searchBtn.style.opacity = '0.5'; searchBtn.style.pointerEvents = 'none';
+                searchBtn.disabled = true;
 
                 try {
-                    const [metarRes, tafRes, airportRes] = await Promise.allSettled([
-                        safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
-                        safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
-                        safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`)
+                    const [metarResp, tafResp, airportResp] = await Promise.allSettled([
+                        fetchWithTimeout(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
+                        fetchWithTimeout(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
+                        fetchWithTimeout(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`)
                     ]);
 
                     // METAR
                     let metarOk = false;
-                    if (metarRes.status === 'fulfilled') {
+                    if (metarResp.status === 'fulfilled') {
                         try {
-                            const data = await metarRes.value.json();
-                            if (data && data.length > 0) {
-                                metarRawLines = data.filter(d=>d.rawOb).map(d=>d.rawOb.trim());
-                                metarRawLines = [...new Set(metarRawLines)];
+                            const data = await metarResp.value.json();
+                            if (data.length > 0) {
+                                metarRawLines = [...new Set(data.filter(d=>d.rawOb).map(d=>d.rawOb.trim()))];
                                 if (metarRawLines.length) {
                                     metarIssuedTime = parseMetarIssued(metarRawLines[0]);
                                     currentWind = parseWindFromMETAR(metarRawLines[0]);
@@ -1310,14 +995,17 @@
                             }
                         } catch(e) {}
                     }
-                    if (!metarOk) metarBody.innerHTML = `<span class="placeholder">⚠️ No METAR found for ${icao}.</span>`;
+                    if (!metarOk) {
+                        metarBody.innerHTML = `<span class="placeholder">⚠️ No METAR for ${icao}.</span>`;
+                        updateDecoded(null);
+                    }
 
                     // TAF
                     let tafOk = false;
-                    if (tafRes.status === 'fulfilled') {
+                    if (tafResp.status === 'fulfilled') {
                         try {
-                            const data = await tafRes.value.json();
-                            if (data && data[0]?.rawTAF) {
+                            const data = await tafResp.value.json();
+                            if (data?.[0]?.rawTAF) {
                                 tafRaw = data[0].rawTAF.trim();
                                 tafIssuedTime = parseTAFIssued(tafRaw);
                                 tafOk = true;
@@ -1325,29 +1013,22 @@
                             }
                         } catch(e) {}
                     }
-                    if (!tafOk) tafBody.innerHTML = `<span class="placeholder">⚠️ No TAF found for ${icao}.</span>`;
+                    if (!tafOk) tafBody.innerHTML = `<span class="placeholder">⚠️ No TAF for ${icao}.</span>`;
 
-                    // Airport & Quick Briefing
+                    // Airport data
                     let mergedObj = null;
-                    let freqData = [];
-                    let magVar = null;
-                    if (airportRes.status === 'fulfilled') {
+                    if (airportResp.status === 'fulfilled') {
                         try {
-                            const aptData = await airportRes.value.json();
-                            if (aptData && aptData.length > 0) {
-                                const apt = aptData[0];
+                            const apt = await airportResp.value.json();
+                            if (apt?.length) {
+                                const a = apt[0];
                                 mergedObj = {
-                                    name: apt.name || apt.facilityName || null,
-                                    elevation_ft: apt.elev_ft,
-                                    lat: apt.lat, lon: apt.lon,
-                                    runways: (apt.runways || []).map(rw => ({
-                                        id: rw.id || rw.name, surface: rw.surface,
-                                        threshold_lat: rw.threshold_lat, threshold_lon: rw.threshold_lon,
-                                        threshold_elev_ft: rw.threshold_elev_ft, slope: rw.slope, slope_sign: rw.slope_sign,
-                                        length_ft: rw.length_ft, width_ft: rw.width_ft
-                                    })),
-                                    frequencies: apt.frequencies || [],
-                                    mag_var: apt.mag_var || null
+                                    name: a.name || a.facilityName,
+                                    elevation_ft: a.elev_ft,
+                                    lat: a.lat, lon: a.lon,
+                                    runways: a.runways || [],
+                                    frequencies: a.frequencies || [],
+                                    mag_var: a.mag_var
                                 };
                             }
                         } catch(e) {}
@@ -1363,84 +1044,44 @@
                     airportFetchTime = mergedObj ? new Date() : null;
                     currentAirportObj = mergedObj;
 
-                    airportInfoGrid.innerHTML = buildAirportInfoHTML(icao, mergedObj);
-                    runwayTableWrap.innerHTML = `<table class="runway-table"><thead>...</thead><tbody>${buildRunwayTableHTML(mergedObj)}</tbody></table>`;
+                    airportQuickContent.innerHTML = renderAirportQuick(icao, mergedObj);
+                    runwayTableWrap.innerHTML = `<table class="runway-table"><thead><tr><th>Runway</th><th>Threshold Coordinates</th><th>THR Elev (ft)</th><th>TORA (m)</th><th>TODA (m)</th><th>ASDA (m)</th><th>LDA (m)</th><th>SWY (m)</th><th>CWY (m)</th><th>Slope</th><th>Surface</th></tr></thead><tbody>${buildRunwayTableHTML(mergedObj)}</tbody></table>`;
 
-                    // Quick Briefing
-                    let quickHtml = '';
-                    if (mergedObj) {
-                        const elev = mergedObj.elevation_ft;
-                        const qnh = currentDecoded.qnhHpa;
-                        const temp = currentDecoded.tempC;
-                        const da = computeDensityAlt(elev, qnh, temp);
-                        const lat = mergedObj.lat, lon = mergedObj.lon;
-                        const sun = (lat != null && lon != null) ? calcSunriseSet(lat, lon, new Date()) : null;
-                        const offset = lon != null ? getLocalOffsetHours(lon) : 0;
-                        const mag = mergedObj.mag_var || '—';
-                        const freqs = mergedObj.frequencies || [];
-                        quickHtml = `<div style="display:flex; flex-wrap:wrap; gap:8px;">
-                            <div><strong>Density Alt:</strong> ${da}</div>
-                            <div><strong>Sunrise:</strong> ${sun?.sunrise || '—'} UTC / ${sun?.sunrise ? `${sun.sunrise} LCL` : ''}</div>
-                            <div><strong>Sunset:</strong> ${sun?.sunset || '—'} UTC / ${sun?.sunset ? `${sun.sunset} LCL` : ''}</div>
-                            <div><strong>Mag Var:</strong> ${mag}</div>
-                            <div><strong>Frequencies:</strong> ${freqs.length ? freqs.map(f=>`${f.type}: ${f.frequency_mhz} MHz`).join(', ') : 'None'}</div>
-                        </div>`;
-                    } else {
-                        quickHtml = '<span class="placeholder">Airport data unavailable.</span>';
-                    }
-                    quickBody.innerHTML = quickHtml;
-
-                    // Pilot Briefing
-                    const runwaysForBrief = mergedObj?.runways || [];
-                    const briefPoints = buildPilotBriefing(currentDecoded, metarRawLines[0] || '', tafRaw, runwaysForBrief);
-                    pilotBody.innerHTML = '<ul class="brief-list">' + briefPoints.map(p => `<li>${p}</li>`).join('') + '</ul>';
-
-                    // Nearby METARs
-                    if (mergedObj?.lat && mergedObj?.lon) {
-                        const nearby = await fetchNearbyMETARs(icao, mergedObj.lat, mergedObj.lon);
-                        nearbyBody.innerHTML = renderNearbyHTML(nearby);
-                    } else {
-                        nearbyBody.innerHTML = '<span class="placeholder">Coordinates unavailable for nearby search.</span>';
-                    }
+                    // Pilot briefing
+                    const risks = buildPilotBriefing(currentDecoded, metarRawLines[0]||'', tafRaw, mergedObj?.runways||[]);
+                    pilotBody.innerHTML = '<ul class="brief-list">' + risks.map(r => `<li>${r}</li>`).join('') + '</ul>';
 
                     startAgeUpdates();
                 } catch (err) {
                     console.error(err);
-                    setIdleState();
+                    metarBody.innerHTML = '<span class="placeholder">Network error.</span>';
+                    tafBody.innerHTML = '<span class="placeholder">Network error.</span>';
                 } finally {
-                    searchBtn.style.opacity = '1'; searchBtn.style.pointerEvents = 'auto';
+                    searchBtn.disabled = false;
                 }
             }
 
-            function buildAirportInfoHTML(icao, obj) {
-                if (!obj) return `<div class="airport-name-block"><div class="airport-name">—</div><span class="airport-icao-badge">----</span></div>`;
-                const name = obj.name || 'Unknown';
-                const elev = obj.elevation_ft != null ? `${obj.elevation_ft} ft` : '—';
-                const rwCount = obj.runways ? obj.runways.length : 0;
-                const coords = (obj.lat != null && obj.lon != null) ? `${toDMS(obj.lat,true)} ${toDMS(obj.lon,false)}` : '—';
-                return `<div class="airport-name-block"><div class="airport-name">${escapeHTML(name)}</div><span class="airport-icao-badge">${icao}</span></div>
-                        <div class="airport-stat"><span class="stat-label">Elevation</span><span class="stat-value">${elev}</span></div>
-                        <div class="airport-stat"><span class="stat-label">Runways</span><span class="stat-value">${rwCount}</span></div>
-                        <div class="airport-stat"><span class="stat-label">Coordinates</span><span class="airport-coords">${coords}</span></div>`;
+            function setLoadingState() {
+                airportQuickContent.innerHTML = '<div class="shimmer" style="height:40px;"></div>';
+                runwayTableWrap.innerHTML = '<div class="shimmer" style="height:60px;"></div>';
+                metarBody.innerHTML = '<div class="shimmer" style="height:60px;"></div>';
+                tafBody.innerHTML = '<div class="shimmer" style="height:60px;"></div>';
+                pilotBody.innerHTML = '<div class="shimmer" style="height:60px;"></div>';
+                dsCat.innerHTML = '<span class="shimmer" style="width:50px;height:14px;display:inline-block;"></span>';
+                dsTemp.textContent = ''; dsWind.textContent = ''; dsVis.textContent = ''; dsClouds.textContent = ''; dsQnh.textContent = '';
             }
 
-            function buildRunwayTableHTML(airportObj) {
-                if (!airportObj?.runways?.length) return '<tr><td colspan="11" class="na-cell">—</td></tr>';
-                return airportObj.runways.map(rw => {
-                    const des = rw.designation || rw.id || '??';
-                    return `<tr><td class="rw-designation">${des}</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`;
-                }).join('');
-            }
-
-            // Event listeners
+            // Toggle events
             metarColourToggle.addEventListener('change', updateMetarDisplay);
             tafColourToggle.addEventListener('change', updateTAFDisplay);
             tafFormatToggle.addEventListener('change', updateTAFDisplay);
             searchBtn.addEventListener('click', () => searchWeather());
-            icaoInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); searchWeather(); } });
+            icaoInput.addEventListener('keydown', e => { if (e.key==='Enter') { e.preventDefault(); searchWeather(); } });
             icaoInput.addEventListener('input', () => { icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4); });
 
-            setIdleState();
+            // Start idle
+            metarBody.innerHTML = '<span class="placeholder">Enter SA ICAO (FAxx) and search.</span>';
+            tafBody.innerHTML = '<span class="placeholder">Enter SA ICAO (FAxx) and search.</span>';
             icaoInput.focus();
         })();
     </script>
