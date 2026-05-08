@@ -194,7 +194,7 @@
         .card-taf {
             grid-column: 2;
         }
-        .card-density {
+        .card-sigmet {
             grid-column: 1 / -1;
         }
 
@@ -206,7 +206,7 @@
             .card-taf,
             .card-runways,
             .card-airport,
-            .card-density {
+            .card-sigmet {
                 grid-column: 1 / -1;
             }
         }
@@ -561,42 +561,10 @@
         .colour-change { color: #f59e0b; font-weight: 600; }
         .colour-default { color: #c8ced9; }
 
-        /* Density altitude styles */
-        .density-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 12px;
-            padding: 8px 10px;
-        }
-        .density-item {
-            background: var(--surface-raised);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 10px 12px;
-            text-align: center;
-        }
-        .density-label {
-            font-size: 9px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-        .density-value {
-            font-family: var(--font-mono);
-            font-size: 20px;
-            font-weight: 700;
-            color: #fff;
-        }
-        .density-value.da-high { color: var(--amber); }
-        .density-value.da-very-high { color: var(--red); }
-        .density-note {
-            font-size: 10px;
-            color: var(--text-secondary);
-            margin-top: 6px;
-            line-height: 1.4;
-        }
+        /* SIGMET hazard highlighting */
+        .colour-sev { color: #ef4444; font-weight: 700; }
+        .colour-fir { color: #60a5fa; }
+        .colour-hazard { color: #f97316; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -681,7 +649,7 @@
                     <div class="toggle-wrap">
                         <span class="toggle-label">Colour</span>
                         <label class="toggle-switch">
-                            <input type="checkbox" id="metarColourToggle">
+                            <input type="checkbox" id="metarColourToggle" checked>
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -702,7 +670,7 @@
                         <div class="toggle-wrap">
                             <span class="toggle-label">Colour</span>
                             <label class="toggle-switch">
-                                <input type="checkbox" id="tafColourToggle">
+                                <input type="checkbox" id="tafColourToggle" checked>
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
@@ -720,14 +688,23 @@
                 </div>
             </div>
 
-            <!-- Density Altitude card (replaces Wind Components) -->
-            <div class="card card-density" id="densityCard">
+            <!-- SIGMET card (replaces Density Altitude) -->
+            <div class="card card-sigmet" id="sigmetCard">
                 <div class="card-header">
-                    <span class="card-title"><span class="dot"></span> Density Altitude</span>
-                    <span class="card-age" id="densityAge"></span>
+                    <div class="card-header-left">
+                        <span class="card-title"><span class="dot"></span> SIGMET</span>
+                        <span class="card-age" id="sigmetAge"></span>
+                    </div>
+                    <div class="toggle-wrap">
+                        <span class="toggle-label">Colour</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="sigmetColourToggle" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
-                <div class="card-body" id="densityBody">
-                    <span class="placeholder">Density altitude will be calculated from METAR and airport elevation.</span>
+                <div class="card-body" id="sigmetBody">
+                    <span class="placeholder">SIGMET information will appear here for the selected airport region.</span>
                 </div>
             </div>
         </div>
@@ -742,10 +719,10 @@
             const searchBtn = document.getElementById('searchBtn');
             const metarBody = document.getElementById('metarBody');
             const tafBody = document.getElementById('tafBody');
-            const densityBody = document.getElementById('densityBody');
+            const sigmetBody = document.getElementById('sigmetBody');
             const metarAgeEl = document.getElementById('metarAge');
             const tafAgeEl = document.getElementById('tafAge');
-            const densityAgeEl = document.getElementById('densityAge');
+            const sigmetAgeEl = document.getElementById('sigmetAge');
             const airportAgeEl = document.getElementById('airportAge');
             const decodedStrip = document.getElementById('decodedStrip');
             const dsCat = document.getElementById('dsCat');
@@ -763,6 +740,7 @@
             const metarColourToggle = document.getElementById('metarColourToggle');
             const tafColourToggle = document.getElementById('tafColourToggle');
             const tafFormatToggle = document.getElementById('tafFormatToggle');
+            const sigmetColourToggle = document.getElementById('sigmetColourToggle');
 
             let lastIcao = '';
             let metarRawLines = [];
@@ -772,6 +750,7 @@
             let airportFetchTime = null;
             let ageInterval = null;
             let clockInterval = null;
+            let sigmetRawLines = [];       // each item: { raw: string, issued: Date|null }
 
             // ── Helpers ──────────────────────────────────
             function updateClocks() {
@@ -835,7 +814,12 @@
                     tafAgeEl.textContent = '';
                 }
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
-                densityAgeEl.textContent = metarIssuedTime ? `Based on METAR issued ${formatTimeAgo(metarIssuedTime)}` : '';
+                // SIGMET age
+                if (sigmetRawLines.length > 0 && sigmetRawLines[0].issued) {
+                    sigmetAgeEl.textContent = `Latest issued: ${formatTimeAgo(sigmetRawLines[0].issued)}`;
+                } else {
+                    sigmetAgeEl.textContent = '';
+                }
             }
 
             function startAgeUpdates() {
@@ -871,6 +855,23 @@
                 const day = parseInt(match[2], 10);
                 const hour = parseInt(match[3], 10);
                 const minute = parseInt(match[4], 10);
+                const now = new Date();
+                const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
+                if (issued > now) {
+                    const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
+                    return prevMonth <= now ? prevMonth : now;
+                }
+                return issued;
+            }
+
+            // Parse SIGMET issue time from raw text (example: "WSAP31 FAPR 050600")
+            function parseSigmetIssued(raw) {
+                if (!raw) return null;
+                const match = raw.match(/\b(\d{2})(\d{2})(\d{2})\b/);
+                if (!match) return null;
+                const day = parseInt(match[1], 10);
+                const hour = parseInt(match[2], 10);
+                const minute = parseInt(match[3], 10);
                 const now = new Date();
                 const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
                 if (issued > now) {
@@ -964,11 +965,12 @@
                     </table>`;
                 metarBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
                 tafBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
-                densityBody.innerHTML = '<span class="placeholder">Density altitude will be calculated from METAR and airport elevation.</span>';
-                densityAgeEl.textContent = '';
+                sigmetBody.innerHTML = '<span class="placeholder">SIGMET information will appear here for the selected airport region.</span>';
+                sigmetAgeEl.textContent = '';
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
+                sigmetRawLines = [];
             }
 
             function setLoadingState() {
@@ -982,11 +984,11 @@
                 runwayTableWrap.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
                 metarBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
                 tafBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                densityBody.innerHTML = '<div class="shimmer" style="width:100%; height:80px;"></div>';
+                sigmetBody.innerHTML = '<div class="shimmer" style="width:100%; height:80px;"></div>';
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
-                densityAgeEl.textContent = '';
+                sigmetAgeEl.textContent = '';
             }
 
             function escapeHTML(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
@@ -1022,8 +1024,18 @@
                 return safe;
             }
 
+            function renderColouredSIGMET(raw) {
+                let safe = escapeHTML(raw);
+                // Highlight FIRs, hazards like SEV TURB, ICE, etc.
+                safe = safe.replace(/\b(SEV\s+(?:TURB|ICE|MTW|TS|DS|SS)|HVY\s+(?:TS|SS|DS)|ISOL\s+TS|EMBD\s+TS|TURB|ICE|MTW|CB|TC)\b/gi, '<span class="colour-hazard">$&</span>');
+                safe = safe.replace(/\b([A-Z]{4})\s+FIR\b/g, '<span class="colour-fir">$1 FIR</span>');
+                safe = safe.replace(/\b(SIGMET\s+\d+|VALID\s+\d{6}/\d{6})\b/gi, '<span class="colour-change">$&</span>');
+                return safe;
+            }
+
             function formatTAFRaw(raw) {
                 if (!raw) return raw;
+                // Split before change groups while keeping PROB30 etc. on new line if they start a group
                 return raw.replace(/\s(?=PROB\d{2}\s|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g, '\n');
             }
 
@@ -1048,37 +1060,61 @@
                 tafBody.innerHTML = `<pre>${html}</pre>`;
             }
 
-            // Count physical runway pairs (works with both API {id: "18/36"} and local {designation: "18"} formats)
+            function updateSigmetDisplay() {
+                if (!sigmetBody || sigmetRawLines.length === 0) {
+                    sigmetBody.innerHTML = '<span class="placeholder">No active SIGMETs for this region.</span>';
+                    return;
+                }
+                const colour = sigmetColourToggle.checked;
+                let html = '';
+                sigmetRawLines.forEach((item, idx) => {
+                    const text = item.raw;
+                    const formatted = colour ? renderColouredSIGMET(text) : escapeHTML(text);
+                    html += `<pre>${formatted}</pre>`;
+                    if (idx < sigmetRawLines.length - 1) html += '<hr style="border-color:rgba(255,255,255,0.05); margin: 8px 0;">';
+                });
+                sigmetBody.innerHTML = html;
+            }
+
+            // Count physical runway pairs correctly
             function getPhysicalRunwayCount(runways) {
-                const seen = new Set();
+                const seenPairs = new Set();
                 runways.forEach(rw => {
-                    let parts = [];
                     if (rw.designation) {
-                        // local format, single direction per entry; need to reconstruct pair by assuming opposite is +/-18
-                        let num = parseInt(rw.designation, 10);
-                        if (!isNaN(num)) {
-                            let rec = (num + 18) % 36;
-                            if (rec === 0) rec = 36;
-                            const pair = [num, rec].sort((a,b)=>a-b).join('/');
-                            seen.add(pair);
+                        // Local format (one direction per entry)
+                        const des = rw.designation.trim();
+                        const num = parseInt(des, 10);
+                        if (!isNaN(num) && num >= 1 && num <= 36) {
+                            const recip = (num + 18) % 36;
+                            if (recip === 0) recip = 36;
+                            const pair = [num, recip].sort((a,b)=>a-b).join('/');
+                            seenPairs.add(pair);
+                        } else {
+                            // Non-numeric designation (e.g., H1) – treat as separate runway
+                            seenPairs.add(des);
                         }
                     } else if (rw.id) {
-                        // API format, id like "18/36"
-                        const split = rw.id.split('/');
-                        const nums = split.map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n));
+                        // API format: id might be "03L/21R", "18/36", etc.
+                        const parts = rw.id.split('/');
+                        const nums = parts.map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n >= 1 && n <= 36);
                         if (nums.length === 2) {
                             const pair = nums.sort((a,b)=>a-b).join('/');
-                            seen.add(pair);
+                            seenPairs.add(pair);
                         } else if (nums.length === 1) {
-                            let num = nums[0];
-                            let rec = (num + 18) % 36;
-                            if (rec === 0) rec = 36;
-                            const pair = [num, rec].sort((a,b)=>a-b).join('/');
-                            seen.add(pair);
+                            const num = nums[0];
+                            const recip = (num + 18) % 36;
+                            if (recip === 0) recip = 36;
+                            const pair = [num, recip].sort((a,b)=>a-b).join('/');
+                            seenPairs.add(pair);
+                        } else {
+                            // Fallback: use entire id as key
+                            seenPairs.add(rw.id.trim());
                         }
+                    } else {
+                        seenPairs.add('unknown');
                     }
                 });
-                return seen.size;
+                return seenPairs.size;
             }
 
             function buildAirportInfoHTML(icao, airportObj) {
@@ -1175,87 +1211,36 @@
                 return rowsHtml;
             }
 
-            // ── Density Altitude Calculation ─────────────────
-            function updateDensityAltitude(metarRaw, airportObj) {
-                if (!metarRaw || !airportObj) {
-                    densityBody.innerHTML = '<span class="placeholder">Need METAR and airport elevation to calculate density altitude.</span>';
-                    return;
+            // ── SIGMET fetching & filtering ─────────────────
+            async function fetchAndDisplaySigmet(icao) {
+                try {
+                    const res = await safeFetch(`https://aviationweather.gov/api/data/sigmet`);
+                    const allSigmets = await res.json();
+                    if (!allSigmets || allSigmets.length === 0) {
+                        sigmetRawLines = [];
+                        updateSigmetDisplay();
+                        return;
+                    }
+                    // Filter for South African region (first two letters of ICAO)
+                    const region = icao.substring(0, 2).toUpperCase();
+                    const relevant = allSigmets.filter(s => s.raw && s.raw.toUpperCase().includes(region));
+                    if (relevant.length === 0) {
+                        // If no exact region match, perhaps show all if there are few? We'll show none.
+                        sigmetRawLines = [];
+                    } else {
+                        sigmetRawLines = relevant.map(s => ({
+                            raw: s.raw.trim(),
+                            issued: parseSigmetIssued(s.raw)
+                        }));
+                        // Sort by issued time descending
+                        sigmetRawLines.sort((a,b) => (b.issued?.getTime()||0) - (a.issued?.getTime()||0));
+                    }
+                } catch (e) {
+                    console.warn('SIGMET fetch failed:', e);
+                    sigmetRawLines = [];
                 }
-                // extract temperature in Celsius
-                const tdMatch = metarRaw.match(/\b(M?\d{2})\/(M?\d{2})\b/);
-                let tempC = null;
-                if (tdMatch) {
-                    let t = tdMatch[1];
-                    if (t.startsWith('M')) tempC = -parseInt(t.substring(1));
-                    else tempC = parseInt(t);
-                }
-                // extract QNH
-                let qnhInHg = null;
-                const qMatch = metarRaw.match(/\bQ(\d{3,4})\b/);
-                if (qMatch) {
-                    const qnhHPa = parseInt(qMatch[1]);
-                    qnhInHg = qnhHPa * 0.02953; // hPa to inHg
-                } else {
-                    const aMatch = metarRaw.match(/\bA(\d{4})\b/);
-                    if (aMatch) qnhInHg = parseInt(aMatch[1]) / 100;
-                }
-                // elevation
-                let elevFt = null;
-                if (airportObj.elevation_ft != null) elevFt = airportObj.elevation_ft;
-                else if (airportObj.elevation_m != null) elevFt = Math.round(airportObj.elevation_m * 3.28084);
-
-                if (tempC === null || qnhInHg === null || elevFt === null) {
-                    densityBody.innerHTML = '<span class="placeholder">Missing temperature, QNH or elevation – cannot calculate density altitude.</span>';
-                    return;
-                }
-
-                // Pressure altitude (PA) = elevation + (29.92 - QNH) * 1000
-                const pa = elevFt + (29.92 - qnhInHg) * 1000;
-                // Standard temperature at PA (ISA) = 15 - 2°C per 1000 ft
-                const isaTemp = 15 - 2 * (pa / 1000);
-                // Density altitude = PA + 120 * (actual temp - ISA temp)
-                const da = pa + 120 * (tempC - isaTemp);
-
-                // Relative density (sigma) using ideal gas law approximation
-                const T0 = 288.15; // K
-                const T = tempC + 273.15;
-                const p0 = 1013.25; // hPa
-                const p = qnhInHg * 33.8639; // inHg -> hPa
-                const sigma = (p / p0) * (T0 / T) * 100;
-
-                let daClass = '';
-                let warning = '';
-                if (da > 8000) {
-                    daClass = 'da-very-high';
-                    warning = '⚠️ Extremely high density altitude – severe performance penalty.';
-                } else if (da > 5000) {
-                    daClass = 'da-high';
-                    warning = '⚠️ High density altitude – expect reduced climb and longer takeoff roll.';
-                } else if (da < -1000) {
-                    daClass = 'da-high';
-                    warning = '❄️ Very low density altitude – performance boost, but watch for icing risks.';
-                }
-
-                const paRounded = Math.round(pa);
-                const daRounded = Math.round(da);
-
-                densityBody.innerHTML = `
-                    <div class="density-grid">
-                        <div class="density-item">
-                            <div class="density-label">Pressure Altitude</div>
-                            <div class="density-value">${paRounded} ft</div>
-                        </div>
-                        <div class="density-item">
-                            <div class="density-label">Density Altitude</div>
-                            <div class="density-value ${daClass}">${daRounded} ft</div>
-                        </div>
-                        <div class="density-item">
-                            <div class="density-label">Relative Density</div>
-                            <div class="density-value">${sigma.toFixed(1)}%</div>
-                        </div>
-                    </div>
-                    <div class="density-note">ISA Temp at PA: ${isaTemp.toFixed(1)}°C | OAT: ${tempC}°C | QNH: ${qnhInHg.toFixed(2)} inHg<br>${warning}</div>
-                `;
+                updateSigmetDisplay();
+                updateAges();
             }
 
             // ── Main search flow ─────────────────────────
@@ -1270,7 +1255,7 @@
                     setLoadingState();
                     metarBody.innerHTML = '<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>';
                     tafBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
-                    densityBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
+                    sigmetBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
                     metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
                     icaoInput.value = icao;
                     return;
@@ -1280,13 +1265,15 @@
                 icaoInput.value = icao;
                 setLoadingState();
                 metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
+                sigmetRawLines = [];
                 searchBtn.style.opacity = '0.5'; searchBtn.style.pointerEvents = 'none';
 
                 try {
-                    const [metarRes, tafRes, airportRes] = await Promise.allSettled([
-                        safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=3&taf=false`),
+                    const [metarRes, tafRes, airportRes, sigmetPromise] = await Promise.allSettled([
+                        safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
                         safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
-                        safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`)
+                        safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
+                        fetchAndDisplaySigmet(icao)   // kick off but won't block
                     ]);
 
                     // METAR
@@ -1346,7 +1333,6 @@
                                         threshold_lat: rw.threshold_lat, threshold_lon: rw.threshold_lon,
                                         threshold_elev_ft: rw.threshold_elev_ft,
                                         slope: rw.slope, slope_sign: rw.slope_sign,
-                                        // Additional fields kept for compatibility
                                         length_ft: rw.length_ft, width_ft: rw.width_ft
                                     })),
                                 };
@@ -1375,28 +1361,24 @@
                         <tbody>${buildRunwayTableHTML(mergedObj)}</tbody>
                     </table>`;
 
-                    // Density altitude
-                    if (metarOk && mergedObj) {
-                        updateDensityAltitude(metarRawLines[0], mergedObj);
-                    } else {
-                        densityBody.innerHTML = '<span class="placeholder">Density altitude will be calculated from METAR and airport elevation.</span>';
-                    }
-
+                    // SIGMET already handled by fetchAndDisplaySigmet, but ensure update
                     startAgeUpdates();
                 } catch (err) {
                     console.error(err);
                     setIdleState();
                     metarBody.innerHTML = `<span class="placeholder">⚠️ No METAR was located for ${icao}.</span>`;
                     tafBody.innerHTML = `<span class="placeholder">⚠️ No TAF was located for ${icao}.</span>`;
-                    densityBody.innerHTML = '<span class="placeholder">⚠️ Density altitude unavailable.</span>';
+                    sigmetBody.innerHTML = '<span class="placeholder">⚠️ SIGMET unavailable.</span>';
                 } finally {
                     searchBtn.style.opacity = '1'; searchBtn.style.pointerEvents = 'auto';
                 }
             }
 
+            // Event listeners
             metarColourToggle.addEventListener('change', updateMetarDisplay);
             tafColourToggle.addEventListener('change', updateTAFDisplay);
             tafFormatToggle.addEventListener('change', updateTAFDisplay);
+            sigmetColourToggle.addEventListener('change', updateSigmetDisplay);
 
             searchBtn.addEventListener('click', () => searchWeather());
             icaoInput.addEventListener('keydown', e => {
@@ -1406,6 +1388,7 @@
                 icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
             });
 
+            // Initial idle
             setIdleState();
             icaoInput.focus();
         })();
