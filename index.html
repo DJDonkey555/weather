@@ -313,6 +313,13 @@
             border-radius: 0 3px 3px 0;
         }
 
+        /* ---- Fade-in setup ---- */
+        .card-airport,
+        .card-runways,
+        .decoded-strip {
+            transition: opacity 0.3s ease;
+        }
+
         .airport-info-grid {
             display: flex;
             flex-wrap: wrap;
@@ -594,7 +601,8 @@
     <div class="main-scroll" id="mainScroll">
         <div class="content-grid">
 
-            <div class="card-airport decoded-strip" id="decodedStrip" style="display:none;">
+            <!-- Decoded METAR strip (hidden by default, fades in) -->
+            <div class="card-airport decoded-strip" id="decodedStrip" style="display:none; opacity:0;">
                 <div class="ds-item"><span class="ds-label">Category</span><span class="ds-value" id="dsCat">—</span></div>
                 <div class="ds-item"><span class="ds-label">Temp / Dew</span><span class="ds-value" id="dsTemp">—</span></div>
                 <div class="ds-item"><span class="ds-label">Wind</span><span class="ds-value" id="dsWind">—</span></div>
@@ -603,7 +611,8 @@
                 <div class="ds-item"><span class="ds-label">QNH</span><span class="ds-value" id="dsQnh">—</span></div>
             </div>
 
-            <div class="card card-airport" id="airportCard" style="display:none;">
+            <!-- Airport info card -->
+            <div class="card card-airport" id="airportCard" style="display:none; opacity:0;">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Airport Information</span>
                     <span class="card-age" id="airportAge"></span>
@@ -628,10 +637,11 @@
                 </div>
             </div>
 
-            <div class="card card-runways" id="runwayCard" style="display:none;">
+            <!-- Runway details card -->
+            <div class="card card-runways" id="runwayCard" style="display:none; opacity:0;">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Runway Details</span>
-                    <span class="card-age" style="font-size:9px;color:var(--amber);">* Length fields from local data</span>
+                    <span class="card-age" style="font-size:9px;color:var(--amber);">* Data may not be current – verify with official AIP/AIP SUP</span>
                 </div>
                 <div class="runway-table-wrap">
                     <table class="runway-table">
@@ -766,6 +776,27 @@
             let airportFetchTime = null;
             let ageInterval = null;
             let clockInterval = null;
+
+            // ── Helpers ──────────────────────────────────
+            function fadeInElement(el, displayVal = '') {
+                if (!el) return;
+                el.style.display = displayVal;
+                el.style.opacity = '0';
+                // Force reflow so the transition can trigger
+                void el.offsetWidth;
+                el.style.opacity = '1';
+            }
+
+            function fadeOutElement(el) {
+                if (!el) return;
+                el.style.opacity = '0';
+                // After transition, hide completely
+                setTimeout(() => {
+                    if (el.style.opacity === '0') {
+                        el.style.display = 'none';
+                    }
+                }, 310);  // slightly longer than transition
+            }
 
             function updateClocks() {
                 const now = new Date();
@@ -933,10 +964,11 @@
                 dsVis.textContent = d.vis;
                 dsClouds.textContent = d.clouds;
                 dsQnh.textContent = d.qnh;
-                decodedStrip.style.display = 'flex';
+                fadeInElement(decodedStrip, 'flex');
             }
+
             function hideDecoded() {
-                decodedStrip.style.display = 'none';
+                fadeOutElement(decodedStrip);
                 dsCat.innerHTML = '—'; dsTemp.textContent = '—'; dsWind.textContent = '—'; dsVis.textContent = '—'; dsClouds.textContent = '—'; dsQnh.textContent = '—';
             }
 
@@ -1003,10 +1035,28 @@
                 el.innerHTML = `<span class="placeholder">${escapeHTML(msg)}</span>`;
             }
 
-            // ── Airport display (handles both API and local runway formats) ──
+            // Count physical runways by finding reciprocal pairs
+            function getPhysicalRunwayCount(runways) {
+                const seen = new Set();
+                runways.forEach(rw => {
+                    let num = parseInt(rw.designation, 10);
+                    if (isNaN(num)) return;
+                    // Reciprocal: add 18, mod 36, if result is 0 set to 36 (since 36 is used)
+                    let rec = (num + 18) % 36;
+                    if (rec === 0) rec = 36;
+                    // Create a unique key for the pair by sorting the numbers
+                    const pair = [num, rec].sort((a,b) => a-b).join('/');
+                    seen.add(pair);
+                });
+                return seen.size;
+            }
+
             function displayAirportInfo(icao, airportObj) {
-                if (!airportObj) { airportCard.style.display = 'none'; runwayCard.style.display = 'none'; return; }
-                airportCard.style.display = '';
+                if (!airportObj) {
+                    fadeOutElement(airportCard);
+                    fadeOutElement(runwayCard);
+                    return;
+                }
                 const name = airportObj.name || 'Unknown';
                 let elevFt = null;
                 if (airportObj.elevation_ft != null) {
@@ -1023,16 +1073,15 @@
                 airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
 
                 const rawRunways = airportObj.runways || [];
-                airportRwyCount.textContent = rawRunways.length > 0 ? `${rawRunways.length} runway dir${rawRunways.length>1?'s':''}` : '—';
+                const physicalCount = getPhysicalRunwayCount(rawRunways);
+                airportRwyCount.textContent = physicalCount > 0 ? `${physicalCount} runway${physicalCount > 1 ? 's' : ''}` : '—';
 
                 if (rawRunways.length > 0) {
-                    runwayCard.style.display = '';
                     let rowsHtml = '';
-
                     if (airportObj._local) {
-                        // Local data: each entry is a single runway direction
                         rawRunways.forEach(rw => {
                             const designation = rw.designation || '??';
+                            const thrCoords = rw.thr_coordinates || '—';
                             const thrElevStr = rw.thr_elev_ft != null ? `${rw.thr_elev_ft} ft` : '—';
                             const tora = rw.tora != null ? rw.tora : '—';
                             const toda = rw.toda != null ? rw.toda : '—';
@@ -1046,7 +1095,7 @@
                             const surface = rw.surface || '—';
                             rowsHtml += `<tr>
                                 <td class="rw-designation">${escapeHTML(designation)}</td>
-                                <td>—</td>
+                                <td>${thrCoords}</td>
                                 <td>${thrElevStr}</td>
                                 <td>${tora}</td><td>${toda}</td><td>${asda}</td><td>${lda}</td>
                                 <td>${swy}</td><td>${cwy}</td>
@@ -1054,7 +1103,6 @@
                             </tr>`;
                         });
                     } else {
-                        // API data: may contain dual runways (e.g., "11/29")
                         rawRunways.forEach(rw => {
                             const parts = (rw.id || '').split('/');
                             const directions = parts.length === 2 ? parts : [rw.id || '??', '??'];
@@ -1080,15 +1128,19 @@
                         });
                     }
                     runwayTbody.innerHTML = rowsHtml;
+                    fadeInElement(runwayCard);
                 } else {
-                    runwayCard.style.display = '';
                     runwayTbody.innerHTML = '<tr><td colspan="11" class="na-cell">— No runway data available —</td></tr>';
+                    fadeInElement(runwayCard);
                 }
+                fadeInElement(airportCard);
             }
 
             function hideAirportInfo() {
-                airportCard.style.display = 'none'; runwayCard.style.display = 'none';
-                airportFetchTime = null; airportAgeEl.textContent = '';
+                fadeOutElement(airportCard);
+                fadeOutElement(runwayCard);
+                airportFetchTime = null;
+                airportAgeEl.textContent = '';
             }
 
             async function searchWeather(icaoOverride) {
@@ -1202,9 +1254,7 @@
                         setBodyPlaceholder(atisBody, `⚠️ VATSIM ATIS unavailable.`);
                     }
 
-                    // ═══════════════════════════════════════════════════
-                    // AIRPORT DATA – API fetch, then overlay local data
-                    // ═══════════════════════════════════════════════════
+                    // Airport data – always fetch, then overlay local data
                     try {
                         const airportRes = await safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`);
                         const aptData = await airportRes.json();
@@ -1226,12 +1276,11 @@
                                 })),
                             };
 
-                            // Overlay local data if present
                             if (typeof AIRPORT_DATABASE !== 'undefined' && AIRPORT_DATABASE[icao]) {
                                 const local = AIRPORT_DATABASE[icao];
                                 if (local.elevation_ft != null) {
                                     mergedObj.elevation_ft = local.elevation_ft;
-                                    delete mergedObj.elevation_m;  // avoid duplicate unit confusion
+                                    delete mergedObj.elevation_m;
                                 }
                                 mergedObj.runways = local.runways || [];
                                 mergedObj._local = true;
