@@ -1636,7 +1636,7 @@
                                 const unique = [...new Set(rawObs)];
                                 if (unique.length > 0) {
                                     metarRawLines = unique;
-                                    // Use the API's obsTime for the most recent observation
+                                    // *** FIX: Use the API's precise observation time ***
                                     metarIssuedTime = new Date(validData[0].obsTime);
                                     metarOk = true;
                                     updateMetarDisplay();
