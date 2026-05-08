@@ -54,7 +54,6 @@
             flex-direction: column;
         }
 
-        /* ── Main scrollable area (hidden scrollbar) ── */
         .main-scroll {
             flex: 1;
             overflow-y: auto;
@@ -69,7 +68,6 @@
             height: 0;
         }
 
-        /* ── Top bar ── */
         .top-bar {
             background: var(--surface);
             border-bottom: 1px solid var(--border);
@@ -176,7 +174,6 @@
             }
         }
 
-        /* ── Grid layout ── */
         .content-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -214,7 +211,6 @@
             }
         }
 
-        /* ── Card base ── */
         .card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -317,7 +313,6 @@
             border-radius: 0 3px 3px 0;
         }
 
-        /* ── Airport info card ── */
         .airport-info-grid {
             display: flex;
             flex-wrap: wrap;
@@ -374,7 +369,6 @@
             letter-spacing: 0.3px;
         }
 
-        /* ── Runway table ── */
         .runway-table-wrap {
             overflow-x: auto;
             max-height: 260px;
@@ -436,7 +430,6 @@
             font-style: italic;
         }
 
-        /* ── Shimmer loader ── */
         .shimmer {
             background: linear-gradient(100deg,
                     transparent 25%,
@@ -454,7 +447,6 @@
             100% { background-position: -200% 0; }
         }
 
-        /* ── Decoded METAR strip ── */
         .decoded-strip {
             display: flex;
             flex-wrap: wrap;
@@ -512,7 +504,6 @@
         .fc-ifr { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
         .fc-lifr { background: rgba(239, 68, 68, 0.18); color: #f87171; }
 
-        /* ── Toggle switch ── */
         .toggle-wrap {
             display: flex;
             align-items: center;
@@ -562,7 +553,6 @@
             background-color: #fff;
         }
 
-        /* ── Colour‑coded METAR/TAF ── */
         .colour-wind { color: #60a5fa; }
         .colour-vis { color: #4ade80; }
         .colour-cloud { color: #c084fc; }
@@ -641,7 +631,7 @@
             <div class="card card-runways" id="runwayCard" style="display:none;">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Runway Details</span>
-                    <span class="card-age" style="font-size:9px;color:var(--amber);">* Length fields will be updated with real data later</span>
+                    <span class="card-age" style="font-size:9px;color:var(--amber);">* Length fields from local data</span>
                 </div>
                 <div class="runway-table-wrap">
                     <table class="runway-table">
@@ -729,6 +719,11 @@
         </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- Load local runway/elevation data          -->
+    <script src="airport-data.js"></script>
+    <!-- ═══════════════════════════════════════════ -->
+
     <script>
         (function() {
             const icaoInput = document.getElementById('icaoInput');
@@ -764,8 +759,8 @@
             let lastIcao = '';
             let metarRawLines = [];
             let tafRaw = '';
-            let metarIssuedTime = null;       // parsed from METAR raw
-            let metarReceiptTimes = [];       // kept but not used for age display
+            let metarIssuedTime = null;
+            let metarReceiptTimes = [];
             let tafIssuedTime = null;
             let atisFetchTime = null;
             let airportFetchTime = null;
@@ -822,13 +817,11 @@
             }
 
             function updateAges() {
-                // METAR age from parsed issue time
                 if (metarIssuedTime) {
                     metarAgeEl.textContent = `Issued: ${formatTimeAgo(metarIssuedTime)}`;
                 } else {
                     metarAgeEl.textContent = '';
                 }
-                // TAF age
                 if (tafIssuedTime) {
                     tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafIssuedTime)}`;
                 } else {
@@ -844,11 +837,9 @@
                 ageInterval = setInterval(updateAges, 25000);
             }
 
-            // Parse METAR issue time from raw string (e.g., "METAR FAOR 080400Z ...")
             function parseMetarIssued(raw) {
                 if (!raw) return null;
                 let str = raw.trim();
-                // Remove leading "METAR " if present
                 str = str.replace(/^METAR\s+/i, '');
                 const match = str.match(/^([A-Z]{4})\s+(\d{2})(\d{2})(\d{2})Z/);
                 if (!match) return null;
@@ -858,14 +849,12 @@
                 const now = new Date();
                 const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
                 if (issued > now) {
-                    // probably previous month
                     const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
                     return prevMonth <= now ? prevMonth : now;
                 }
                 return issued;
             }
 
-            // Parse TAF issue time (same as before)
             function parseTAFIssued(raw) {
                 if (!raw) return null;
                 let str = raw.trim();
@@ -1014,12 +1003,17 @@
                 el.innerHTML = `<span class="placeholder">${escapeHTML(msg)}</span>`;
             }
 
+            // ── Airport display (handles both API and local runway formats) ──
             function displayAirportInfo(icao, airportObj) {
                 if (!airportObj) { airportCard.style.display = 'none'; runwayCard.style.display = 'none'; return; }
                 airportCard.style.display = '';
                 const name = airportObj.name || 'Unknown';
-                const elevMeters = airportObj.elevation_m;
-                const elevFt = elevMeters != null ? Math.round(elevMeters * 3.28084) : null;
+                let elevFt = null;
+                if (airportObj.elevation_ft != null) {
+                    elevFt = airportObj.elevation_ft;
+                } else if (airportObj.elevation_m != null) {
+                    elevFt = Math.round(airportObj.elevation_m * 3.28084);
+                }
                 const lat = airportObj.lat, lon = airportObj.lon;
                 airportName.textContent = name;
                 airportIcaoBadge.textContent = icao;
@@ -1027,34 +1021,64 @@
                 airportCoords.textContent = (lat != null && lon != null) ? `${toDMS(lat, true)}  ${toDMS(lon, false)}` : '—';
                 airportFetchTime = new Date();
                 airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
+
                 const rawRunways = airportObj.runways || [];
-                airportRwyCount.textContent = rawRunways.length > 0 ? `${rawRunways.length} physical runway${rawRunways.length>1?'s':''}` : '—';
+                airportRwyCount.textContent = rawRunways.length > 0 ? `${rawRunways.length} runway dir${rawRunways.length>1?'s':''}` : '—';
+
                 if (rawRunways.length > 0) {
                     runwayCard.style.display = '';
                     let rowsHtml = '';
-                    rawRunways.forEach(rw => {
-                        const parts = (rw.id || '').split('/');
-                        const directions = parts.length === 2 ? parts : [rw.id || '??', '??'];
-                        const surface = rw.surface || '—';
-                        const thrLat = rw.threshold_lat, thrLon = rw.threshold_lon, thrElevFt = rw.threshold_elev_ft;
-                        const slopeVal = rw.slope, slopeSign = rw.slope_sign || '';
-                        directions.forEach(dir => {
-                            const designation = dir.trim();
-                            const coordStr = (thrLat != null && thrLon != null) ? `${toDMS(thrLat, true)} ${toDMS(thrLon, false)}` : '—';
-                            const thrElevStr = thrElevFt != null ? `${thrElevFt} ft` : '—';
-                            let slopeStr = '—';
-                            if (slopeVal != null) {
-                                const signChar = (slopeSign === 'U' || slopeSign === 'u') ? 'U' : (slopeSign === 'D' || slopeSign === 'd') ? 'D' : '';
-                                slopeStr = `${slopeVal}% ${signChar}`.trim();
-                            }
+
+                    if (airportObj._local) {
+                        // Local data: each entry is a single runway direction
+                        rawRunways.forEach(rw => {
+                            const designation = rw.designation || '??';
+                            const thrElevStr = rw.thr_elev_ft != null ? `${rw.thr_elev_ft} ft` : '—';
+                            const tora = rw.tora != null ? rw.tora : '—';
+                            const toda = rw.toda != null ? rw.toda : '—';
+                            const asda = rw.asda != null ? rw.asda : '—';
+                            const lda = rw.lda != null ? rw.lda : '—';
+                            const swy = rw.swy != null ? rw.swy : '—';
+                            const cwy = rw.cwy != null ? rw.cwy : '—';
+                            const slopePct = rw.slope != null ? rw.slope : '—';
+                            const slopeSign = rw.slope_sign || '';
+                            const slopeStr = slopePct !== '—' ? `${slopePct}% ${slopeSign}`.trim() : '—';
+                            const surface = rw.surface || '—';
                             rowsHtml += `<tr>
                                 <td class="rw-designation">${escapeHTML(designation)}</td>
-                                <td>${coordStr}</td><td>${thrElevStr}</td>
-                                <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                                <td>—</td>
+                                <td>${thrElevStr}</td>
+                                <td>${tora}</td><td>${toda}</td><td>${asda}</td><td>${lda}</td>
+                                <td>${swy}</td><td>${cwy}</td>
                                 <td>${slopeStr}</td><td>${escapeHTML(surface)}</td>
                             </tr>`;
                         });
-                    });
+                    } else {
+                        // API data: may contain dual runways (e.g., "11/29")
+                        rawRunways.forEach(rw => {
+                            const parts = (rw.id || '').split('/');
+                            const directions = parts.length === 2 ? parts : [rw.id || '??', '??'];
+                            const surface = rw.surface || '—';
+                            const thrLat = rw.threshold_lat, thrLon = rw.threshold_lon, thrElevFt = rw.threshold_elev_ft;
+                            const slopeVal = rw.slope, slopeSign = rw.slope_sign || '';
+                            directions.forEach(dir => {
+                                const designation = dir.trim();
+                                const coordStr = (thrLat != null && thrLon != null) ? `${toDMS(thrLat, true)} ${toDMS(thrLon, false)}` : '—';
+                                const thrElevStr = thrElevFt != null ? `${thrElevFt} ft` : '—';
+                                let slopeStr = '—';
+                                if (slopeVal != null) {
+                                    const signChar = (slopeSign === 'U' || slopeSign === 'u') ? 'U' : (slopeSign === 'D' || slopeSign === 'd') ? 'D' : '';
+                                    slopeStr = `${slopeVal}% ${signChar}`.trim();
+                                }
+                                rowsHtml += `<tr>
+                                    <td class="rw-designation">${escapeHTML(designation)}</td>
+                                    <td>${coordStr}</td><td>${thrElevStr}</td>
+                                    <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
+                                    <td>${slopeStr}</td><td>${escapeHTML(surface)}</td>
+                                </tr>`;
+                            });
+                        });
+                    }
                     runwayTbody.innerHTML = rowsHtml;
                 } else {
                     runwayCard.style.display = '';
@@ -1100,11 +1124,10 @@
                 searchBtn.style.opacity = '0.5'; searchBtn.style.pointerEvents = 'none';
 
                 try {
-                    const [metarRes, tafRes, vatsimRes, airportRes] = await Promise.allSettled([
+                    const [metarRes, tafRes, vatsimRes] = await Promise.allSettled([
                         safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&hours=3&taf=false`),
                         safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
                         safeFetch('https://data.vatsim.net/v3/vatsim-data.json'),
-                        safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
                     ]);
 
                     // METAR
@@ -1115,7 +1138,6 @@
                                 metarRawLines = data.filter(d => d.rawOb).map(d => d.rawOb.trim());
                                 metarRawLines = [...new Set(metarRawLines)];
                                 metarReceiptTimes = data.filter(d => d.receiptTime).map(d => new Date(d.receiptTime)).sort((a,b) => b-a);
-                                // Parse issue time from the first (most recent) METAR
                                 if (metarRawLines.length > 0) {
                                     metarIssuedTime = parseMetarIssued(metarRawLines[0]);
                                 } else {
@@ -1180,27 +1202,48 @@
                         setBodyPlaceholder(atisBody, `⚠️ VATSIM ATIS unavailable.`);
                     }
 
-                    if (airportRes.status === 'fulfilled') {
-                        try {
-                            const aptData = await airportRes.value.json();
-                            if (aptData && aptData.length > 0) {
-                                const apt = aptData[0];
-                                displayAirportInfo(icao, {
-                                    name: apt.name || apt.facilityName || null,
-                                    elevation_m: apt.elev, lat: apt.lat, lon: apt.lon,
-                                    runways: (apt.runways || []).map(rw => ({
-                                        id: rw.id || rw.name || null,
-                                        length_ft: rw.length_ft, width_ft: rw.width_ft, surface: rw.surface,
-                                        heading_deg: rw.heading_deg,
-                                        tora: rw.tora, toda: rw.toda, asda: rw.asda, lda: rw.lda,
-                                        swy: rw.swy, cwy: rw.cwy, slope: rw.slope, slope_sign: rw.slope_sign,
-                                        threshold_lat: rw.threshold_lat, threshold_lon: rw.threshold_lon,
-                                        threshold_elev_ft: rw.threshold_elev_ft,
-                                    })),
-                                });
-                            } else { hideAirportInfo(); }
-                        } catch (e) { hideAirportInfo(); }
-                    } else { hideAirportInfo(); }
+                    // ═══════════════════════════════════════════════════
+                    // AIRPORT DATA – API fetch, then overlay local data
+                    // ═══════════════════════════════════════════════════
+                    try {
+                        const airportRes = await safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`);
+                        const aptData = await airportRes.json();
+                        if (aptData && aptData.length > 0) {
+                            const apt = aptData[0];
+                            let mergedObj = {
+                                name: apt.name || apt.facilityName || null,
+                                elevation_m: apt.elev,
+                                lat: apt.lat,
+                                lon: apt.lon,
+                                runways: (apt.runways || []).map(rw => ({
+                                    id: rw.id || rw.name || null,
+                                    length_ft: rw.length_ft, width_ft: rw.width_ft, surface: rw.surface,
+                                    heading_deg: rw.heading_deg,
+                                    tora: rw.tora, toda: rw.toda, asda: rw.asda, lda: rw.lda,
+                                    swy: rw.swy, cwy: rw.cwy, slope: rw.slope, slope_sign: rw.slope_sign,
+                                    threshold_lat: rw.threshold_lat, threshold_lon: rw.threshold_lon,
+                                    threshold_elev_ft: rw.threshold_elev_ft,
+                                })),
+                            };
+
+                            // Overlay local data if present
+                            if (typeof AIRPORT_DATABASE !== 'undefined' && AIRPORT_DATABASE[icao]) {
+                                const local = AIRPORT_DATABASE[icao];
+                                if (local.elevation_ft != null) {
+                                    mergedObj.elevation_ft = local.elevation_ft;
+                                    delete mergedObj.elevation_m;  // avoid duplicate unit confusion
+                                }
+                                mergedObj.runways = local.runways || [];
+                                mergedObj._local = true;
+                            }
+
+                            displayAirportInfo(icao, mergedObj);
+                        } else {
+                            hideAirportInfo();
+                        }
+                    } catch (e) {
+                        hideAirportInfo();
+                    }
 
                     startAgeUpdates();
                 } catch (err) {
