@@ -313,16 +313,6 @@
             border-radius: 0 3px 3px 0;
         }
 
-        /* Fade-in setup for all sections */
-        .decoded-strip,
-        .airport-info-grid,
-        .runway-table-wrap,
-        #metarBody,
-        #tafBody,
-        #crosswindBody {
-            transition: opacity 0.3s ease;
-        }
-
         .airport-info-grid {
             display: flex;
             flex-wrap: wrap;
@@ -343,14 +333,14 @@
         }
         .airport-icao-badge {
             display: inline-block;
-            color: var(--accent);              /* baby blue, no border */
+            color: var(--accent);
             font-weight: 700;
             font-size: 10px;
-            padding: 0;                        /* removed padding */
+            padding: 0;
             margin-top: 3px;
             font-family: var(--font-mono);
             letter-spacing: 0.5px;
-            background: none;                  /* no background */
+            background: none;
             border: none;
         }
         .airport-stat {
@@ -572,7 +562,6 @@
         .colour-change { color: #f59e0b; font-weight: 600; }
         .colour-default { color: #c8ced9; }
 
-        /* Wind compass canvas */
         .wind-canvas {
             width: 100%;
             max-width: 500px;
@@ -613,39 +602,48 @@
     <div class="main-scroll" id="mainScroll">
         <div class="content-grid">
 
-            <!-- Decoded METAR strip – initially shimmer -->
+            <!-- Decoded METAR strip – initially idle -->
             <div class="card-airport decoded-strip" id="decodedStrip" style="display:flex; opacity:1;">
-                <div class="ds-item"><span class="ds-label">Category</span><span class="ds-value" id="dsCat"><span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span></span></div>
-                <div class="ds-item"><span class="ds-label">Temp / Dew</span><span class="ds-value" id="dsTemp"><span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span></span></div>
-                <div class="ds-item"><span class="ds-label">Wind</span><span class="ds-value" id="dsWind"><span class="shimmer" style="display:inline-block;width:70px;height:14px;"></span></span></div>
-                <div class="ds-item"><span class="ds-label">Visibility</span><span class="ds-value" id="dsVis"><span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span></span></div>
-                <div class="ds-item"><span class="ds-label">Clouds</span><span class="ds-value" id="dsClouds"><span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span></span></div>
-                <div class="ds-item"><span class="ds-label">QNH</span><span class="ds-value" id="dsQnh"><span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span></span></div>
+                <div class="ds-item"><span class="ds-label">Category</span><span class="ds-value" id="dsCat">—</span></div>
+                <div class="ds-item"><span class="ds-label">Temp / Dew</span><span class="ds-value" id="dsTemp">—</span></div>
+                <div class="ds-item"><span class="ds-label">Wind</span><span class="ds-value" id="dsWind">—</span></div>
+                <div class="ds-item"><span class="ds-label">Visibility</span><span class="ds-value" id="dsVis">—</span></div>
+                <div class="ds-item"><span class="ds-label">Clouds</span><span class="ds-value" id="dsClouds">—</span></div>
+                <div class="ds-item"><span class="ds-label">QNH</span><span class="ds-value" id="dsQnh">—</span></div>
             </div>
 
-            <!-- Airport info card -->
+            <!-- Airport info card – idle placeholder -->
             <div class="card card-airport" id="airportCard">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Airport Information</span>
                     <span class="card-age" id="airportAge"></span>
                 </div>
                 <div class="airport-info-grid" id="airportInfoGrid">
-                    <div class="shimmer" style="flex:1; height:40px;"></div>
+                    <div class="airport-name-block">
+                        <div class="airport-name">Search for an airport</div>
+                        <span class="airport-icao-badge">----</span>
+                    </div>
+                    <div class="airport-stat"><span class="stat-label">Elevation</span><span class="stat-value">—</span></div>
+                    <div class="airport-stat"><span class="stat-label">Runways</span><span class="stat-value">—</span></div>
+                    <div class="airport-stat"><span class="stat-label">Coordinates</span><span class="airport-coords">—</span></div>
                 </div>
             </div>
 
-            <!-- Runway details card -->
+            <!-- Runway details card – idle placeholder -->
             <div class="card card-runways" id="runwayCard">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Runway Details</span>
                     <span class="card-age" style="font-size:9px;color:var(--amber);">* Data may not be current – verify with official AIP/AIP SUP</span>
                 </div>
                 <div class="runway-table-wrap" id="runwayTableWrap">
-                    <div class="shimmer" style="width:100%; height:60px;"></div>
+                    <table class="runway-table">
+                        <thead><tr><th>Runway</th><th>Threshold Coordinates</th><th>THR Elev (ft)</th><th>TORA (m)</th><th>TODA (m)</th><th>ASDA (m)</th><th>LDA (m)</th><th>SWY (m)</th><th>CWY (m)</th><th>Slope</th><th>Surface</th></tr></thead>
+                        <tbody><tr><td colspan="11" class="na-cell">Search for an airport to see runway details.</td></tr></tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- METAR card -->
+            <!-- METAR card – idle placeholder -->
             <div class="card card-metar" id="metarCard">
                 <div class="card-header">
                     <div class="card-header-left">
@@ -661,11 +659,11 @@
                     </div>
                 </div>
                 <div class="card-body" id="metarBody">
-                    <div class="shimmer" style="width:100%; height:60px;"></div>
+                    <span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>
                 </div>
             </div>
 
-            <!-- TAF card -->
+            <!-- TAF card – idle placeholder -->
             <div class="card card-taf" id="tafCard">
                 <div class="card-header">
                     <div class="card-header-left">
@@ -690,11 +688,11 @@
                     </div>
                 </div>
                 <div class="card-body" id="tafBody">
-                    <div class="shimmer" style="width:100%; height:60px;"></div>
+                    <span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>
                 </div>
             </div>
 
-            <!-- Wind Components card (now with canvas) -->
+            <!-- Wind Components card – idle placeholder -->
             <div class="card card-crosswind" id="crosswindCard">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Wind Components</span>
@@ -922,24 +920,72 @@
                 dsQnh.textContent = d.qnh;
             }
 
-            function setShimmer(el, height = '60px', width = '100%') {
-                el.innerHTML = `<div class="shimmer" style="width:${width};height:${height};"></div>`;
-            }
-
-            function showAllShimmer() {
-                // Decoded strip already has shimmer spans, no change needed? We'll keep them.
-                // Airport info grid
-                airportInfoGrid.innerHTML = '<div class="shimmer" style="flex:1; height:40px;"></div>';
-                // Runway table wrap
-                runwayTableWrap.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                // METAR body
-                metarBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                // TAF body
-                tafBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                // Crosswind body: show placeholder text and hide canvas
+            function setIdleState() {
+                // Decoded strip
+                dsCat.textContent = '—';
+                dsTemp.textContent = '—';
+                dsWind.textContent = '—';
+                dsVis.textContent = '—';
+                dsClouds.textContent = '—';
+                dsQnh.textContent = '—';
+                // Airport info
+                airportInfoGrid.innerHTML = `
+                    <div class="airport-name-block">
+                        <div class="airport-name">Search for an airport</div>
+                        <span class="airport-icao-badge">----</span>
+                    </div>
+                    <div class="airport-stat"><span class="stat-label">Elevation</span><span class="stat-value">—</span></div>
+                    <div class="airport-stat"><span class="stat-label">Runways</span><span class="stat-value">—</span></div>
+                    <div class="airport-stat"><span class="stat-label">Coordinates</span><span class="airport-coords">—</span></div>`;
+                // Runway table
+                runwayTableWrap.innerHTML = `
+                    <table class="runway-table">
+                        <thead><tr><th>Runway</th><th>Threshold Coordinates</th><th>THR Elev (ft)</th><th>TORA (m)</th><th>TODA (m)</th><th>ASDA (m)</th><th>LDA (m)</th><th>SWY (m)</th><th>CWY (m)</th><th>Slope</th><th>Surface</th></tr></thead>
+                        <tbody><tr><td colspan="11" class="na-cell">Search for an airport to see runway details.</td></tr></tbody>
+                    </table>`;
+                // METAR / TAF
+                metarBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
+                tafBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
+                // Crosswind
                 windCanvas.style.display = 'none';
                 crosswindPlaceholder.style.display = 'block';
                 crosswindPlaceholder.textContent = 'Wind components will be calculated based on METAR and runway headings.';
+                crosswindAgeEl.textContent = '';
+                // Age labels
+                metarAgeEl.textContent = '';
+                tafAgeEl.textContent = '';
+                airportAgeEl.textContent = '';
+                crosswindAgeEl.textContent = '';
+            }
+
+            function setLoadingState() {
+                // Decoded strip shimmer
+                dsCat.innerHTML = '<span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span>';
+                dsTemp.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
+                dsWind.innerHTML = '<span class="shimmer" style="display:inline-block;width:70px;height:14px;"></span>';
+                dsVis.innerHTML = '<span class="shimmer" style="display:inline-block;width:50px;height:14px;"></span>';
+                dsClouds.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
+                dsQnh.innerHTML = '<span class="shimmer" style="display:inline-block;width:60px;height:14px;"></span>';
+
+                // Airport info shimmer
+                airportInfoGrid.innerHTML = '<div class="shimmer" style="flex:1; height:40px;"></div>';
+
+                // Runway table shimmer
+                runwayTableWrap.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
+
+                // METAR / TAF body shimmer
+                metarBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
+                tafBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
+
+                // Crosswind body shimmer (cover placeholder)
+                windCanvas.style.display = 'none';
+                crosswindPlaceholder.style.display = 'none';
+                crosswindBody.innerHTML = '<div class="shimmer" style="width:100%; height:120px;"></div>';
+
+                // Clear ages
+                metarAgeEl.textContent = '';
+                tafAgeEl.textContent = '';
+                airportAgeEl.textContent = '';
                 crosswindAgeEl.textContent = '';
             }
 
@@ -1109,7 +1155,6 @@
                 return rowsHtml;
             }
 
-            // ── Wind Compass Canvas Drawing ────────────
             function getRunwayHeadings(runways, isLocal) {
                 const results = [];
                 if (isLocal) {
@@ -1149,19 +1194,17 @@
                 if (!canvas) return;
                 const ctx = canvas.getContext('2d');
                 const w = canvas.width = canvas.clientWidth;
-                const h = canvas.height = canvas.clientWidth; // square
+                const h = canvas.height = canvas.clientWidth;
                 const cx = w / 2, cy = h / 2;
                 const radius = Math.min(w, h) * 0.4;
                 ctx.clearRect(0, 0, w, h);
 
-                // Background compass circle
                 ctx.beginPath();
                 ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
                 ctx.strokeStyle = '#2e3038';
                 ctx.lineWidth = 1;
                 ctx.stroke();
 
-                // Degree marks
                 for (let deg = 0; deg < 360; deg += 10) {
                     const rad = deg * Math.PI / 180;
                     const inner = radius - 6;
@@ -1180,10 +1223,9 @@
                     ctx.fillText(deg + '°', cx + (radius+10) * Math.sin(rad) - 8, cy - (radius+10) * Math.cos(rad) + 4);
                 }
 
-                // Draw runways
                 const rwyHeadings = getRunwayHeadings(runways, isLocal);
                 rwyHeadings.forEach(rw => {
-                    const rad = (rw.heading - 90) * Math.PI / 180; // adjust to start from North (0°)
+                    const rad = (rw.heading - 90) * Math.PI / 180;
                     const x = cx + radius * Math.cos(rad);
                     const y = cy + radius * Math.sin(rad);
                     ctx.beginPath();
@@ -1192,13 +1234,11 @@
                     ctx.strokeStyle = '#5b606d';
                     ctx.lineWidth = 1;
                     ctx.stroke();
-                    // label
                     ctx.font = '9px "JetBrains Mono"';
                     ctx.fillStyle = '#a8adb8';
                     ctx.fillText(rw.designation, x + 3, y - 3);
                 });
 
-                // Wind arrow
                 if (windSpdKt > 0) {
                     const windRad = (windDir - 90) * Math.PI / 180;
                     const arrowLen = Math.min(windSpdKt / 50 * radius, radius * 0.8);
@@ -1210,7 +1250,6 @@
                     ctx.strokeStyle = '#289ed6';
                     ctx.lineWidth = 2;
                     ctx.stroke();
-                    // arrowhead
                     const headLen = 8;
                     const angle = Math.atan2(y - cy, x - cx);
                     ctx.beginPath();
@@ -1222,16 +1261,14 @@
                     ctx.fill();
                 }
 
-                // Crosswind bars for each runway
                 rwyHeadings.forEach(rw => {
                     const angleDiff = Math.abs(windDir - rw.heading) % 360;
                     const diffRad = angleDiff * Math.PI / 180;
                     const crosswind = Math.round(windSpdKt * Math.sin(diffRad) * 10) / 10;
-                    // Determine crosswind direction (left/right)
                     const windRad = (windDir - 90) * Math.PI / 180;
                     const rwyRad = (rw.heading - 90) * Math.PI / 180;
-                    const crossSign = Math.sin(windRad - rwyRad); // positive = right crosswind?
-                    const barLength = Math.min(crosswind * 1.2, 30); // scale
+                    const crossSign = Math.sin(windRad - rwyRad);
+                    const barLength = Math.min(crosswind * 1.2, 30);
                     const endX = cx + (radius - 10) * Math.cos(rwyRad);
                     const endY = cy + (radius - 10) * Math.sin(rwyRad);
                     const perpRad = rwyRad + Math.PI/2;
@@ -1245,7 +1282,6 @@
                     ctx.strokeStyle = crosswind > 20 ? '#f87171' : (crosswind > 12 ? '#f59e0b' : '#4ade80');
                     ctx.lineWidth = 3;
                     ctx.stroke();
-                    // small dot at endpoint
                     ctx.beginPath();
                     ctx.arc(endX, endY, 2, 0, 2*Math.PI);
                     ctx.fillStyle = '#ffffff';
@@ -1286,22 +1322,18 @@
                 drawWindCompass(windCanvas, windDir, windSpd, runways, isLocal);
             }
 
-            // ── Main Search ────────────────────────────────
             async function searchWeather(icaoOverride) {
                 const icao = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
                 if (!icao || icao.length < 4) {
-                    // reset everything to initial placeholders
-                    showAllShimmer();
-                    metarAgeEl.textContent = tafAgeEl.textContent = crosswindAgeEl.textContent = airportAgeEl.textContent = '';
+                    setIdleState();
                     metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
                     return;
                 }
                 if (!icao.startsWith('FA')) {
-                    showAllShimmer();
-                    metarBody.innerHTML = `<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>`;
-                    tafBody.innerHTML = `<span class="placeholder">🚫 Only South African airports are supported.</span>`;
-                    crosswindPlaceholder.textContent = '🚫 Only South African airports are supported.';
-                    crosswindAgeEl.textContent = airportAgeEl.textContent = '';
+                    setLoadingState();
+                    metarBody.innerHTML = '<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>';
+                    tafBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
+                    crosswindBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
                     metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
                     icaoInput.value = icao;
                     return;
@@ -1309,8 +1341,7 @@
 
                 lastIcao = icao;
                 icaoInput.value = icao;
-                showAllShimmer();
-                metarAgeEl.textContent = tafAgeEl.textContent = crosswindAgeEl.textContent = airportAgeEl.textContent = '';
+                setLoadingState();
                 metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
                 searchBtn.style.opacity = '0.5'; searchBtn.style.pointerEvents = 'none';
 
@@ -1332,9 +1363,11 @@
                                 if (metarRawLines.length > 0) {
                                     metarIssuedTime = parseMetarIssued(metarRawLines[0]);
                                     metarOk = true;
+                                    updateMetarDisplay();
+                                    updateDecoded(metarRawLines[0]);
                                 }
                             }
-                        } catch (e) { /* ignore */ }
+                        } catch (e) {}
                     }
                     if (!metarOk) {
                         metarBody.innerHTML = `<span class="placeholder">⚠️ No METAR was located for ${icao}.</span>`;
@@ -1349,8 +1382,9 @@
                                 tafRaw = data[0].rawTAF.trim();
                                 tafIssuedTime = parseTAFIssued(tafRaw);
                                 tafOk = true;
+                                updateTAFDisplay();
                             }
-                        } catch (e) { /* ignore */ }
+                        } catch (e) {}
                     }
                     if (!tafOk) {
                         tafBody.innerHTML = `<span class="placeholder">⚠️ No TAF was located for ${icao}.</span>`;
@@ -1388,14 +1422,11 @@
                                     mergedObj._local = true;
                                 }
                             }
-                        } catch (e) { /* mergedObj stays null */ }
+                        } catch (e) {}
                     }
                     airportFetchTime = mergedObj ? new Date() : null;
 
-                    // Now update all UI simultaneously
-                    if (metarOk) updateMetarDisplay();
-                    if (tafOk) updateTAFDisplay();
-                    if (metarRawLines.length > 0) updateDecoded(metarRawLines[0]);
+                    // Populate all UI simultaneously
                     airportInfoGrid.innerHTML = buildAirportInfoHTML(icao, mergedObj);
                     runwayTableWrap.innerHTML = `<table class="runway-table">
                         <thead><tr>
@@ -1405,17 +1436,19 @@
                         </tr></thead>
                         <tbody>${buildRunwayTableHTML(mergedObj)}</tbody>
                     </table>`;
-                    if (metarRawLines.length > 0 && mergedObj) {
+
+                    if (metarOk && mergedObj) {
                         updateCrosswind(metarRawLines[0], mergedObj);
                     } else {
                         windCanvas.style.display = 'none';
                         crosswindPlaceholder.style.display = 'block';
                         crosswindPlaceholder.textContent = 'Insufficient data to compute wind components.';
                     }
+
                     startAgeUpdates();
                 } catch (err) {
                     console.error(err);
-                    showAllShimmer();
+                    setIdleState();
                     metarBody.innerHTML = `<span class="placeholder">⚠️ No METAR was located for ${icao}.</span>`;
                     tafBody.innerHTML = `<span class="placeholder">⚠️ No TAF was located for ${icao}.</span>`;
                     crosswindPlaceholder.textContent = '⚠️ Wind component calculation unavailable.';
@@ -1436,8 +1469,9 @@
                 icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
             });
 
+            // Set idle state on load (already in HTML, but ensure consistent)
+            setIdleState();
             icaoInput.focus();
-            // initial shimmer on load (already in HTML)
         })();
     </script>
 </body>
