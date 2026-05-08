@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover" />
     <title>SkyOps Weather Briefing</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -47,6 +47,7 @@
             background: var(--bg);
             color: var(--text);
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -621,6 +622,81 @@
             letter-spacing: 0.2px;
             margin: 8px 0;
             font-weight: 600;
+            line-height: 1.4;
+        }
+
+        /* ========== Mobile improvements ========== */
+        @media screen and (max-width: 600px) {
+            .main-scroll {
+                padding: 8px 8px 8px;
+            }
+            .card-header {
+                padding: 4px 8px;
+                font-size: 9px;
+            }
+            .card-body {
+                padding: 6px 8px;
+                font-size: 10.5px;
+                max-height: 220px;
+            }
+            .airport-info-grid {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+                padding: 6px 8px;
+            }
+            .airport-name-block {
+                min-width: 0;
+                width: 100%;
+            }
+            .airport-name {
+                font-size: 13px;
+            }
+            .airport-stat .stat-value {
+                font-size: 11px;
+            }
+            .airport-coords {
+                font-size: 9px;
+            }
+
+            /* Decoded strip: two columns on phones */
+            .decoded-strip .ds-item {
+                flex: 1 1 45%;
+                padding: 4px 6px;
+            }
+            .ds-value {
+                font-size: 10px;
+            }
+
+            .runway-table {
+                min-width: 600px;
+                font-size: 8px;
+            }
+            .runway-table .rw-designation {
+                font-size: 9px;
+            }
+            .hide-mobile {
+                display: none;
+            }
+
+            .premium-message {
+                font-size: 11px;
+                padding: 10px 12px;
+            }
+        }
+
+        @media screen and (max-width: 400px) {
+            .decoded-strip .ds-item {
+                flex: 1 1 100%;
+            }
+            .runway-table {
+                min-width: 480px;
+                font-size: 7px;
+            }
+            .runway-table th,
+            .runway-table td {
+                padding: 3px 4px;
+            }
         }
     </style>
 </head>
@@ -688,28 +764,7 @@
                     >
                 </div>
                 <div class="runway-table-wrap" id="runwayTableWrap">
-                    <table class="runway-table">
-                        <thead>
-                            <tr>
-                                <th>Runway</th>
-                                <th>Threshold Coordinates</th>
-                                <th>THR Elev (ft)</th>
-                                <th>TORA (m)</th>
-                                <th>TODA (m)</th>
-                                <th>ASDA (m)</th>
-                                <th>LDA (m)</th>
-                                <th>SWY (m)</th>
-                                <th>CWY (m)</th>
-                                <th>Slope</th>
-                                <th>Surface</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="11" class="na-cell">Search for an airport to see runway details.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="na-cell">Search for an airport to see runway details.</div>
                 </div>
             </div>
 
@@ -773,7 +828,7 @@
         </div>
     </div>
 
-    <!-- Local runway/elevation data -->
+    <!-- Local runway/elevation data (add FAWB, FALA here if you have detailed data) -->
     <script src="airport-data.js"></script>
 
     <script>
@@ -813,8 +868,8 @@
             let clockInterval = null;
             let currentAirportObj = null;
 
-            // Allowed free airports
-            const ALLOWED_AIRPORTS = ['FAOR', 'FACT', 'FAGG'];
+            // Allowed free airports (updated!)
+            const ALLOWED_AIRPORTS = ['FAOR', 'FACT', 'FAGG', 'FAWB', 'FALA'];
 
             // ── Clocks ──────────────────────────────────
             function updateClocks() {
@@ -1027,11 +1082,7 @@
                     <div class="airport-stat"><span class="stat-label">Elevation</span><span class="stat-value">—</span></div>
                     <div class="airport-stat"><span class="stat-label">Runways</span><span class="stat-value">—</span></div>
                     <div class="airport-stat"><span class="stat-label">Coordinates</span><span class="airport-coords">—</span></div>`;
-                runwayTableWrap.innerHTML = `
-                    <table class="runway-table">
-                        <thead><tr><th>Runway</th><th>Threshold Coordinates</th><th>THR Elev (ft)</th><th>TORA (m)</th><th>TODA (m)</th><th>ASDA (m)</th><th>LDA (m)</th><th>SWY (m)</th><th>CWY (m)</th><th>Slope</th><th>Surface</th></tr></thead>
-                        <tbody><tr><td colspan="11" class="na-cell">Search for an airport to see runway details.</td></tr></tbody>
-                    </table>`;
+                runwayTableWrap.innerHTML = '<div class="na-cell">Search for an airport to see runway details.</div>';
                 metarBody.innerHTML = '<span class="placeholder">Enter FAxx and press search.</span>';
                 tafBody.innerHTML = '<span class="placeholder">Enter FAxx and press search.</span>';
                 metarAgeEl.textContent = '';
@@ -1099,10 +1150,6 @@
             function formatTAFRaw(raw) {
                 if (!raw) return raw;
                 // Insert newline before each change group but keep PROB30 TEMPO together.
-                // The regex matches a space that is followed by:
-                //   - PROB30 (to split before the whole PROB30 TEMPO group)
-                //   - TEMPO (only if NOT preceded by PROB30)
-                //   - other change indicators
                 return raw.replace(
                     /\s(?=PROB\d{2}|(?<!PROB\d{2})TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g,
                     '\n'
@@ -1234,8 +1281,8 @@
                             <td>${thrCoords}</td>
                             <td>${thrElevStr}</td>
                             <td>${tora}</td><td>${toda}</td><td>${asda}</td><td>${lda}</td>
-                            <td>${swy}</td><td>${cwy}</td>
-                            <td>${slopeStr}</td><td>${escapeHTML(surface)}</td>
+                            <td class="hide-mobile">${swy}</td><td class="hide-mobile">${cwy}</td>
+                            <td class="hide-mobile">${slopeStr}</td><td>${escapeHTML(surface)}</td>
                         </tr>`;
                     });
                 } else {
@@ -1268,8 +1315,9 @@
                             rowsHtml += `<tr>
                                 <td class="rw-designation">${escapeHTML(designation)}</td>
                                 <td>${coordStr}</td><td>${thrElevStr}</td>
-                                <td>-</td><td>-</td><td>-</td><td>-</td><td>-</td><td>-</td>
-                                <td>${slopeStr}</td><td>${escapeHTML(surface)}</td>
+                                <td>-</td><td>-</td><td>-</td><td>-</td>
+                                <td class="hide-mobile">-</td><td class="hide-mobile">-</td>
+                                <td class="hide-mobile">${slopeStr}</td><td>${escapeHTML(surface)}</td>
                             </tr>`;
                         });
                     });
@@ -1279,17 +1327,17 @@
 
             // ── Premium access restriction ──────────────
             function showPremiumMessage() {
-                const msg = '<div class="premium-message">🔒 Premium Access Required – This airport is not available on the free tier.<br>Upgrade to access all South African airports.</div>';
+                const freeList = ALLOWED_AIRPORTS.join(', ');
+                const msg = `<div class="premium-message">🔒 Premium Access Required<br>Free tier airports: ${freeList}<br>Upgrade to access all South African airports.</div>`;
                 metarBody.innerHTML = `<span class="placeholder">${msg}</span>`;
                 tafBody.innerHTML = `<span class="placeholder">${msg}</span>`;
                 airportInfoGrid.innerHTML = `<div class="airport-name-block">${msg}</div>`;
-                runwayTableWrap.innerHTML = `<table class="runway-table"><tbody><tr><td colspan="11" class="na-cell">— Restricted —</td></tr></tbody></table>`;
+                runwayTableWrap.innerHTML = '<div class="na-cell">— Restricted —</div>';
                 resetDecodedToDash();
             }
 
             // ── Main search flow ────────────────────────
             async function searchWeather(icaoOverride) {
-                // Build full ICAO from prefix + user input
                 const suffix = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
                 const icao = 'FA' + suffix;
                 if (suffix.length === 0) {
@@ -1430,7 +1478,8 @@
                         <thead><tr>
                             <th>Runway</th><th>Threshold Coordinates</th><th>THR Elev (ft)</th>
                             <th>TORA (m)</th><th>TODA (m)</th><th>ASDA (m)</th><th>LDA (m)</th>
-                            <th>SWY (m)</th><th>CWY (m)</th><th>Slope</th><th>Surface</th>
+                            <th class="hide-mobile">SWY (m)</th><th class="hide-mobile">CWY (m)</th>
+                            <th class="hide-mobile">Slope</th><th>Surface</th>
                         </tr></thead>
                         <tbody>${buildRunwayTableHTML(mergedObj)}</tbody>
                     </table>`;
@@ -1460,7 +1509,6 @@
                     searchWeather();
                 }
             });
-            // Only allow two characters max, enforce uppercase
             icaoInput.addEventListener('input', () => {
                 icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 2);
             });
