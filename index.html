@@ -199,9 +199,8 @@
         .card-taf {
             grid-column: 2;
         }
-        .card-diagram {
-            grid-column: 1 / -1;
-        }
+        /* Remove the diagram card entirely */
+        /* .card-diagram removed */
 
         @media (max-width: 850px) {
             .content-grid {
@@ -210,10 +209,10 @@
             .card-metar,
             .card-taf,
             .card-runways,
-            .card-airport,
-            .card-diagram {
+            .card-airport {
                 grid-column: 1 / -1;
             }
+            /* .card-diagram removed */
         }
 
         .card {
@@ -601,12 +600,7 @@
             font-weight: 600;
         }
 
-        .diagram-canvas {
-            width: 100%;
-            height: 280px;
-            background: #16181d;
-            display: block;
-        }
+        /* Removed .diagram-canvas */
     </style>
 </head>
 <body>
@@ -746,16 +740,7 @@
                 </div>
             </div>
 
-            <!-- Runway Layout Diagram -->
-            <div class="card card-diagram" id="diagramCard">
-                <div class="card-header">
-                    <span class="card-title"><span class="dot"></span> Runway Layout</span>
-                    <span class="card-age" id="diagramAge"></span>
-                </div>
-                <div class="card-body" style="padding: 0; overflow: hidden">
-                    <canvas id="diagramCanvas" class="diagram-canvas"></canvas>
-                </div>
-            </div>
+            <!-- Runway Layout Diagram card completely removed -->
         </div>
     </div>
 
@@ -769,10 +754,9 @@
             const searchBtn = document.getElementById('searchBtn');
             const metarBody = document.getElementById('metarBody');
             const tafBody = document.getElementById('tafBody');
-            const diagramCanvas = document.getElementById('diagramCanvas');
+            // Removed: const diagramCanvas, const diagramAgeEl
             const metarAgeEl = document.getElementById('metarAge');
             const tafAgeEl = document.getElementById('tafAge');
-            const diagramAgeEl = document.getElementById('diagramAge');
             const airportAgeEl = document.getElementById('airportAge');
             const decodedStrip = document.getElementById('decodedStrip');
             const dsCat = document.getElementById('dsCat');
@@ -799,7 +783,7 @@
             let ageInterval = null;
             let clockInterval = null;
             let currentAirportObj = null;
-            let currentWind = { dirDeg: null, speedKt: 0 }; // from METAR
+            // Removed: let currentWind
 
             // ── Clocks ──────────────────────────────────
             function updateClocks() {
@@ -856,9 +840,7 @@
                 else tafAgeEl.textContent = '';
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
                 else airportAgeEl.textContent = '';
-                if (metarIssuedTime)
-                    diagramAgeEl.textContent = `Wind from METAR issued: ${formatTimeAgo(metarIssuedTime)}`;
-                else diagramAgeEl.textContent = '';
+                // Diagram age removed
             }
 
             function startAgeUpdates() {
@@ -911,17 +893,7 @@
                 return `${d}°${String(m).padStart(2, '0')}'${String(s).padStart(2, '0')}"${dir}`;
             }
 
-            function parseWindFromMETAR(rawMetar) {
-                if (!rawMetar) return { dirDeg: null, speedKt: 0 };
-                const metar = rawMetar.toUpperCase();
-                const windMatch = metar.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
-                if (!windMatch) return { dirDeg: null, speedKt: 0 };
-                let dirDeg;
-                if (windMatch[1] === 'VRB') dirDeg = null;
-                else dirDeg = parseInt(windMatch[1], 10);
-                const speedKt = parseInt(windMatch[2], 10);
-                return { dirDeg, speedKt };
-            }
+            // Removed functions: parseWindFromMETAR, runwayHeading, getRunwayEndCoords, drawDiagram, updateDiagram
 
             // ── Decoded strip ──────────────────────────
             function decodeMetar(raw) {
@@ -1030,15 +1002,11 @@
                     </table>`;
                 metarBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
                 tafBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
-                diagramCanvas
-                    .getContext('2d')
-                    .clearRect(0, 0, diagramCanvas.width, diagramCanvas.height);
+                // No diagram canvas clearing needed
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
-                diagramAgeEl.textContent = '';
                 currentAirportObj = null;
-                currentWind = { dirDeg: null, speedKt: 0 };
             }
 
             function setLoadingState() {
@@ -1055,7 +1023,6 @@
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
-                diagramAgeEl.textContent = '';
             }
 
             // ── HTML escaping ──────────────────────────
@@ -1128,187 +1095,7 @@
                 tafBody.innerHTML = `<pre>${html}</pre>`;
             }
 
-            // ── Runway Layout Diagram ──────────────────
-            function runwayHeading(designation) {
-                const num = parseInt(designation, 10);
-                return isNaN(num) ? null : num * 10;
-            }
-
-            function getRunwayEndCoords(rw, airportLat, airportLon) {
-                // we need a length for the runway; prefer length_ft, else fallback to max TORA (approximate)
-                let lengthM = null;
-                if (rw.length_ft) lengthM = rw.length_ft * 0.3048;
-                else if (rw.tora) lengthM = rw.tora; // TORA is in meters
-                else return null;
-
-                const des = rw.designation || '';
-                const heading = runwayHeading(des);
-                if (heading === null) return null;
-
-                // We'll place the runway centered at the airport's coordinates, then compute the two endpoints.
-                const halfLen = lengthM / 2;
-                // Convert heading (degrees from north) to radians
-                const rad = (heading * Math.PI) / 180;
-                // Offsets in meters (north = +lat, east = +lon)
-                const dx = Math.sin(rad) * halfLen;
-                const dy = Math.cos(rad) * halfLen;
-
-                // Approx meters per degree
-                const metersPerDegLat = 111320;
-                const metersPerDegLon = 111320 * Math.cos((airportLat * Math.PI) / 180);
-
-                return {
-                    lat1: airportLat + dy / metersPerDegLat,
-                    lon1: airportLon + dx / metersPerDegLon,
-                    lat2: airportLat - dy / metersPerDegLat,
-                    lon2: airportLon - dx / metersPerDegLon,
-                    heading,
-                };
-            }
-
-            function drawDiagram() {
-                const canvas = diagramCanvas;
-                const ctx = canvas.getContext('2d');
-                const width = canvas.clientWidth;
-                const height = canvas.clientHeight;
-                canvas.width = width;
-                canvas.height = height;
-
-                ctx.clearRect(0, 0, width, height);
-
-                if (!currentAirportObj || !currentAirportObj.runways || currentAirportObj.runways.length === 0) {
-                    ctx.fillStyle = '#5b606d';
-                    ctx.font = '12px Open Sans, sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('No runway data available', width / 2, height / 2);
-                    return;
-                }
-
-                const airportLat = currentAirportObj.lat || 0;
-                const airportLon = currentAirportObj.lon || 0;
-
-                // Collect runway segments (each runway direction -> line)
-                const segments = [];
-                const rawRwys = currentAirportObj.runways;
-                rawRwys.forEach((rw) => {
-                    const coords = getRunwayEndCoords(rw, airportLat, airportLon);
-                    if (!coords) return;
-                    segments.push({
-                        des: rw.designation || rw.id || '??',
-                        lat1: coords.lat1,
-                        lon1: coords.lon1,
-                        lat2: coords.lat2,
-                        lon2: coords.lon2,
-                        heading: coords.heading,
-                    });
-                });
-
-                if (segments.length === 0) {
-                    ctx.fillStyle = '#5b606d';
-                    ctx.font = '12px Open Sans, sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('Insufficient runway data to draw diagram', width / 2, height / 2);
-                    return;
-                }
-
-                // Compute bounding box in lat/lon
-                let minLat = Infinity, maxLat = -Infinity, minLon = Infinity, maxLon = -Infinity;
-                segments.forEach((seg) => {
-                    [seg.lat1, seg.lat2].forEach((lat) => {
-                        if (lat < minLat) minLat = lat;
-                        if (lat > maxLat) maxLat = lat;
-                    });
-                    [seg.lon1, seg.lon2].forEach((lon) => {
-                        if (lon < minLon) minLon = lon;
-                        if (lon > maxLon) maxLon = lon;
-                    });
-                });
-
-                // Scale to fit, with margin
-                const margin = 40;
-                const metersPerDegLat = 111320;
-                const metersPerDegLon = 111320 * Math.cos((airportLat * Math.PI) / 180);
-                const latRange = (maxLat - minLat) * metersPerDegLat;
-                const lonRange = (maxLon - minLon) * metersPerDegLon;
-                const scaleX = (width - 2 * margin) / (lonRange || 1);
-                const scaleY = (height - 2 * margin) / (latRange || 1);
-                const scale = Math.min(scaleX, scaleY);
-
-                // Project function: (lat, lon) -> canvas pixel (x = east, y = north inverted)
-                const project = (lat, lon) => {
-                    const x = margin + (lon - minLon) * metersPerDegLon * scale;
-                    const y = margin + (maxLat - lat) * metersPerDegLat * scale; // invert y
-                    return { x, y };
-                };
-
-                // Draw runways as thick lines
-                ctx.strokeStyle = '#4a5568';
-                ctx.lineWidth = 3;
-                segments.forEach((seg) => {
-                    const p1 = project(seg.lat1, seg.lon1);
-                    const p2 = project(seg.lat2, seg.lon2);
-                    ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(p2.x, p2.y);
-                    ctx.stroke();
-
-                    // Label ends (use the designation)
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 9px JetBrains Mono, monospace';
-                    ctx.textAlign = 'center';
-                    // Place label near the endpoint but offset a bit perpendicular to the runway
-                    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-                    const offsetX = Math.sin(angle) * 8;
-                    const offsetY = -Math.cos(angle) * 8;
-                    // Label the start point with the designation (assuming designation corresponds to that end)
-                    ctx.fillText(seg.des, p1.x + offsetX, p1.y + offsetY);
-                });
-
-                // Draw wind arrow if available
-                if (currentWind.dirDeg != null && currentWind.speedKt > 0) {
-                    const arrowX = width - 50;
-                    const arrowY = 40;
-                    const len = 40;
-                    const rad = ((currentWind.dirDeg + 180) % 360) * (Math.PI / 180); // wind FROM direction (meteorological)
-                    const dx = Math.sin(rad) * len;
-                    const dy = -Math.cos(rad) * len;
-                    ctx.beginPath();
-                    ctx.strokeStyle = '#60a5fa';
-                    ctx.lineWidth = 2;
-                    ctx.moveTo(arrowX, arrowY);
-                    ctx.lineTo(arrowX + dx, arrowY + dy);
-                    ctx.stroke();
-                    // arrowhead
-                    const headLen = 8;
-                    const angle1 = rad + Math.PI + 0.4;
-                    const angle2 = rad + Math.PI - 0.4;
-                    ctx.beginPath();
-                    ctx.moveTo(arrowX + dx, arrowY + dy);
-                    ctx.lineTo(arrowX + dx + Math.sin(angle1) * headLen, arrowY + dy - Math.cos(angle1) * headLen);
-                    ctx.lineTo(arrowX + dx + Math.sin(angle2) * headLen, arrowY + dy - Math.cos(angle2) * headLen);
-                    ctx.closePath();
-                    ctx.fillStyle = '#60a5fa';
-                    ctx.fill();
-                    ctx.fillStyle = '#a0a6b0';
-                    ctx.font = '9px Open Sans, sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(`${currentWind.dirDeg}° @ ${currentWind.speedKt}kt`, arrowX + dx / 2, arrowY - 10);
-                } else if (currentWind.speedKt === 0 || currentWind.dirDeg === null) {
-                    ctx.fillStyle = '#a0a6b0';
-                    ctx.font = 'italic 10px Open Sans, sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.fillText('Wind calm / variable', width - 60, 30);
-                }
-            }
-
-            function updateDiagram() {
-                drawDiagram();
-            }
-
-            // Debounced redraw on window resize
-            window.addEventListener('resize', () => {
-                if (currentAirportObj) drawDiagram();
-            });
+            // Removed all diagram related functions
 
             // ── Physical runway count ──────────────────
             function runwayPairKey(designation) {
@@ -1476,9 +1263,6 @@
                         '<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>';
                     tafBody.innerHTML =
                         '<span class="placeholder">🚫 Only South African airports are supported.</span>';
-                    diagramCanvas
-                        .getContext('2d')
-                        .clearRect(0, 0, diagramCanvas.width, diagramCanvas.height);
                     metarRawLines = [];
                     tafRaw = '';
                     metarIssuedTime = null;
@@ -1522,7 +1306,7 @@
                                 metarRawLines = [...new Set(metarRawLines)];
                                 if (metarRawLines.length > 0) {
                                     metarIssuedTime = parseMetarIssued(metarRawLines[0]);
-                                    currentWind = parseWindFromMETAR(metarRawLines[0]);
+                                    // Wind parsing removed (no diagram)
                                     metarOk = true;
                                     updateMetarDisplay();
                                     updateDecoded(metarRawLines[0]);
@@ -1604,8 +1388,7 @@
                         <tbody>${buildRunwayTableHTML(mergedObj)}</tbody>
                     </table>`;
 
-                    // Draw the runway layout diagram
-                    updateDiagram();
+                    // Diagram drawing removed
                     startAgeUpdates();
                 } catch (err) {
                     console.error(err);
@@ -1636,6 +1419,8 @@
                     .replace(/[^A-Z0-9]/g, '')
                     .slice(0, 4);
             });
+
+            // Removed window resize event listener for diagram
 
             // Initialize
             setIdleState();
