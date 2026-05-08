@@ -1,16 +1,16 @@
 // airport-data.js
 // Store only elevation and runway details for each airport.
-// The name, coordinates, and other general info will still come from the API.
+// Name, coordinates etc. are fetched from the API and remain unchanged.
 
 const AIRPORT_DATABASE = {
   FAWB: {
-    elevation_ft: 4095,   // in feet (from your data)
+    elevation_ft: 4095,
     runways: [
       {
         designation: "11",
         tora: 1828,  toda: 1978,  asda: 1828,  lda: 1828,
         swy: null,   cwy: 150,
-        slope: 0.9,  slope_sign: "U",    // 0.9% up
+        slope: 0.9,  slope_sign: "U",
         thr_elev_ft: 4038,
         surface: "ASPH"
       },
@@ -40,5 +40,6 @@ const AIRPORT_DATABASE = {
       }
     ]
   }
-  // Add more airports with the same structure...
+  // Add more airports like:
+  // FAOR: { elevation_ft: ..., runways: [...] }
 };
