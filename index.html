@@ -194,7 +194,7 @@
         .card-taf {
             grid-column: 2;
         }
-        .card-sigmet {
+        .card-wind-comp {   /* new card replaces SIGMET */
             grid-column: 1 / -1;
         }
 
@@ -206,7 +206,7 @@
             .card-taf,
             .card-runways,
             .card-airport,
-            .card-sigmet {
+            .card-wind-comp {
                 grid-column: 1 / -1;
             }
         }
@@ -561,9 +561,41 @@
         .colour-change { color: #f59e0b; font-weight: 600; }
         .colour-default { color: #c8ced9; }
 
-        .colour-sev { color: #ef4444; font-weight: 700; }
-        .colour-fir { color: #60a5fa; }
-        .colour-hazard { color: #f97316; font-weight: 600; }
+        /* Wind component table */
+        .wind-comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--font-mono);
+            font-size: 10px;
+        }
+        .wind-comp-table th,
+        .wind-comp-table td {
+            padding: 5px 8px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+        }
+        .wind-comp-table th {
+            font-family: var(--font-sans);
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+        }
+        .best-rwy {
+            background: rgba(40,158,214,0.1);
+            font-weight: 700;
+        }
+        .crosswind-warn {
+            color: var(--amber);
+            font-weight: 700;
+        }
+        .crosswind-danger {
+            color: var(--red-bright);
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -687,23 +719,16 @@
                 </div>
             </div>
 
-            <!-- SIGMET card -->
-            <div class="card card-sigmet" id="sigmetCard">
+            <!-- Runway Wind Component Analyzer (replaces SIGMET) -->
+            <div class="card card-wind-comp" id="windCompCard">
                 <div class="card-header">
                     <div class="card-header-left">
-                        <span class="card-title"><span class="dot"></span> SIGMET</span>
-                        <span class="card-age" id="sigmetAge"></span>
+                        <span class="card-title"><span class="dot"></span> Wind Components (from latest METAR)</span>
                     </div>
-                    <div class="toggle-wrap">
-                        <span class="toggle-label">Colour</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="sigmetColourToggle" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
+                    <span class="card-age" id="windAge"></span>
                 </div>
-                <div class="card-body" id="sigmetBody">
-                    <span class="placeholder">SIGMET information will appear here for the selected airport region.</span>
+                <div class="card-body" id="windCompBody">
+                    <span class="placeholder">Wind analysis will appear once a METAR is loaded.</span>
                 </div>
             </div>
         </div>
@@ -718,10 +743,10 @@
             const searchBtn = document.getElementById('searchBtn');
             const metarBody = document.getElementById('metarBody');
             const tafBody = document.getElementById('tafBody');
-            const sigmetBody = document.getElementById('sigmetBody');
+            const windCompBody = document.getElementById('windCompBody');
             const metarAgeEl = document.getElementById('metarAge');
             const tafAgeEl = document.getElementById('tafAge');
-            const sigmetAgeEl = document.getElementById('sigmetAge');
+            const windAgeEl = document.getElementById('windAge');
             const airportAgeEl = document.getElementById('airportAge');
             const decodedStrip = document.getElementById('decodedStrip');
             const dsCat = document.getElementById('dsCat');
@@ -739,7 +764,6 @@
             const metarColourToggle = document.getElementById('metarColourToggle');
             const tafColourToggle = document.getElementById('tafColourToggle');
             const tafFormatToggle = document.getElementById('tafFormatToggle');
-            const sigmetColourToggle = document.getElementById('sigmetColourToggle');
 
             let lastIcao = '';
             let metarRawLines = [];
@@ -749,7 +773,7 @@
             let airportFetchTime = null;
             let ageInterval = null;
             let clockInterval = null;
-            let sigmetRawLines = [];
+            let currentAirportObj = null;   // store for wind component
 
             // ── Helpers ──────────────────────────────────
             function updateClocks() {
@@ -813,10 +837,10 @@
                     tafAgeEl.textContent = '';
                 }
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
-                if (sigmetRawLines.length > 0 && sigmetRawLines[0].issued) {
-                    sigmetAgeEl.textContent = `Latest issued: ${formatTimeAgo(sigmetRawLines[0].issued)}`;
+                if (metarIssuedTime) {
+                    windAgeEl.textContent = `Based on METAR issued: ${formatTimeAgo(metarIssuedTime)}`;
                 } else {
-                    sigmetAgeEl.textContent = '';
+                    windAgeEl.textContent = '';
                 }
             }
 
@@ -853,22 +877,6 @@
                 const day = parseInt(match[2], 10);
                 const hour = parseInt(match[3], 10);
                 const minute = parseInt(match[4], 10);
-                const now = new Date();
-                const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
-                if (issued > now) {
-                    const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
-                    return prevMonth <= now ? prevMonth : now;
-                }
-                return issued;
-            }
-
-            function parseSigmetIssued(raw) {
-                if (!raw) return null;
-                const match = raw.match(/\b(\d{2})(\d{2})(\d{2})\b/);
-                if (!match) return null;
-                const day = parseInt(match[1], 10);
-                const hour = parseInt(match[2], 10);
-                const minute = parseInt(match[3], 10);
                 const now = new Date();
                 const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
                 if (issued > now) {
@@ -962,12 +970,12 @@
                     </table>`;
                 metarBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
                 tafBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
-                sigmetBody.innerHTML = '<span class="placeholder">SIGMET information will appear here for the selected airport region.</span>';
-                sigmetAgeEl.textContent = '';
+                windCompBody.innerHTML = '<span class="placeholder">Wind analysis will appear once a METAR is loaded.</span>';
+                windAgeEl.textContent = '';
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
-                sigmetRawLines = [];
+                currentAirportObj = null;
             }
 
             function setLoadingState() {
@@ -981,11 +989,11 @@
                 runwayTableWrap.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
                 metarBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
                 tafBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                sigmetBody.innerHTML = '<div class="shimmer" style="width:100%; height:80px;"></div>';
+                windCompBody.innerHTML = '<div class="shimmer" style="width:100%; height:80px;"></div>';
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
-                sigmetAgeEl.textContent = '';
+                windAgeEl.textContent = '';
             }
 
             function escapeHTML(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
@@ -1021,18 +1029,15 @@
                 return safe;
             }
 
-            function renderColouredSIGMET(raw) {
-                let safe = escapeHTML(raw);
-                safe = safe.replace(/\b(SEV\s+(?:TURB|ICE|MTW|TS|DS|SS)|HVY\s+(?:TS|SS|DS)|ISOL\s+TS|EMBD\s+TS|TURB|ICE|MTW|CB|TC)\b/gi, '<span class="colour-hazard">$&</span>');
-                safe = safe.replace(/\b([A-Z]{4})\s+FIR\b/g, '<span class="colour-fir">$1 FIR</span>');
-                // FIXED: escaped the forward slash
-                safe = safe.replace(/\b(SIGMET\s+\d+|VALID\s+\d{6}\/\d{6})\b/gi, '<span class="colour-change">$&</span>');
-                return safe;
-            }
-
             function formatTAFRaw(raw) {
                 if (!raw) return raw;
-                return raw.replace(/\s(?=PROB\d{2}\s|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g, '\n');
+                // Step 1: protect PROB30 TEMPO sequences from splitting
+                let formatted = raw.replace(/\b(PROB\d{2})\s+(TEMPO)\b/gi, '$1␣$2');  // use a placeholder
+                // Step 2: split on whitespace before key change groups (but not after PROB30 thanks to the placeholder)
+                formatted = formatted.replace(/\s(?=TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g, '\n');
+                // Step 3: restore the protected PROB30 TEMPO
+                formatted = formatted.replace('␣', ' ');
+                return formatted;
             }
 
             function updateMetarDisplay() {
@@ -1056,59 +1061,168 @@
                 tafBody.innerHTML = `<pre>${html}</pre>`;
             }
 
-            function updateSigmetDisplay() {
-                if (!sigmetBody || sigmetRawLines.length === 0) {
-                    sigmetBody.innerHTML = '<span class="placeholder">No active SIGMETs for this region.</span>';
-                    return;
-                }
-                const colour = sigmetColourToggle.checked;
-                let html = '';
-                sigmetRawLines.forEach((item, idx) => {
-                    const text = item.raw;
-                    const formatted = colour ? renderColouredSIGMET(text) : escapeHTML(text);
-                    html += `<pre>${formatted}</pre>`;
-                    if (idx < sigmetRawLines.length - 1) html += '<hr style="border-color:rgba(255,255,255,0.05); margin: 8px 0;">';
-                });
-                sigmetBody.innerHTML = html;
+            // ── Wind Component Analyzer ─────────────────
+            function parseWindFromMETAR(rawMetar) {
+                if (!rawMetar) return { dirDeg: null, speedKt: 0, gustKt: 0 };
+                const metar = rawMetar.toUpperCase();
+                const windMatch = metar.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
+                if (!windMatch) return { dirDeg: null, speedKt: 0, gustKt: 0 };
+                let dirDeg;
+                if (windMatch[1] === 'VRB') dirDeg = null;
+                else dirDeg = parseInt(windMatch[1], 10);
+                const speedKt = parseInt(windMatch[2], 10);
+                const gustKt = windMatch[4] ? parseInt(windMatch[4], 10) : 0;
+                return { dirDeg, speedKt, gustKt };
             }
 
-            // Correctly count physical runway pairs
+            function runwayHeadingFromDesignation(des) {
+                // des like "03R" => 30 degrees
+                const num = parseInt(des, 10);
+                return isNaN(num) ? null : num * 10;
+            }
+
+            function reciprocalHeading(deg) {
+                return (deg + 180) % 360;
+            }
+
+            function runwayPairKey(designation) {
+                // Generate canonical pair identifier, e.g., "03R" -> "03R/21L"
+                const des = designation.trim();
+                const match = des.match(/^(\d{2})([LRC]?)$/i);
+                if (!match) return des; // fallback
+                const num = parseInt(match[1], 10);
+                const suffix = match[2].toUpperCase();
+                const recipNum = (num + 18) % 36;
+                const recipNumStr = String(recipNum).padStart(2, '0');
+                let oppSuffix = '';
+                if (suffix === 'L') oppSuffix = 'R';
+                else if (suffix === 'R') oppSuffix = 'L';
+                else if (suffix === 'C') oppSuffix = 'C';
+                const first = `${match[1]}${suffix}`;
+                const second = `${recipNumStr}${oppSuffix}`;
+                // Sort to ensure consistency
+                const parts = [first, second].sort();
+                return parts.join('/');
+            }
+
             function getPhysicalRunwayCount(runways) {
                 const seenPairs = new Set();
                 runways.forEach(rw => {
-                    if (rw.designation) {
-                        const des = rw.designation.trim();
-                        const num = parseInt(des, 10);
-                        if (!isNaN(num) && num >= 1 && num <= 36) {
-                            const recip = (num + 18) % 36;
-                            if (recip === 0) recip = 36;
-                            const pair = [num, recip].sort((a,b)=>a-b).join('/');
-                            seenPairs.add(pair);
-                        } else {
-                            seenPairs.add(des);
+                    let des = rw.designation || rw.id || '';
+                    if (!des) return;
+                    // If id contains '/' (like "03R/21L") use that directly as a pair
+                    if (des.includes('/')) {
+                        const parts = des.split('/').map(s => s.trim()).filter(Boolean);
+                        if (parts.length === 2) {
+                            const sorted = parts.sort().join('/');
+                            seenPairs.add(sorted);
+                            return;
                         }
-                    } else if (rw.id) {
-                        const parts = rw.id.split('/');
-                        const nums = parts.map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n >= 1 && n <= 36);
-                        if (nums.length === 2) {
-                            const pair = nums.sort((a,b)=>a-b).join('/');
-                            seenPairs.add(pair);
-                        } else if (nums.length === 1) {
-                            const num = nums[0];
-                            const recip = (num + 18) % 36;
-                            if (recip === 0) recip = 36;
-                            const pair = [num, recip].sort((a,b)=>a-b).join('/');
-                            seenPairs.add(pair);
-                        } else {
-                            seenPairs.add(rw.id.trim());
-                        }
-                    } else {
-                        seenPairs.add('unknown');
                     }
+                    // Single designation -> compute pair
+                    const key = runwayPairKey(des);
+                    if (key) seenPairs.add(key);
                 });
                 return seenPairs.size;
             }
 
+            function computeWindComponents(windDir, windSpeed, runwayHeading) {
+                if (windDir == null || windSpeed === 0) return { headwind: 0, crosswind: 0 };
+                const angleDiff = Math.abs(windDir - runwayHeading) % 360;
+                const angleRad = (angleDiff > 180 ? 360 - angleDiff : angleDiff) * Math.PI / 180;
+                const crosswind = Math.round(windSpeed * Math.sin(angleRad));
+                const headwind = Math.round(windSpeed * Math.cos(angleRad));
+                return { headwind, crosswind };
+            }
+
+            function updateWindComponents() {
+                if (!windCompBody || !currentAirportObj || !currentAirportObj.runways || currentAirportObj.runways.length === 0) {
+                    windCompBody.innerHTML = '<span class="placeholder">No runway data available for wind analysis.</span>';
+                    return;
+                }
+                if (metarRawLines.length === 0) {
+                    windCompBody.innerHTML = '<span class="placeholder">Load a METAR to see wind components.</span>';
+                    return;
+                }
+                const wind = parseWindFromMETAR(metarRawLines[0]);
+                if (wind.dirDeg == null || wind.speedKt === 0) {
+                    windCompBody.innerHTML = '<span class="placeholder">Wind is calm or variable – no significant crosswind.</span>';
+                    return;
+                }
+
+                // Build a set of unique runway directions (designations) from the data
+                const runwayDirections = [];
+                const seenDirs = new Set();
+                const rawRwys = currentAirportObj.runways;
+                rawRwys.forEach(rw => {
+                    let des = rw.designation || rw.id || '';
+                    if (des.includes('/')) {
+                        // split combined ID like "03R/21L"
+                        des.split('/').forEach(d => {
+                            const dTrim = d.trim();
+                            if (dTrim && !seenDirs.has(dTrim)) {
+                                seenDirs.add(dTrim);
+                                runwayDirections.push(dTrim);
+                            }
+                        });
+                    } else if (des && !seenDirs.has(des)) {
+                        seenDirs.add(des);
+                        runwayDirections.push(des);
+                    }
+                });
+
+                if (runwayDirections.length === 0) {
+                    windCompBody.innerHTML = '<span class="placeholder">Cannot determine runway headings from data.</span>';
+                    return;
+                }
+
+                // Compute for each
+                const rows = [];
+                runwayDirections.forEach(des => {
+                    const heading = runwayHeadingFromDesignation(des);
+                    if (heading === null) return;
+                    const { headwind, crosswind } = computeWindComponents(wind.dirDeg, wind.speedKt, heading);
+                    rows.push({ des, heading, headwind, crosswind });
+                });
+
+                // Sort by absolute crosswind (ascending), then headwind (descending)
+                rows.sort((a, b) => {
+                    const crossDiff = Math.abs(a.crosswind) - Math.abs(b.crosswind);
+                    if (crossDiff !== 0) return crossDiff;
+                    return b.headwind - a.headwind;
+                });
+
+                // The first row(s) with minimal crosswind are candidates; mark best
+                const bestCross = Math.abs(rows[0]?.crosswind ?? 999);
+                const bestRows = rows.filter(r => Math.abs(r.crosswind) === bestCross);
+                const bestSet = new Set(bestRows.map(r => r.des));
+
+                // Build HTML table
+                let html = `<table class="wind-comp-table">
+                    <thead><tr>
+                        <th>Runway</th><th>Heading</th><th>Headwind (kt)</th><th>Crosswind (kt)</th><th>Recommendation</th>
+                    </tr></thead><tbody>`;
+                rows.forEach(r => {
+                    const isBest = bestSet.has(r.des);
+                    const crossClass = Math.abs(r.crosswind) > 15 ? 'crosswind-danger' : (Math.abs(r.crosswind) > 10 ? 'crosswind-warn' : '');
+                    const bestClass = isBest ? 'best-rwy' : '';
+                    html += `<tr class="${bestClass}">
+                        <td class="rw-designation">${escapeHTML(r.des)}</td>
+                        <td>${r.heading}°</td>
+                        <td>${r.headwind >= 0 ? '+' : ''}${r.headwind}</td>
+                        <td class="${crossClass}">${r.crosswind}</td>
+                        <td>${isBest ? '&#9733; Best' : ''}</td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+                if (wind.gustKt > 0) {
+                    html += `<div style="font-size:9px; margin-top:6px; color:var(--text-muted);">Gusts to ${wind.gustKt}kt – crosswind may be higher in gusts.</div>`;
+                }
+                windCompBody.innerHTML = html;
+                updateAges(); // refreshes windAgeEl
+            }
+
+            // ── Airport info / runway table builders ─────
             function buildAirportInfoHTML(icao, airportObj) {
                 if (!airportObj) {
                     return `<div class="airport-name-block">
@@ -1124,8 +1238,7 @@
                 if (airportObj.elevation_ft != null) elevFt = airportObj.elevation_ft;
                 else if (airportObj.elevation_m != null) elevFt = Math.round(airportObj.elevation_m * 3.28084);
                 const lat = airportObj.lat, lon = airportObj.lon;
-                const rawRunways = airportObj.runways || [];
-                const physicalCount = getPhysicalRunwayCount(rawRunways);
+                const physicalCount = getPhysicalRunwayCount(airportObj.runways || []);
 
                 return `<div class="airport-name-block">
                             <div class="airport-name">${escapeHTML(name)}</div>
@@ -1203,49 +1316,22 @@
                 return rowsHtml;
             }
 
-            // ── SIGMET fetching & filtering ─────────────────
-            async function fetchAndDisplaySigmet(icao) {
-                try {
-                    const res = await safeFetch(`https://aviationweather.gov/api/data/sigmet`);
-                    const allSigmets = await res.json();
-                    if (!allSigmets || allSigmets.length === 0) {
-                        sigmetRawLines = [];
-                        updateSigmetDisplay();
-                        return;
-                    }
-                    const region = icao.substring(0, 2).toUpperCase();
-                    const relevant = allSigmets.filter(s => s.raw && s.raw.toUpperCase().includes(region));
-                    if (relevant.length === 0) {
-                        sigmetRawLines = [];
-                    } else {
-                        sigmetRawLines = relevant.map(s => ({
-                            raw: s.raw.trim(),
-                            issued: parseSigmetIssued(s.raw)
-                        }));
-                        sigmetRawLines.sort((a,b) => (b.issued?.getTime()||0) - (a.issued?.getTime()||0));
-                    }
-                } catch (e) {
-                    console.warn('SIGMET fetch failed:', e);
-                    sigmetRawLines = [];
-                }
-                updateSigmetDisplay();
-                updateAges();
-            }
-
             // ── Main search flow ─────────────────────────
             async function searchWeather(icaoOverride) {
                 const icao = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
                 if (!icao || icao.length < 4) {
                     setIdleState();
                     metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
+                    currentAirportObj = null;
                     return;
                 }
                 if (!icao.startsWith('FA')) {
                     setLoadingState();
                     metarBody.innerHTML = '<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>';
                     tafBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
-                    sigmetBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
+                    windCompBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
                     metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
+                    currentAirportObj = null;
                     icaoInput.value = icao;
                     return;
                 }
@@ -1254,7 +1340,7 @@
                 icaoInput.value = icao;
                 setLoadingState();
                 metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
-                sigmetRawLines = [];
+                currentAirportObj = null;
                 searchBtn.style.opacity = '0.5'; searchBtn.style.pointerEvents = 'none';
 
                 try {
@@ -1263,8 +1349,6 @@
                         safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
                         safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`)
                     ]);
-                    // SIGMET called separately so it doesn't block
-                    fetchAndDisplaySigmet(icao);
 
                     // METAR
                     let metarOk = false;
@@ -1339,6 +1423,7 @@
                         } catch (e) {}
                     }
                     airportFetchTime = mergedObj ? new Date() : null;
+                    currentAirportObj = mergedObj;
 
                     airportInfoGrid.innerHTML = buildAirportInfoHTML(icao, mergedObj);
                     runwayTableWrap.innerHTML = `<table class="runway-table">
@@ -1350,13 +1435,15 @@
                         <tbody>${buildRunwayTableHTML(mergedObj)}</tbody>
                     </table>`;
 
+                    // Update wind components after everything
+                    updateWindComponents();
                     startAgeUpdates();
                 } catch (err) {
                     console.error(err);
                     setIdleState();
                     metarBody.innerHTML = `<span class="placeholder">⚠️ No METAR was located for ${icao}.</span>`;
                     tafBody.innerHTML = `<span class="placeholder">⚠️ No TAF was located for ${icao}.</span>`;
-                    sigmetBody.innerHTML = '<span class="placeholder">⚠️ SIGMET unavailable.</span>';
+                    windCompBody.innerHTML = '<span class="placeholder">⚠️ Wind analysis unavailable.</span>';
                 } finally {
                     searchBtn.style.opacity = '1'; searchBtn.style.pointerEvents = 'auto';
                 }
@@ -1366,7 +1453,6 @@
             metarColourToggle.addEventListener('change', updateMetarDisplay);
             tafColourToggle.addEventListener('change', updateTAFDisplay);
             tafFormatToggle.addEventListener('change', updateTAFDisplay);
-            sigmetColourToggle.addEventListener('change', updateSigmetDisplay);
 
             searchBtn.addEventListener('click', () => searchWeather());
             icaoInput.addEventListener('keydown', e => {
