@@ -561,8 +561,6 @@
         .colour-change { color: #f59e0b; font-weight: 600; }
         .colour-default { color: #c8ced9; }
 
-        /* SIGMET hazard highlighting */
-        /* SIGMET hazard highlighting */
         .colour-sev { color: #ef4444; font-weight: 700; }
         .colour-fir { color: #60a5fa; }
         .colour-hazard { color: #f97316; font-weight: 600; }
@@ -689,7 +687,7 @@
                 </div>
             </div>
 
-            <!-- SIGMET card (replaces Density Altitude) -->
+            <!-- SIGMET card -->
             <div class="card card-sigmet" id="sigmetCard">
                 <div class="card-header">
                     <div class="card-header-left">
@@ -751,7 +749,7 @@
             let airportFetchTime = null;
             let ageInterval = null;
             let clockInterval = null;
-            let sigmetRawLines = [];       // each item: { raw: string, issued: Date|null }
+            let sigmetRawLines = [];
 
             // ── Helpers ──────────────────────────────────
             function updateClocks() {
@@ -815,7 +813,6 @@
                     tafAgeEl.textContent = '';
                 }
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
-                // SIGMET age
                 if (sigmetRawLines.length > 0 && sigmetRawLines[0].issued) {
                     sigmetAgeEl.textContent = `Latest issued: ${formatTimeAgo(sigmetRawLines[0].issued)}`;
                 } else {
@@ -865,7 +862,6 @@
                 return issued;
             }
 
-            // Parse SIGMET issue time from raw text (example: "WSAP31 FAPR 050600")
             function parseSigmetIssued(raw) {
                 if (!raw) return null;
                 const match = raw.match(/\b(\d{2})(\d{2})(\d{2})\b/);
@@ -1027,16 +1023,15 @@
 
             function renderColouredSIGMET(raw) {
                 let safe = escapeHTML(raw);
-                // Highlight FIRs, hazards like SEV TURB, ICE, etc.
                 safe = safe.replace(/\b(SEV\s+(?:TURB|ICE|MTW|TS|DS|SS)|HVY\s+(?:TS|SS|DS)|ISOL\s+TS|EMBD\s+TS|TURB|ICE|MTW|CB|TC)\b/gi, '<span class="colour-hazard">$&</span>');
                 safe = safe.replace(/\b([A-Z]{4})\s+FIR\b/g, '<span class="colour-fir">$1 FIR</span>');
-                safe = safe.replace(/\b(SIGMET\s+\d+|VALID\s+\d{6}/\d{6})\b/gi, '<span class="colour-change">$&</span>');
+                // FIXED: escaped the forward slash
+                safe = safe.replace(/\b(SIGMET\s+\d+|VALID\s+\d{6}\/\d{6})\b/gi, '<span class="colour-change">$&</span>');
                 return safe;
             }
 
             function formatTAFRaw(raw) {
                 if (!raw) return raw;
-                // Split before change groups while keeping PROB30 etc. on new line if they start a group
                 return raw.replace(/\s(?=PROB\d{2}\s|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g, '\n');
             }
 
@@ -1077,12 +1072,11 @@
                 sigmetBody.innerHTML = html;
             }
 
-            // Count physical runway pairs correctly
+            // Correctly count physical runway pairs
             function getPhysicalRunwayCount(runways) {
                 const seenPairs = new Set();
                 runways.forEach(rw => {
                     if (rw.designation) {
-                        // Local format (one direction per entry)
                         const des = rw.designation.trim();
                         const num = parseInt(des, 10);
                         if (!isNaN(num) && num >= 1 && num <= 36) {
@@ -1091,11 +1085,9 @@
                             const pair = [num, recip].sort((a,b)=>a-b).join('/');
                             seenPairs.add(pair);
                         } else {
-                            // Non-numeric designation (e.g., H1) – treat as separate runway
                             seenPairs.add(des);
                         }
                     } else if (rw.id) {
-                        // API format: id might be "03L/21R", "18/36", etc.
                         const parts = rw.id.split('/');
                         const nums = parts.map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n >= 1 && n <= 36);
                         if (nums.length === 2) {
@@ -1108,7 +1100,6 @@
                             const pair = [num, recip].sort((a,b)=>a-b).join('/');
                             seenPairs.add(pair);
                         } else {
-                            // Fallback: use entire id as key
                             seenPairs.add(rw.id.trim());
                         }
                     } else {
@@ -1222,18 +1213,15 @@
                         updateSigmetDisplay();
                         return;
                     }
-                    // Filter for South African region (first two letters of ICAO)
                     const region = icao.substring(0, 2).toUpperCase();
                     const relevant = allSigmets.filter(s => s.raw && s.raw.toUpperCase().includes(region));
                     if (relevant.length === 0) {
-                        // If no exact region match, perhaps show all if there are few? We'll show none.
                         sigmetRawLines = [];
                     } else {
                         sigmetRawLines = relevant.map(s => ({
                             raw: s.raw.trim(),
                             issued: parseSigmetIssued(s.raw)
                         }));
-                        // Sort by issued time descending
                         sigmetRawLines.sort((a,b) => (b.issued?.getTime()||0) - (a.issued?.getTime()||0));
                     }
                 } catch (e) {
@@ -1270,12 +1258,13 @@
                 searchBtn.style.opacity = '0.5'; searchBtn.style.pointerEvents = 'none';
 
                 try {
-                    const [metarRes, tafRes, airportRes, sigmetPromise] = await Promise.allSettled([
+                    const [metarRes, tafRes, airportRes] = await Promise.allSettled([
                         safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
                         safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
-                        safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
-                        fetchAndDisplaySigmet(icao)   // kick off but won't block
+                        safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`)
                     ]);
+                    // SIGMET called separately so it doesn't block
+                    fetchAndDisplaySigmet(icao);
 
                     // METAR
                     let metarOk = false;
@@ -1351,7 +1340,6 @@
                     }
                     airportFetchTime = mergedObj ? new Date() : null;
 
-                    // Populate UI
                     airportInfoGrid.innerHTML = buildAirportInfoHTML(icao, mergedObj);
                     runwayTableWrap.innerHTML = `<table class="runway-table">
                         <thead><tr>
@@ -1362,7 +1350,6 @@
                         <tbody>${buildRunwayTableHTML(mergedObj)}</tbody>
                     </table>`;
 
-                    // SIGMET already handled by fetchAndDisplaySigmet, but ensure update
                     startAgeUpdates();
                 } catch (err) {
                     console.error(err);
@@ -1389,7 +1376,6 @@
                 icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
             });
 
-            // Initial idle
             setIdleState();
             icaoInput.focus();
         })();
