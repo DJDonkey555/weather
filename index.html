@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SkyOps Weather Briefing</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-    href="https://fonts.googleapis.com/css2?family=Open+Sans:wdth,wght@75..100,300..800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
-    rel="stylesheet"
-    >
+        href="https://fonts.googleapis.com/css2?family=Open+Sans:wdth,wght@75..100,300..800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    />
 
     <style>
         :root {
@@ -64,8 +64,6 @@
         }
         .main-scroll::-webkit-scrollbar {
             display: none;
-            width: 0;
-            height: 0;
         }
 
         .top-bar {
@@ -80,7 +78,8 @@
             z-index: 50;
             gap: 16px;
         }
-        .time-utc, .time-local {
+        .time-utc,
+        .time-local {
             display: flex;
             align-items: center;
             gap: 4px;
@@ -90,7 +89,8 @@
             white-space: nowrap;
             flex-shrink: 0;
         }
-        .time-utc span, .time-local span {
+        .time-utc span,
+        .time-local span {
             padding: 3px 6px;
             background: rgba(255, 255, 255, 0.03);
             border-radius: 3px;
@@ -165,8 +165,13 @@
                 padding: 8px 12px;
                 gap: 8px;
             }
-            .time-utc { order: 1; }
-            .time-local { order: 2; margin-left: auto; }
+            .time-utc {
+                order: 1;
+            }
+            .time-local {
+                order: 2;
+                margin-left: auto;
+            }
             .search-wrap {
                 max-width: 100%;
                 order: 3;
@@ -194,7 +199,7 @@
         .card-taf {
             grid-column: 2;
         }
-        .card-sigmet {
+        .card-diagram {
             grid-column: 1 / -1;
         }
 
@@ -206,7 +211,7 @@
             .card-taf,
             .card-runways,
             .card-airport,
-            .card-sigmet {
+            .card-diagram {
                 grid-column: 1 / -1;
             }
         }
@@ -308,7 +313,7 @@
         .card-body .latest-entry {
             border-left: 2px solid var(--accent);
             padding-left: 6px;
-            background: rgba(40,158,214,0.06);
+            background: rgba(40, 158, 214, 0.06);
             margin-bottom: 4px;
             border-radius: 0 3px 3px 0;
         }
@@ -430,20 +435,26 @@
         }
 
         .shimmer {
-            background: linear-gradient(100deg,
-                    transparent 25%,
-                    rgba(255, 255, 255, 0.012) 40%,
-                    rgba(255, 255, 255, 0.025) 50%,
-                    rgba(255, 255, 255, 0.012) 60%,
-                    transparent 75%);
+            background: linear-gradient(
+                100deg,
+                transparent 25%,
+                rgba(255, 255, 255, 0.012) 40%,
+                rgba(255, 255, 255, 0.025) 50%,
+                rgba(255, 255, 255, 0.012) 60%,
+                transparent 75%
+            );
             background-size: 200% 100%;
             animation: shimmer 1.6s ease-in-out infinite;
             border-radius: var(--radius-sm);
             min-height: 30px;
         }
         @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
         }
 
         .decoded-strip {
@@ -498,10 +509,22 @@
             font-family: var(--font-sans);
             line-height: 1.4;
         }
-        .fc-vfr { background: rgba(74, 222, 128, 0.12); color: #4ade80; }
-        .fc-mvfr { background: rgba(245, 158, 11, 0.12); color: #f59e0b; }
-        .fc-ifr { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
-        .fc-lifr { background: rgba(239, 68, 68, 0.18); color: #f87171; }
+        .fc-vfr {
+            background: rgba(74, 222, 128, 0.12);
+            color: #4ade80;
+        }
+        .fc-mvfr {
+            background: rgba(245, 158, 11, 0.12);
+            color: #f59e0b;
+        }
+        .fc-ifr {
+            background: rgba(239, 68, 68, 0.12);
+            color: #ef4444;
+        }
+        .fc-lifr {
+            background: rgba(239, 68, 68, 0.18);
+            color: #f87171;
+        }
 
         .toggle-wrap {
             display: flex;
@@ -528,20 +551,23 @@
         .toggle-slider {
             position: absolute;
             cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background-color: #3a3d46;
-            transition: .2s;
+            transition: 0.2s;
             border-radius: 16px;
         }
         .toggle-slider::before {
-            content: "";
+            content: '';
             position: absolute;
             height: 12px;
             width: 12px;
             left: 2px;
             bottom: 2px;
             background-color: #ccc;
-            transition: .2s;
+            transition: 0.2s;
             border-radius: 50%;
         }
         .toggle-switch input:checked + .toggle-slider {
@@ -552,42 +578,56 @@
             background-color: #fff;
         }
 
-        .colour-wind { color: #60a5fa; }
-        .colour-vis { color: #4ade80; }
-        .colour-cloud { color: #c084fc; }
-        .colour-temp { color: #fb923c; }
-        .colour-qnh { color: #facc15; }
-        .colour-weather { color: #f87171; }
-        .colour-change { color: #f59e0b; font-weight: 600; }
-        .colour-default { color: #c8ced9; }
+        .colour-wind {
+            color: #60a5fa;
+        }
+        .colour-vis {
+            color: #4ade80;
+        }
+        .colour-cloud {
+            color: #c084fc;
+        }
+        .colour-temp {
+            color: #fb923c;
+        }
+        .colour-qnh {
+            color: #facc15;
+        }
+        .colour-weather {
+            color: #f87171;
+        }
+        .colour-change {
+            color: #f59e0b;
+            font-weight: 600;
+        }
 
-        .colour-sev { color: #ef4444; font-weight: 700; }
-        .colour-fir { color: #60a5fa; }
-        .colour-hazard { color: #f97316; font-weight: 600; }
+        .diagram-canvas {
+            width: 100%;
+            height: 280px;
+            background: #16181d;
+            display: block;
+        }
     </style>
 </head>
 <body>
-
     <header class="top-bar">
         <div class="time-utc">
             <span class="time-label">UTC</span>
             <span id="utcTime">--:--:--</span>
         </div>
-
         <div class="search-wrap" id="searchWrap">
             <input
-            id="icaoInput"
-            class="icao-input"
-            type="text"
-            placeholder="Enter ICAO code..."
-            maxlength="4"
-            autocomplete="off"
-            spellcheck="false"
-            aria-label="ICAO airport code"
-            >
+                id="icaoInput"
+                class="icao-input"
+                type="text"
+                placeholder="Enter ICAO code..."
+                maxlength="4"
+                autocomplete="off"
+                spellcheck="false"
+                aria-label="ICAO airport code"
+            />
             <button class="search-icon-btn" id="searchBtn" title="Search weather">&#x1F50D;</button>
         </div>
-
         <div class="time-local">
             <span class="time-label">Local</span>
             <span id="localTime">--:--:--</span>
@@ -596,9 +636,8 @@
 
     <div class="main-scroll" id="mainScroll">
         <div class="content-grid">
-
             <!-- Decoded METAR strip -->
-            <div class="card-airport decoded-strip" id="decodedStrip" style="display:flex; opacity:1;">
+            <div class="card-airport decoded-strip" id="decodedStrip" style="display: flex; opacity: 1">
                 <div class="ds-item"><span class="ds-label">Category</span><span class="ds-value" id="dsCat">—</span></div>
                 <div class="ds-item"><span class="ds-label">Temp / Dew</span><span class="ds-value" id="dsTemp">—</span></div>
                 <div class="ds-item"><span class="ds-label">Wind</span><span class="ds-value" id="dsWind">—</span></div>
@@ -628,12 +667,32 @@
             <div class="card card-runways" id="runwayCard">
                 <div class="card-header">
                     <span class="card-title"><span class="dot"></span> Runway Details</span>
-                    <span class="card-age" style="font-size:9px;color:var(--amber);">* Data may not be current – verify with official AIP/AIP SUP</span>
+                    <span class="card-age" style="font-size: 9px; color: var(--amber)"
+                        >* Data may not be current – verify with official AIP/AIP SUP</span
+                    >
                 </div>
                 <div class="runway-table-wrap" id="runwayTableWrap">
                     <table class="runway-table">
-                        <thead><tr><th>Runway</th><th>Threshold Coordinates</th><th>THR Elev (ft)</th><th>TORA (m)</th><th>TODA (m)</th><th>ASDA (m)</th><th>LDA (m)</th><th>SWY (m)</th><th>CWY (m)</th><th>Slope</th><th>Surface</th></tr></thead>
-                        <tbody><tr><td colspan="11" class="na-cell">Search for an airport to see runway details.</td></tr></tbody>
+                        <thead>
+                            <tr>
+                                <th>Runway</th>
+                                <th>Threshold Coordinates</th>
+                                <th>THR Elev (ft)</th>
+                                <th>TORA (m)</th>
+                                <th>TODA (m)</th>
+                                <th>ASDA (m)</th>
+                                <th>LDA (m)</th>
+                                <th>SWY (m)</th>
+                                <th>CWY (m)</th>
+                                <th>Slope</th>
+                                <th>Surface</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="11" class="na-cell">Search for an airport to see runway details.</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -648,7 +707,7 @@
                     <div class="toggle-wrap">
                         <span class="toggle-label">Colour</span>
                         <label class="toggle-switch">
-                            <input type="checkbox" id="metarColourToggle" checked>
+                            <input type="checkbox" id="metarColourToggle" checked />
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
@@ -665,18 +724,18 @@
                         <span class="card-title"><span class="dot"></span> TAF</span>
                         <span class="card-age" id="tafAge"></span>
                     </div>
-                    <div class="toggle-wrap" style="gap:12px;">
+                    <div class="toggle-wrap" style="gap: 12px">
                         <div class="toggle-wrap">
                             <span class="toggle-label">Colour</span>
                             <label class="toggle-switch">
-                                <input type="checkbox" id="tafColourToggle" checked>
+                                <input type="checkbox" id="tafColourToggle" checked />
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
                         <div class="toggle-wrap">
                             <span class="toggle-label">Format</span>
                             <label class="toggle-switch">
-                                <input type="checkbox" id="tafFormatToggle" checked>
+                                <input type="checkbox" id="tafFormatToggle" checked />
                                 <span class="toggle-slider"></span>
                             </label>
                         </div>
@@ -687,41 +746,33 @@
                 </div>
             </div>
 
-            <!-- SIGMET card -->
-            <div class="card card-sigmet" id="sigmetCard">
+            <!-- Runway Layout Diagram -->
+            <div class="card card-diagram" id="diagramCard">
                 <div class="card-header">
-                    <div class="card-header-left">
-                        <span class="card-title"><span class="dot"></span> SIGMET</span>
-                        <span class="card-age" id="sigmetAge"></span>
-                    </div>
-                    <div class="toggle-wrap">
-                        <span class="toggle-label">Colour</span>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="sigmetColourToggle" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
+                    <span class="card-title"><span class="dot"></span> Runway Layout</span>
+                    <span class="card-age" id="diagramAge"></span>
                 </div>
-                <div class="card-body" id="sigmetBody">
-                    <span class="placeholder">SIGMET information will appear here for the selected airport region.</span>
+                <div class="card-body" style="padding: 0; overflow: hidden">
+                    <canvas id="diagramCanvas" class="diagram-canvas"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Load local runway/elevation data -->
+    <!-- Local runway/elevation data -->
     <script src="airport-data.js"></script>
 
     <script>
-        (function() {
+        (function () {
+            // DOM elements
             const icaoInput = document.getElementById('icaoInput');
             const searchBtn = document.getElementById('searchBtn');
             const metarBody = document.getElementById('metarBody');
             const tafBody = document.getElementById('tafBody');
-            const sigmetBody = document.getElementById('sigmetBody');
+            const diagramCanvas = document.getElementById('diagramCanvas');
             const metarAgeEl = document.getElementById('metarAge');
             const tafAgeEl = document.getElementById('tafAge');
-            const sigmetAgeEl = document.getElementById('sigmetAge');
+            const diagramAgeEl = document.getElementById('diagramAge');
             const airportAgeEl = document.getElementById('airportAge');
             const decodedStrip = document.getElementById('decodedStrip');
             const dsCat = document.getElementById('dsCat');
@@ -730,8 +781,6 @@
             const dsVis = document.getElementById('dsVis');
             const dsClouds = document.getElementById('dsClouds');
             const dsQnh = document.getElementById('dsQnh');
-            const airportCard = document.getElementById('airportCard');
-            const runwayCard = document.getElementById('runwayCard');
             const airportInfoGrid = document.getElementById('airportInfoGrid');
             const runwayTableWrap = document.getElementById('runwayTableWrap');
             const utcTimeSpan = document.getElementById('utcTime');
@@ -739,8 +788,8 @@
             const metarColourToggle = document.getElementById('metarColourToggle');
             const tafColourToggle = document.getElementById('tafColourToggle');
             const tafFormatToggle = document.getElementById('tafFormatToggle');
-            const sigmetColourToggle = document.getElementById('sigmetColourToggle');
 
+            // State
             let lastIcao = '';
             let metarRawLines = [];
             let tafRaw = '';
@@ -749,9 +798,10 @@
             let airportFetchTime = null;
             let ageInterval = null;
             let clockInterval = null;
-            let sigmetRawLines = [];
+            let currentAirportObj = null;
+            let currentWind = { dirDeg: null, speedKt: 0 }; // from METAR
 
-            // ── Helpers ──────────────────────────────────
+            // ── Clocks ──────────────────────────────────
             function updateClocks() {
                 const now = new Date();
                 utcTimeSpan.textContent = now.toISOString().slice(11, 19);
@@ -760,11 +810,8 @@
             updateClocks();
             clockInterval = setInterval(updateClocks, 1000);
 
-            const PROXY_LIST = [
-                'https://corsproxy.io/?',
-                'https://api.allorigins.win/raw?url=',
-            ];
-
+            // ── Fetch helpers ──────────────────────────
+            const PROXY_LIST = ['https://corsproxy.io/?', 'https://api.allorigins.win/raw?url='];
             async function safeFetch(url, timeout = 12000) {
                 try {
                     const res = await fetch(url, { signal: AbortSignal.timeout(timeout) });
@@ -787,6 +834,7 @@
                 throw new Error('All fetch methods failed.');
             }
 
+            // ── Time formatting ────────────────────────
             function formatTimeAgo(date) {
                 if (!date) return '';
                 const now = new Date();
@@ -802,22 +850,15 @@
             }
 
             function updateAges() {
-                if (metarIssuedTime) {
-                    metarAgeEl.textContent = `Issued: ${formatTimeAgo(metarIssuedTime)}`;
-                } else {
-                    metarAgeEl.textContent = '';
-                }
-                if (tafIssuedTime) {
-                    tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafIssuedTime)}`;
-                } else {
-                    tafAgeEl.textContent = '';
-                }
+                if (metarIssuedTime) metarAgeEl.textContent = `Issued: ${formatTimeAgo(metarIssuedTime)}`;
+                else metarAgeEl.textContent = '';
+                if (tafIssuedTime) tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafIssuedTime)}`;
+                else tafAgeEl.textContent = '';
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
-                if (sigmetRawLines.length > 0 && sigmetRawLines[0].issued) {
-                    sigmetAgeEl.textContent = `Latest issued: ${formatTimeAgo(sigmetRawLines[0].issued)}`;
-                } else {
-                    sigmetAgeEl.textContent = '';
-                }
+                else airportAgeEl.textContent = '';
+                if (metarIssuedTime)
+                    diagramAgeEl.textContent = `Wind from METAR issued: ${formatTimeAgo(metarIssuedTime)}`;
+                else diagramAgeEl.textContent = '';
             }
 
             function startAgeUpdates() {
@@ -826,54 +867,37 @@
                 ageInterval = setInterval(updateAges, 25000);
             }
 
+            // ── Parsing helpers ────────────────────────
             function parseMetarIssued(raw) {
                 if (!raw) return null;
-                let str = raw.trim();
-                str = str.replace(/^METAR\s+/i, '');
+                let str = raw.trim().replace(/^METAR\s+/i, '');
                 const match = str.match(/^([A-Z]{4})\s+(\d{2})(\d{2})(\d{2})Z/);
                 if (!match) return null;
-                const day = parseInt(match[2], 10);
-                const hour = parseInt(match[3], 10);
-                const minute = parseInt(match[4], 10);
+                const day = parseInt(match[2], 10),
+                    hour = parseInt(match[3], 10),
+                    minute = parseInt(match[4], 10);
                 const now = new Date();
                 const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
                 if (issued > now) {
-                    const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
-                    return prevMonth <= now ? prevMonth : now;
+                    const prev = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
+                    return prev <= now ? prev : now;
                 }
                 return issued;
             }
 
             function parseTAFIssued(raw) {
                 if (!raw) return null;
-                let str = raw.trim();
-                str = str.replace(/^(TAF\s*)(AMD\s*)?/i, '');
+                let str = raw.trim().replace(/^(TAF\s*)(AMD\s*)?/i, '');
                 const match = str.match(/^([A-Z]{4})\s+(\d{2})(\d{2})(\d{2})Z/);
                 if (!match) return null;
-                const day = parseInt(match[2], 10);
-                const hour = parseInt(match[3], 10);
-                const minute = parseInt(match[4], 10);
+                const day = parseInt(match[2], 10),
+                    hour = parseInt(match[3], 10),
+                    minute = parseInt(match[4], 10);
                 const now = new Date();
                 const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
                 if (issued > now) {
-                    const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
-                    return prevMonth <= now ? prevMonth : now;
-                }
-                return issued;
-            }
-
-            function parseSigmetIssued(raw) {
-                if (!raw) return null;
-                const match = raw.match(/\b(\d{2})(\d{2})(\d{2})\b/);
-                if (!match) return null;
-                const day = parseInt(match[1], 10);
-                const hour = parseInt(match[2], 10);
-                const minute = parseInt(match[3], 10);
-                const now = new Date();
-                const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
-                if (issued > now) {
-                    const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
-                    return prevMonth <= now ? prevMonth : now;
+                    const prev = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
+                    return prev <= now ? prev : now;
                 }
                 return issued;
             }
@@ -884,18 +908,36 @@
                 const m = Math.floor((abs - d) * 60);
                 const s = Math.round((abs - d - m / 60) * 3600);
                 const dir = isLat ? (deg >= 0 ? 'N' : 'S') : (deg >= 0 ? 'E' : 'W');
-                return `${d}°${String(m).padStart(2,'0')}'${String(s).padStart(2,'0')}"${dir}`;
+                return `${d}°${String(m).padStart(2, '0')}'${String(s).padStart(2, '0')}"${dir}`;
             }
 
+            function parseWindFromMETAR(rawMetar) {
+                if (!rawMetar) return { dirDeg: null, speedKt: 0 };
+                const metar = rawMetar.toUpperCase();
+                const windMatch = metar.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
+                if (!windMatch) return { dirDeg: null, speedKt: 0 };
+                let dirDeg;
+                if (windMatch[1] === 'VRB') dirDeg = null;
+                else dirDeg = parseInt(windMatch[1], 10);
+                const speedKt = parseInt(windMatch[2], 10);
+                return { dirDeg, speedKt };
+            }
+
+            // ── Decoded strip ──────────────────────────
             function decodeMetar(raw) {
                 const res = { flightCat: '—', flightCatClass: '', temp: '—', dew: '—', wind: '—', vis: '—', clouds: '—', qnh: '—' };
                 if (!raw || raw.length < 10) return res;
                 const metar = raw.toUpperCase().trim();
                 const tdMatch = metar.match(/\b(M?\d{2})\/(M?\d{2})\b/);
-                if (tdMatch) { res.temp = tdMatch[1].replace('M', '-') + '°C'; res.dew = tdMatch[2].replace('M', '-') + '°C'; }
+                if (tdMatch) {
+                    res.temp = tdMatch[1].replace('M', '-') + '°C';
+                    res.dew = tdMatch[2].replace('M', '-') + '°C';
+                }
                 const windMatch = metar.match(/\b(VRB|\d{3})(\d{2,3})(G(\d{2,3}))?KT\b/);
                 if (windMatch) {
-                    const dir = windMatch[1], spd = windMatch[2], gust = windMatch[4];
+                    const dir = windMatch[1],
+                        spd = windMatch[2],
+                        gust = windMatch[4];
                     if (dir === '000' || (dir === 'VRB' && parseInt(spd) < 3)) res.wind = 'Calm';
                     else if (dir === 'VRB') res.wind = `VRB @ ${spd}kt`;
                     else res.wind = `${dir}° @ ${spd}kt`;
@@ -904,29 +946,54 @@
                 if (metar.includes('CAVOK')) res.vis = 'CAVOK (10km+)';
                 else {
                     const visMatch = metar.match(/\b(\d{4})\b/);
-                    if (visMatch) { const v = parseInt(visMatch[1]); if (v >= 9999) res.vis = '10km+'; else if (v >= 1000) res.vis = (v/1000).toFixed(1)+'km'; else res.vis = v+'m'; }
+                    if (visMatch) {
+                        const v = parseInt(visMatch[1]);
+                        if (v >= 9999) res.vis = '10km+';
+                        else if (v >= 1000) res.vis = (v / 1000).toFixed(1) + 'km';
+                        else res.vis = v + 'm';
+                    }
                     const smMatch = metar.match(/\b(\d+)SM\b/);
                     if (smMatch) res.vis = smMatch[1] + 'SM';
                 }
-                const clouds = [], cloudRegex = /\b(FEW|SCT|BKN|OVC)(\d{3})\b/g; let cm;
-                while ((cm = cloudRegex.exec(metar)) !== null) clouds.push(`${cm[1]} @ ${parseInt(cm[2])*100}ft`);
+                const clouds = [],
+                    cloudRegex = /\b(FEW|SCT|BKN|OVC)(\d{3})\b/g;
+                let cm;
+                while ((cm = cloudRegex.exec(metar)) !== null) clouds.push(`${cm[1]} @ ${parseInt(cm[2]) * 100}ft`);
                 if (clouds.length) res.clouds = clouds.join(', ');
                 else if (metar.includes('CAVOK') || metar.includes('SKC') || metar.includes('CLR')) res.clouds = 'Clear';
                 else if (metar.includes('NSC')) res.clouds = 'No sig. cloud';
                 const qnhMatch = metar.match(/\bQ(\d{4})\b/);
                 if (qnhMatch) res.qnh = qnhMatch[1] + ' hPa';
-                else { const altMatch = metar.match(/\bA(\d{4})\b/); if (altMatch) res.qnh = (parseInt(altMatch[1])/100).toFixed(2) + ' inHg'; }
-                let ceil = 99999; const ceilRegex = /\b(BKN|OVC)(\d{3})\b/g; let cc;
-                while ((cc = ceilRegex.exec(metar)) !== null) ceil = Math.min(ceil, parseInt(cc[2])*100);
-                let visM = 99999; const vm = metar.match(/\b(\d{4})\b/);
+                else {
+                    const altMatch = metar.match(/\bA(\d{4})\b/);
+                    if (altMatch) res.qnh = (parseInt(altMatch[1]) / 100).toFixed(2) + ' inHg';
+                }
+                let ceil = 99999;
+                const ceilRegex = /\b(BKN|OVC)(\d{3})\b/g;
+                let cc;
+                while ((cc = ceilRegex.exec(metar)) !== null) ceil = Math.min(ceil, parseInt(cc[2]) * 100);
+                let visM = 99999;
+                const vm = metar.match(/\b(\d{4})\b/);
                 if (vm && !metar.includes('CAVOK')) visM = parseInt(vm[1]);
-                const smCat = metar.match(/\b(\d+)SM\b/); if (smCat) visM = parseInt(smCat[1])*1609;
-                const visSM = visM/1609;
-                if (ceil > 3000 && visSM > 5) { res.flightCat = 'VFR'; res.flightCatClass = 'fc-vfr'; }
-                else if ((ceil >= 1000 && ceil <= 3000) || (visSM >= 3 && visSM <= 5)) { res.flightCat = 'MVFR'; res.flightCatClass = 'fc-mvfr'; }
-                else if ((ceil >= 500 && ceil < 1000) || (visSM >= 1 && visSM < 3)) { res.flightCat = 'IFR'; res.flightCatClass = 'fc-ifr'; }
-                else if (ceil < 500 || visSM < 1) { res.flightCat = 'LIFR'; res.flightCatClass = 'fc-lifr'; }
-                else { res.flightCat = 'VFR'; res.flightCatClass = 'fc-vfr'; }
+                const smCat = metar.match(/\b(\d+)SM\b/);
+                if (smCat) visM = parseInt(smCat[1]) * 1609;
+                const visSM = visM / 1609;
+                if (ceil > 3000 && visSM > 5) {
+                    res.flightCat = 'VFR';
+                    res.flightCatClass = 'fc-vfr';
+                } else if ((ceil >= 1000 && ceil <= 3000) || (visSM >= 3 && visSM <= 5)) {
+                    res.flightCat = 'MVFR';
+                    res.flightCatClass = 'fc-mvfr';
+                } else if ((ceil >= 500 && ceil < 1000) || (visSM >= 1 && visSM < 3)) {
+                    res.flightCat = 'IFR';
+                    res.flightCatClass = 'fc-ifr';
+                } else if (ceil < 500 || visSM < 1) {
+                    res.flightCat = 'LIFR';
+                    res.flightCatClass = 'fc-lifr';
+                } else {
+                    res.flightCat = 'VFR';
+                    res.flightCatClass = 'fc-vfr';
+                }
                 return res;
             }
 
@@ -940,6 +1007,7 @@
                 dsQnh.textContent = d.qnh;
             }
 
+            // ── IDLE / LOADING states ─────────────────
             function setIdleState() {
                 dsCat.textContent = '—';
                 dsTemp.textContent = '—';
@@ -962,12 +1030,15 @@
                     </table>`;
                 metarBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
                 tafBody.innerHTML = '<span class="placeholder">Enter a SA ICAO code (FAxx) and press search.</span>';
-                sigmetBody.innerHTML = '<span class="placeholder">SIGMET information will appear here for the selected airport region.</span>';
-                sigmetAgeEl.textContent = '';
+                diagramCanvas
+                    .getContext('2d')
+                    .clearRect(0, 0, diagramCanvas.width, diagramCanvas.height);
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
-                sigmetRawLines = [];
+                diagramAgeEl.textContent = '';
+                currentAirportObj = null;
+                currentWind = { dirDeg: null, speedKt: 0 };
             }
 
             function setLoadingState() {
@@ -981,15 +1052,20 @@
                 runwayTableWrap.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
                 metarBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
                 tafBody.innerHTML = '<div class="shimmer" style="width:100%; height:60px;"></div>';
-                sigmetBody.innerHTML = '<div class="shimmer" style="width:100%; height:80px;"></div>';
                 metarAgeEl.textContent = '';
                 tafAgeEl.textContent = '';
                 airportAgeEl.textContent = '';
-                sigmetAgeEl.textContent = '';
+                diagramAgeEl.textContent = '';
             }
 
-            function escapeHTML(str) { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+            // ── HTML escaping ──────────────────────────
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
 
+            // ── Colour rendering ──────────────────────
             function renderColouredMETAR(raw) {
                 let safe = escapeHTML(raw);
                 safe = safe.replace(/\b(\d{3}|VRB)(\d{2,3})(G\d{2,3})?(KT|KPH)\b/gi, '<span class="colour-wind">$&</span>');
@@ -1015,24 +1091,20 @@
                 safe = safe.replace(/\bQ(\d{4})\b/g, '<span class="colour-qnh">$&</span>');
                 safe = safe.replace(/\b(PROB\d{2}\s+TEMPO|PROB\d{2}|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})\b/g, '<span class="colour-change">$&</span>');
                 safe = safe.replace(/\b([-+]?[A-Z]{2}(?:\s?[A-Z]{2})*)\b/g, (m) => {
-                    if (/^(FEW|SCT|BKN|OVC|CLR|SKC|CAVOK|NSC|NCD|VRB|KT|KPH|M?\d{2}\/|Q\d{4}|A\d{4}|PROB|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})$/.test(m)) return m;
+                    if (/^(FEW|SCT|BKN|OVC|CLR|SKC|CAVOK|NSC|NCD|VRB|KT|KPH|M?\d{2}\/|Q\d{4}|A\d{4})$/.test(m)) return m;
                     return `<span class="colour-weather">${m}</span>`;
                 });
                 return safe;
             }
 
-            function renderColouredSIGMET(raw) {
-                let safe = escapeHTML(raw);
-                safe = safe.replace(/\b(SEV\s+(?:TURB|ICE|MTW|TS|DS|SS)|HVY\s+(?:TS|SS|DS)|ISOL\s+TS|EMBD\s+TS|TURB|ICE|MTW|CB|TC)\b/gi, '<span class="colour-hazard">$&</span>');
-                safe = safe.replace(/\b([A-Z]{4})\s+FIR\b/g, '<span class="colour-fir">$1 FIR</span>');
-                // FIXED: escaped the forward slash
-                safe = safe.replace(/\b(SIGMET\s+\d+|VALID\s+\d{6}\/\d{6})\b/gi, '<span class="colour-change">$&</span>');
-                return safe;
-            }
-
+            // ── TAF formatting (fixed) ────────────────
             function formatTAFRaw(raw) {
                 if (!raw) return raw;
-                return raw.replace(/\s(?=PROB\d{2}\s|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g, '\n');
+                // Insert newline before every change group: PROB30 TEMPO, PROB30, TEMPO, BECMG, FM, TL, AT
+                return raw.replace(
+                    /\s(?=PROB\d{2}\s+TEMPO|PROB\d{2}|TEMPO|BECMG|FM\d{6}|TL\d{6}|AT\d{6})/g,
+                    '\n'
+                );
             }
 
             function updateMetarDisplay() {
@@ -1041,7 +1113,7 @@
                 let html = '';
                 metarRawLines.forEach((raw, idx) => {
                     const formatted = colour ? renderColouredMETAR(raw) : escapeHTML(raw);
-                    const entryClass = (idx === 0) ? 'latest-entry' : '';
+                    const entryClass = idx === 0 ? 'latest-entry' : '';
                     html += `<pre class="${entryClass}">${formatted}</pre>`;
                 });
                 metarBody.innerHTML = html;
@@ -1056,59 +1128,227 @@
                 tafBody.innerHTML = `<pre>${html}</pre>`;
             }
 
-            function updateSigmetDisplay() {
-                if (!sigmetBody || sigmetRawLines.length === 0) {
-                    sigmetBody.innerHTML = '<span class="placeholder">No active SIGMETs for this region.</span>';
-                    return;
-                }
-                const colour = sigmetColourToggle.checked;
-                let html = '';
-                sigmetRawLines.forEach((item, idx) => {
-                    const text = item.raw;
-                    const formatted = colour ? renderColouredSIGMET(text) : escapeHTML(text);
-                    html += `<pre>${formatted}</pre>`;
-                    if (idx < sigmetRawLines.length - 1) html += '<hr style="border-color:rgba(255,255,255,0.05); margin: 8px 0;">';
-                });
-                sigmetBody.innerHTML = html;
+            // ── Runway Layout Diagram ──────────────────
+            function runwayHeading(designation) {
+                const num = parseInt(designation, 10);
+                return isNaN(num) ? null : num * 10;
             }
 
-            // Correctly count physical runway pairs
+            function getRunwayEndCoords(rw, airportLat, airportLon) {
+                // we need a length for the runway; prefer length_ft, else fallback to max TORA (approximate)
+                let lengthM = null;
+                if (rw.length_ft) lengthM = rw.length_ft * 0.3048;
+                else if (rw.tora) lengthM = rw.tora; // TORA is in meters
+                else return null;
+
+                const des = rw.designation || '';
+                const heading = runwayHeading(des);
+                if (heading === null) return null;
+
+                // We'll place the runway centered at the airport's coordinates, then compute the two endpoints.
+                const halfLen = lengthM / 2;
+                // Convert heading (degrees from north) to radians
+                const rad = (heading * Math.PI) / 180;
+                // Offsets in meters (north = +lat, east = +lon)
+                const dx = Math.sin(rad) * halfLen;
+                const dy = Math.cos(rad) * halfLen;
+
+                // Approx meters per degree
+                const metersPerDegLat = 111320;
+                const metersPerDegLon = 111320 * Math.cos((airportLat * Math.PI) / 180);
+
+                return {
+                    lat1: airportLat + dy / metersPerDegLat,
+                    lon1: airportLon + dx / metersPerDegLon,
+                    lat2: airportLat - dy / metersPerDegLat,
+                    lon2: airportLon - dx / metersPerDegLon,
+                    heading,
+                };
+            }
+
+            function drawDiagram() {
+                const canvas = diagramCanvas;
+                const ctx = canvas.getContext('2d');
+                const width = canvas.clientWidth;
+                const height = canvas.clientHeight;
+                canvas.width = width;
+                canvas.height = height;
+
+                ctx.clearRect(0, 0, width, height);
+
+                if (!currentAirportObj || !currentAirportObj.runways || currentAirportObj.runways.length === 0) {
+                    ctx.fillStyle = '#5b606d';
+                    ctx.font = '12px Open Sans, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('No runway data available', width / 2, height / 2);
+                    return;
+                }
+
+                const airportLat = currentAirportObj.lat || 0;
+                const airportLon = currentAirportObj.lon || 0;
+
+                // Collect runway segments (each runway direction -> line)
+                const segments = [];
+                const rawRwys = currentAirportObj.runways;
+                rawRwys.forEach((rw) => {
+                    const coords = getRunwayEndCoords(rw, airportLat, airportLon);
+                    if (!coords) return;
+                    segments.push({
+                        des: rw.designation || rw.id || '??',
+                        lat1: coords.lat1,
+                        lon1: coords.lon1,
+                        lat2: coords.lat2,
+                        lon2: coords.lon2,
+                        heading: coords.heading,
+                    });
+                });
+
+                if (segments.length === 0) {
+                    ctx.fillStyle = '#5b606d';
+                    ctx.font = '12px Open Sans, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Insufficient runway data to draw diagram', width / 2, height / 2);
+                    return;
+                }
+
+                // Compute bounding box in lat/lon
+                let minLat = Infinity, maxLat = -Infinity, minLon = Infinity, maxLon = -Infinity;
+                segments.forEach((seg) => {
+                    [seg.lat1, seg.lat2].forEach((lat) => {
+                        if (lat < minLat) minLat = lat;
+                        if (lat > maxLat) maxLat = lat;
+                    });
+                    [seg.lon1, seg.lon2].forEach((lon) => {
+                        if (lon < minLon) minLon = lon;
+                        if (lon > maxLon) maxLon = lon;
+                    });
+                });
+
+                // Scale to fit, with margin
+                const margin = 40;
+                const metersPerDegLat = 111320;
+                const metersPerDegLon = 111320 * Math.cos((airportLat * Math.PI) / 180);
+                const latRange = (maxLat - minLat) * metersPerDegLat;
+                const lonRange = (maxLon - minLon) * metersPerDegLon;
+                const scaleX = (width - 2 * margin) / (lonRange || 1);
+                const scaleY = (height - 2 * margin) / (latRange || 1);
+                const scale = Math.min(scaleX, scaleY);
+
+                // Project function: (lat, lon) -> canvas pixel (x = east, y = north inverted)
+                const project = (lat, lon) => {
+                    const x = margin + (lon - minLon) * metersPerDegLon * scale;
+                    const y = margin + (maxLat - lat) * metersPerDegLat * scale; // invert y
+                    return { x, y };
+                };
+
+                // Draw runways as thick lines
+                ctx.strokeStyle = '#4a5568';
+                ctx.lineWidth = 3;
+                segments.forEach((seg) => {
+                    const p1 = project(seg.lat1, seg.lon1);
+                    const p2 = project(seg.lat2, seg.lon2);
+                    ctx.beginPath();
+                    ctx.moveTo(p1.x, p1.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.stroke();
+
+                    // Label ends (use the designation)
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 9px JetBrains Mono, monospace';
+                    ctx.textAlign = 'center';
+                    // Place label near the endpoint but offset a bit perpendicular to the runway
+                    const angle = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+                    const offsetX = Math.sin(angle) * 8;
+                    const offsetY = -Math.cos(angle) * 8;
+                    // Label the start point with the designation (assuming designation corresponds to that end)
+                    ctx.fillText(seg.des, p1.x + offsetX, p1.y + offsetY);
+                });
+
+                // Draw wind arrow if available
+                if (currentWind.dirDeg != null && currentWind.speedKt > 0) {
+                    const arrowX = width - 50;
+                    const arrowY = 40;
+                    const len = 40;
+                    const rad = ((currentWind.dirDeg + 180) % 360) * (Math.PI / 180); // wind FROM direction (meteorological)
+                    const dx = Math.sin(rad) * len;
+                    const dy = -Math.cos(rad) * len;
+                    ctx.beginPath();
+                    ctx.strokeStyle = '#60a5fa';
+                    ctx.lineWidth = 2;
+                    ctx.moveTo(arrowX, arrowY);
+                    ctx.lineTo(arrowX + dx, arrowY + dy);
+                    ctx.stroke();
+                    // arrowhead
+                    const headLen = 8;
+                    const angle1 = rad + Math.PI + 0.4;
+                    const angle2 = rad + Math.PI - 0.4;
+                    ctx.beginPath();
+                    ctx.moveTo(arrowX + dx, arrowY + dy);
+                    ctx.lineTo(arrowX + dx + Math.sin(angle1) * headLen, arrowY + dy - Math.cos(angle1) * headLen);
+                    ctx.lineTo(arrowX + dx + Math.sin(angle2) * headLen, arrowY + dy - Math.cos(angle2) * headLen);
+                    ctx.closePath();
+                    ctx.fillStyle = '#60a5fa';
+                    ctx.fill();
+                    ctx.fillStyle = '#a0a6b0';
+                    ctx.font = '9px Open Sans, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${currentWind.dirDeg}° @ ${currentWind.speedKt}kt`, arrowX + dx / 2, arrowY - 10);
+                } else if (currentWind.speedKt === 0 || currentWind.dirDeg === null) {
+                    ctx.fillStyle = '#a0a6b0';
+                    ctx.font = 'italic 10px Open Sans, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Wind calm / variable', width - 60, 30);
+                }
+            }
+
+            function updateDiagram() {
+                drawDiagram();
+            }
+
+            // Debounced redraw on window resize
+            window.addEventListener('resize', () => {
+                if (currentAirportObj) drawDiagram();
+            });
+
+            // ── Physical runway count ──────────────────
+            function runwayPairKey(designation) {
+                const des = designation.trim();
+                const match = des.match(/^(\d{2})([LRC]?)$/i);
+                if (!match) return des;
+                const num = parseInt(match[1], 10);
+                const suffix = match[2].toUpperCase();
+                const recipNum = (num + 18) % 36;
+                const recipNumStr = String(recipNum).padStart(2, '0');
+                let oppSuffix = '';
+                if (suffix === 'L') oppSuffix = 'R';
+                else if (suffix === 'R') oppSuffix = 'L';
+                else if (suffix === 'C') oppSuffix = 'C';
+                const first = `${match[1]}${suffix}`;
+                const second = `${recipNumStr}${oppSuffix}`;
+                const parts = [first, second].sort();
+                return parts.join('/');
+            }
+
             function getPhysicalRunwayCount(runways) {
                 const seenPairs = new Set();
-                runways.forEach(rw => {
-                    if (rw.designation) {
-                        const des = rw.designation.trim();
-                        const num = parseInt(des, 10);
-                        if (!isNaN(num) && num >= 1 && num <= 36) {
-                            const recip = (num + 18) % 36;
-                            if (recip === 0) recip = 36;
-                            const pair = [num, recip].sort((a,b)=>a-b).join('/');
-                            seenPairs.add(pair);
-                        } else {
-                            seenPairs.add(des);
+                runways.forEach((rw) => {
+                    let des = rw.designation || rw.id || '';
+                    if (!des) return;
+                    if (des.includes('/')) {
+                        const parts = des.split('/').map((s) => s.trim()).filter(Boolean);
+                        if (parts.length === 2) {
+                            const sorted = parts.sort().join('/');
+                            seenPairs.add(sorted);
+                            return;
                         }
-                    } else if (rw.id) {
-                        const parts = rw.id.split('/');
-                        const nums = parts.map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n) && n >= 1 && n <= 36);
-                        if (nums.length === 2) {
-                            const pair = nums.sort((a,b)=>a-b).join('/');
-                            seenPairs.add(pair);
-                        } else if (nums.length === 1) {
-                            const num = nums[0];
-                            const recip = (num + 18) % 36;
-                            if (recip === 0) recip = 36;
-                            const pair = [num, recip].sort((a,b)=>a-b).join('/');
-                            seenPairs.add(pair);
-                        } else {
-                            seenPairs.add(rw.id.trim());
-                        }
-                    } else {
-                        seenPairs.add('unknown');
                     }
+                    const key = runwayPairKey(des);
+                    if (key) seenPairs.add(key);
                 });
                 return seenPairs.size;
             }
 
+            // ── Build airport info / runway table ──────
             function buildAirportInfoHTML(icao, airportObj) {
                 if (!airportObj) {
                     return `<div class="airport-name-block">
@@ -1123,9 +1363,9 @@
                 let elevFt = null;
                 if (airportObj.elevation_ft != null) elevFt = airportObj.elevation_ft;
                 else if (airportObj.elevation_m != null) elevFt = Math.round(airportObj.elevation_m * 3.28084);
-                const lat = airportObj.lat, lon = airportObj.lon;
-                const rawRunways = airportObj.runways || [];
-                const physicalCount = getPhysicalRunwayCount(rawRunways);
+                const lat = airportObj.lat,
+                    lon = airportObj.lon;
+                const physicalCount = getPhysicalRunwayCount(airportObj.runways || []);
 
                 return `<div class="airport-name-block">
                             <div class="airport-name">${escapeHTML(name)}</div>
@@ -1137,11 +1377,11 @@
                         </div>
                         <div class="airport-stat">
                             <span class="stat-label">Runways</span>
-                            <span class="stat-value">${physicalCount > 0 ? `${physicalCount} runway${physicalCount>1?'s':''}` : '—'}</span>
+                            <span class="stat-value">${physicalCount > 0 ? `${physicalCount} runway${physicalCount > 1 ? 's' : ''}` : '—'}</span>
                         </div>
                         <div class="airport-stat">
                             <span class="stat-label">Coordinates</span>
-                            <span class="airport-coords">${(lat!=null&&lon!=null) ? `${toDMS(lat,true)}  ${toDMS(lon,false)}` : '—'}</span>
+                            <span class="airport-coords">${lat != null && lon != null ? `${toDMS(lat, true)}  ${toDMS(lon, false)}` : '—'}</span>
                         </div>`;
             }
 
@@ -1152,7 +1392,7 @@
                 const rawRunways = airportObj.runways;
                 let rowsHtml = '';
                 if (airportObj._local) {
-                    rawRunways.forEach(rw => {
+                    rawRunways.forEach((rw) => {
                         const designation = rw.designation || '??';
                         const thrCoords = rw.thr_coordinates || '—';
                         const thrElevStr = rw.thr_elev_ft != null ? `${rw.thr_elev_ft} ft` : '—';
@@ -1176,19 +1416,30 @@
                         </tr>`;
                     });
                 } else {
-                    rawRunways.forEach(rw => {
+                    rawRunways.forEach((rw) => {
                         const parts = (rw.id || '').split('/');
                         const directions = parts.length === 2 ? parts : [rw.id || '??', '??'];
                         const surface = rw.surface || '—';
-                        const thrLat = rw.threshold_lat, thrLon = rw.threshold_lon, thrElevFt = rw.threshold_elev_ft;
-                        const slopeVal = rw.slope, slopeSign = rw.slope_sign || '';
-                        directions.forEach(dir => {
+                        const thrLat = rw.threshold_lat,
+                            thrLon = rw.threshold_lon,
+                            thrElevFt = rw.threshold_elev_ft;
+                        const slopeVal = rw.slope,
+                            slopeSign = rw.slope_sign || '';
+                        directions.forEach((dir) => {
                             const designation = dir.trim();
-                            const coordStr = (thrLat != null && thrLon != null) ? `${toDMS(thrLat, true)} ${toDMS(thrLon, false)}` : '—';
+                            const coordStr =
+                                thrLat != null && thrLon != null
+                                    ? `${toDMS(thrLat, true)} ${toDMS(thrLon, false)}`
+                                    : '—';
                             const thrElevStr = thrElevFt != null ? `${thrElevFt} ft` : '—';
                             let slopeStr = '—';
                             if (slopeVal != null) {
-                                const signChar = (slopeSign === 'U' || slopeSign === 'u') ? 'U' : (slopeSign === 'D' || slopeSign === 'd') ? 'D' : '';
+                                const signChar =
+                                    slopeSign === 'U' || slopeSign === 'u'
+                                        ? 'U'
+                                        : slopeSign === 'D' || slopeSign === 'd'
+                                          ? 'D'
+                                          : '';
                                 slopeStr = `${slopeVal}% ${signChar}`.trim();
                             }
                             rowsHtml += `<tr>
@@ -1203,49 +1454,37 @@
                 return rowsHtml;
             }
 
-            // ── SIGMET fetching & filtering ─────────────────
-            async function fetchAndDisplaySigmet(icao) {
-                try {
-                    const res = await safeFetch(`https://aviationweather.gov/api/data/sigmet`);
-                    const allSigmets = await res.json();
-                    if (!allSigmets || allSigmets.length === 0) {
-                        sigmetRawLines = [];
-                        updateSigmetDisplay();
-                        return;
-                    }
-                    const region = icao.substring(0, 2).toUpperCase();
-                    const relevant = allSigmets.filter(s => s.raw && s.raw.toUpperCase().includes(region));
-                    if (relevant.length === 0) {
-                        sigmetRawLines = [];
-                    } else {
-                        sigmetRawLines = relevant.map(s => ({
-                            raw: s.raw.trim(),
-                            issued: parseSigmetIssued(s.raw)
-                        }));
-                        sigmetRawLines.sort((a,b) => (b.issued?.getTime()||0) - (a.issued?.getTime()||0));
-                    }
-                } catch (e) {
-                    console.warn('SIGMET fetch failed:', e);
-                    sigmetRawLines = [];
-                }
-                updateSigmetDisplay();
-                updateAges();
-            }
-
-            // ── Main search flow ─────────────────────────
+            // ── Main search flow ────────────────────────
             async function searchWeather(icaoOverride) {
-                const icao = (icaoOverride || icaoInput.value).trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+                const icao = (icaoOverride || icaoInput.value)
+                    .trim()
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]/g, '');
                 if (!icao || icao.length < 4) {
                     setIdleState();
-                    metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
+                    metarRawLines = [];
+                    tafRaw = '';
+                    metarIssuedTime = null;
+                    tafIssuedTime = null;
+                    airportFetchTime = null;
+                    currentAirportObj = null;
                     return;
                 }
                 if (!icao.startsWith('FA')) {
                     setLoadingState();
-                    metarBody.innerHTML = '<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>';
-                    tafBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
-                    sigmetBody.innerHTML = '<span class="placeholder">🚫 Only South African airports are supported.</span>';
-                    metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
+                    metarBody.innerHTML =
+                        '<span class="placeholder">🚫 Only South African airports (FAxx) are supported.</span>';
+                    tafBody.innerHTML =
+                        '<span class="placeholder">🚫 Only South African airports are supported.</span>';
+                    diagramCanvas
+                        .getContext('2d')
+                        .clearRect(0, 0, diagramCanvas.width, diagramCanvas.height);
+                    metarRawLines = [];
+                    tafRaw = '';
+                    metarIssuedTime = null;
+                    tafIssuedTime = null;
+                    airportFetchTime = null;
+                    currentAirportObj = null;
                     icaoInput.value = icao;
                     return;
                 }
@@ -1253,18 +1492,23 @@
                 lastIcao = icao;
                 icaoInput.value = icao;
                 setLoadingState();
-                metarRawLines = []; tafRaw = ''; metarIssuedTime = null; tafIssuedTime = null; airportFetchTime = null;
-                sigmetRawLines = [];
-                searchBtn.style.opacity = '0.5'; searchBtn.style.pointerEvents = 'none';
+                metarRawLines = [];
+                tafRaw = '';
+                metarIssuedTime = null;
+                tafIssuedTime = null;
+                airportFetchTime = null;
+                currentAirportObj = null;
+                searchBtn.style.opacity = '0.5';
+                searchBtn.style.pointerEvents = 'none';
 
                 try {
                     const [metarRes, tafRes, airportRes] = await Promise.allSettled([
-                        safeFetch(`https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`),
+                        safeFetch(
+                            `https://aviationweather.gov/api/data/metar?ids=${icao}&format=json&taf=false`
+                        ),
                         safeFetch(`https://aviationweather.gov/api/data/taf?ids=${icao}&format=json`),
-                        safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`)
+                        safeFetch(`https://aviationweather.gov/api/data/airport?ids=${icao}&format=json`),
                     ]);
-                    // SIGMET called separately so it doesn't block
-                    fetchAndDisplaySigmet(icao);
 
                     // METAR
                     let metarOk = false;
@@ -1272,10 +1516,13 @@
                         try {
                             const data = await metarRes.value.json();
                             if (data && data.length > 0) {
-                                metarRawLines = data.filter(d => d.rawOb).map(d => d.rawOb.trim());
+                                metarRawLines = data
+                                    .filter((d) => d.rawOb)
+                                    .map((d) => d.rawOb.trim());
                                 metarRawLines = [...new Set(metarRawLines)];
                                 if (metarRawLines.length > 0) {
                                     metarIssuedTime = parseMetarIssued(metarRawLines[0]);
+                                    currentWind = parseWindFromMETAR(metarRawLines[0]);
                                     metarOk = true;
                                     updateMetarDisplay();
                                     updateDecoded(metarRawLines[0]);
@@ -1317,16 +1564,22 @@
                                     elevation_ft: apt.elev_ft,
                                     lat: apt.lat,
                                     lon: apt.lon,
-                                    runways: (apt.runways || []).map(rw => ({
+                                    runways: (apt.runways || []).map((rw) => ({
                                         id: rw.id || rw.name || null,
                                         surface: rw.surface,
-                                        threshold_lat: rw.threshold_lat, threshold_lon: rw.threshold_lon,
+                                        threshold_lat: rw.threshold_lat,
+                                        threshold_lon: rw.threshold_lon,
                                         threshold_elev_ft: rw.threshold_elev_ft,
-                                        slope: rw.slope, slope_sign: rw.slope_sign,
-                                        length_ft: rw.length_ft, width_ft: rw.width_ft
+                                        slope: rw.slope,
+                                        slope_sign: rw.slope_sign,
+                                        length_ft: rw.length_ft,
+                                        width_ft: rw.width_ft,
                                     })),
                                 };
-                                if (typeof AIRPORT_DATABASE !== 'undefined' && AIRPORT_DATABASE[icao]) {
+                                if (
+                                    typeof AIRPORT_DATABASE !== 'undefined' &&
+                                    AIRPORT_DATABASE[icao]
+                                ) {
                                     const local = AIRPORT_DATABASE[icao];
                                     if (local.elevation_ft != null) {
                                         mergedObj.elevation_ft = local.elevation_ft;
@@ -1339,6 +1592,7 @@
                         } catch (e) {}
                     }
                     airportFetchTime = mergedObj ? new Date() : null;
+                    currentAirportObj = mergedObj;
 
                     airportInfoGrid.innerHTML = buildAirportInfoHTML(icao, mergedObj);
                     runwayTableWrap.innerHTML = `<table class="runway-table">
@@ -1350,32 +1604,40 @@
                         <tbody>${buildRunwayTableHTML(mergedObj)}</tbody>
                     </table>`;
 
+                    // Draw the runway layout diagram
+                    updateDiagram();
                     startAgeUpdates();
                 } catch (err) {
                     console.error(err);
                     setIdleState();
                     metarBody.innerHTML = `<span class="placeholder">⚠️ No METAR was located for ${icao}.</span>`;
                     tafBody.innerHTML = `<span class="placeholder">⚠️ No TAF was located for ${icao}.</span>`;
-                    sigmetBody.innerHTML = '<span class="placeholder">⚠️ SIGMET unavailable.</span>';
                 } finally {
-                    searchBtn.style.opacity = '1'; searchBtn.style.pointerEvents = 'auto';
+                    searchBtn.style.opacity = '1';
+                    searchBtn.style.pointerEvents = 'auto';
                 }
             }
 
-            // Event listeners
+            // ── Event listeners ─────────────────────────
             metarColourToggle.addEventListener('change', updateMetarDisplay);
             tafColourToggle.addEventListener('change', updateTAFDisplay);
             tafFormatToggle.addEventListener('change', updateTAFDisplay);
-            sigmetColourToggle.addEventListener('change', updateSigmetDisplay);
 
             searchBtn.addEventListener('click', () => searchWeather());
-            icaoInput.addEventListener('keydown', e => {
-                if (e.key === 'Enter') { e.preventDefault(); searchWeather(); }
+            icaoInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    searchWeather();
+                }
             });
             icaoInput.addEventListener('input', () => {
-                icaoInput.value = icaoInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+                icaoInput.value = icaoInput.value
+                    .toUpperCase()
+                    .replace(/[^A-Z0-9]/g, '')
+                    .slice(0, 4);
             });
 
+            // Initialize
             setIdleState();
             icaoInput.focus();
         })();
