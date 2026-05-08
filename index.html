@@ -692,7 +692,7 @@
                 <div class="card-header">
                     <div class="card-header-left">
                         <span class="card-title"><span class="dot"></span> TAF</span>
-                        <span class="card-age" id="tafAge"></span>   <!-- No default text -->
+                        <span class="card-age" id="tafAge"></span>
                     </div>
                     <div class="toggle-wrap" style="gap:12px;">
                         <div class="toggle-wrap">
@@ -764,7 +764,8 @@
             let lastIcao = '';
             let metarRawLines = [];
             let tafRaw = '';
-            let metarReceiptTimes = [];
+            let metarIssuedTime = null;       // parsed from METAR raw
+            let metarReceiptTimes = [];       // kept but not used for age display
             let tafIssuedTime = null;
             let atisFetchTime = null;
             let airportFetchTime = null;
@@ -821,17 +822,17 @@
             }
 
             function updateAges() {
-                // METAR age – only show when data exists
-                if (metarReceiptTimes.length > 0) {
-                    metarAgeEl.textContent = `Issued: ${formatTimeAgo(metarReceiptTimes[0])}`;
+                // METAR age from parsed issue time
+                if (metarIssuedTime) {
+                    metarAgeEl.textContent = `Issued: ${formatTimeAgo(metarIssuedTime)}`;
                 } else {
                     metarAgeEl.textContent = '';
                 }
-                // TAF age – only show when TAF is loaded and time parsed
+                // TAF age
                 if (tafIssuedTime) {
                     tafAgeEl.textContent = `Issued: ${formatTimeAgo(tafIssuedTime)}`;
                 } else {
-                    tafAgeEl.textContent = '';   // blank until TAF appears
+                    tafAgeEl.textContent = '';
                 }
                 if (atisFetchTime) atisAgeEl.textContent = `Fetched: ${formatTimeAgo(atisFetchTime)}`;
                 if (airportFetchTime) airportAgeEl.textContent = `Fetched: ${formatTimeAgo(airportFetchTime)}`;
@@ -843,6 +844,28 @@
                 ageInterval = setInterval(updateAges, 25000);
             }
 
+            // Parse METAR issue time from raw string (e.g., "METAR FAOR 080400Z ...")
+            function parseMetarIssued(raw) {
+                if (!raw) return null;
+                let str = raw.trim();
+                // Remove leading "METAR " if present
+                str = str.replace(/^METAR\s+/i, '');
+                const match = str.match(/^([A-Z]{4})\s+(\d{2})(\d{2})(\d{2})Z/);
+                if (!match) return null;
+                const day = parseInt(match[2], 10);
+                const hour = parseInt(match[3], 10);
+                const minute = parseInt(match[4], 10);
+                const now = new Date();
+                const issued = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), day, hour, minute, 0));
+                if (issued > now) {
+                    // probably previous month
+                    const prevMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - 1, day, hour, minute, 0));
+                    return prevMonth <= now ? prevMonth : now;
+                }
+                return issued;
+            }
+
+            // Parse TAF issue time (same as before)
             function parseTAFIssued(raw) {
                 if (!raw) return null;
                 let str = raw.trim();
@@ -1052,7 +1075,7 @@
                     setBodyPlaceholder(atisBody, 'Waiting for valid ICAO...');
                     metarAgeEl.textContent = tafAgeEl.textContent = atisAgeEl.textContent = '';
                     hideDecoded(); hideAirportInfo();
-                    metarRawLines = []; tafRaw = ''; metarReceiptTimes = []; tafIssuedTime = null; atisFetchTime = null;
+                    metarRawLines = []; tafRaw = ''; metarIssuedTime = null; metarReceiptTimes = []; tafIssuedTime = null; atisFetchTime = null;
                     return;
                 }
                 if (!icao.startsWith('FA')) {
@@ -1061,7 +1084,7 @@
                     setBodyPlaceholder(atisBody, `🚫 Only South African airports are supported.`);
                     hideDecoded(); hideAirportInfo();
                     metarAgeEl.textContent = tafAgeEl.textContent = atisAgeEl.textContent = '';
-                    metarRawLines = []; tafRaw = ''; metarReceiptTimes = []; tafIssuedTime = null; atisFetchTime = null;
+                    metarRawLines = []; tafRaw = ''; metarIssuedTime = null; metarReceiptTimes = []; tafIssuedTime = null; atisFetchTime = null;
                     icaoInput.value = icao;
                     return;
                 }
@@ -1073,7 +1096,7 @@
                 atisBody.innerHTML = '<div class="shimmer"></div>';
                 metarAgeEl.textContent = tafAgeEl.textContent = atisAgeEl.textContent = '';
                 hideDecoded(); hideAirportInfo();
-                metarRawLines = []; tafRaw = ''; metarReceiptTimes = []; tafIssuedTime = null; atisFetchTime = null; airportFetchTime = null;
+                metarRawLines = []; tafRaw = ''; metarIssuedTime = null; metarReceiptTimes = []; tafIssuedTime = null; atisFetchTime = null; airportFetchTime = null;
                 searchBtn.style.opacity = '0.5'; searchBtn.style.pointerEvents = 'none';
 
                 try {
@@ -1092,19 +1115,28 @@
                                 metarRawLines = data.filter(d => d.rawOb).map(d => d.rawOb.trim());
                                 metarRawLines = [...new Set(metarRawLines)];
                                 metarReceiptTimes = data.filter(d => d.receiptTime).map(d => new Date(d.receiptTime)).sort((a,b) => b-a);
+                                // Parse issue time from the first (most recent) METAR
+                                if (metarRawLines.length > 0) {
+                                    metarIssuedTime = parseMetarIssued(metarRawLines[0]);
+                                } else {
+                                    metarIssuedTime = null;
+                                }
                                 updateMetarDisplay();
                                 if (metarRawLines.length) updateDecoded(metarRawLines[0]);
                             } else {
                                 setBodyPlaceholder(metarBody, `⚠️ No METAR was located for ${icao}.`);
                                 metarRawLines = [];
+                                metarIssuedTime = null;
                             }
                         } catch (e) {
                             setBodyPlaceholder(metarBody, `⚠️ No METAR was located for ${icao}.`);
                             metarRawLines = [];
+                            metarIssuedTime = null;
                         }
                     } else {
                         setBodyPlaceholder(metarBody, `⚠️ No METAR was located for ${icao}.`);
                         metarRawLines = [];
+                        metarIssuedTime = null;
                     }
 
                     // TAF
